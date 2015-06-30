@@ -4,9 +4,9 @@ import org.scalatest.FlatSpec
 
 class PathSpec extends FlatSpec {
 
-  behavior of "Path.Empty"
+  behavior of "Empty"
 
-  it should "build have a string representation" in {
+  it should "have a string representation" in {
     assert(Path.Empty.value === "")
   }
 
@@ -21,82 +21,151 @@ class PathSpec extends FlatSpec {
     }
   }
 
-  it should "compose paths with /" in {
-    assert(Path.Empty / Path.Absolute("a", Path.Empty) === Path.Absolute("a", Path.Empty))
-    assert(Path.Empty / Path.Relative("a", Path.Empty) === Path.Absolute("a", Path.Empty))
-    assert(Path.Empty / Path.Slash === Path.Slash)
-    assert(Path.Empty / Path.Empty === Path.Slash)
-  }
-
-  behavior of "/"
+  behavior of "Slash"
 
   it should "have a string representation" in {
     assert(Path.Slash.value === "/")
   }
 
-  it should "parse parsed from a string" in {
+  it should "be parsed from a string" in {
     assert(Path("/") === Path.Slash)
   }
 
-  it should "compose paths with /" in {
-    assert(Path.Slash / Path.Absolute("a", Path.Empty) === Path.Absolute("a", Path.Empty))
-    assert(Path.Slash / Path.Relative("a", Path.Empty) === Path.Absolute("a", Path.Empty))
-    assert(Path.Slash / Path.Slash === Path.Slash)
-    assert(Path.Slash / Path.Empty === Path.Slash)
+  it should "pattern match" in {
+    Path("/") match {
+      case Path.Slash => //nop
+      case _ => fail("Should match Path.Slash")
+    }
   }
 
-  behavior of "AbsolutePath"
+  it should "compose paths with /" in {
+    assert((Path.Slash / "a").value === "/a")
+    assert((Path.Slash / "").value === "/")
+  }
+
+  behavior of "Absolute"
 
   it should "have a string representation" in {
-    assert(Path.Absolute("departments", Path.Absolute("1", Path.Empty)).value === "/departments/1")
-    assert(Path.Absolute("departments", Path.Absolute("1", Path.Slash)).value === "/departments/1/")
+    assert((Path.Slash / "departments").value === "/departments")
   }
 
   it should "be parsed from a string" in {
-    assert(Path("/departments/1") === Path.Absolute("departments", Path.Absolute("1", Path.Empty)))
-    assert(Path("/departments/1/") === Path.Absolute("departments", Path.Absolute("1", Path.Slash)))
+    assert(Path("/departments/1") === Path.Slash / "departments" / "1")
+    assert(Path("/departments/1/") === Path.Slash / "departments" / "1" / "")
+  }
+
+  it should "pattern match" in {
+    Path("/departments/23") match {
+      case Path.Slash / "departments" / d => assert(d === "23")
+      case _ => fail("Should match Path.Slash / departments / id")
+    }
+    Path("/departments/foo/") match {
+      case Path.Slash / d / "foo" / "" => assert(d === "departments")
+      case _ => fail("Should pattern match")
+    }
   }
 
   it should "compose paths with /" in {
-    val depts = Path.Absolute("departments", Path.Slash)
-    val dept1 = Path.Absolute("departments", Path.Absolute("1", Path.Empty))
-    assert(dept1 / Path.Absolute("a", Path.Empty) === Path.Absolute("departments", Path.Absolute("1", Path.Absolute("a", Path.Empty))))
-    assert(dept1 / Path.Relative("a", Path.Empty) === Path.Absolute("departments", Path.Absolute("1", Path.Absolute("a", Path.Empty))))
-    assert(dept1 / Path.Slash === Path.Absolute("departments", Path.Absolute("1", Path.Slash)))
-    assert(dept1 / Path.Empty === Path.Absolute("departments", Path.Absolute("1", Path.Slash)))
+    val depts = Path.Slash / "departments" / ""
+    val dept1 = Path.Slash / "departments" / "1"
+    assert((dept1 / "a").value === "/departments/1/a")
+    assert((dept1 / "").value === "/departments/1/")
 
-    assert(depts / Path.Absolute("a", Path.Empty) === Path.Absolute("departments", Path.Absolute("a", Path.Empty)))
-    assert(depts / Path.Relative("a", Path.Empty) === Path.Absolute("departments", Path.Absolute("a", Path.Empty)))
-    assert(depts / Path.Slash === depts)
-    assert(depts / Path.Empty === depts)
+    assert((depts / "a").value === "/departments/a")
+    assert((depts / "").value === "/departments/")
   }
 
-  behavior of "RelativePath"
+  behavior of "Base"
 
   it should "have a string representation" in {
-    assert(Path.Relative("departments", Path.Absolute("1", Path.Empty)).value === "departments/1")
-    assert(Path.Relative("departments", Path.Absolute("1", Path.Slash)).value === "departments/1/")
+    assert(Path.Base.value === ".")
   }
 
   it should "be parsed from a string" in {
-    assert(Path("departments/1") === Path.Relative("departments", Path.Absolute("1", Path.Empty)))
-    assert(Path("departments/1/") === Path.Relative("departments", Path.Absolute("1", Path.Slash)))
+    assert(Path(".") === Path.Base)
+  }
+
+  it should "pattern match" in {
+    Path(".") match {
+      case Path.Base => //nop
+      case _ => fail("Should match Path.Base")
+    }
   }
 
   it should "compose paths with /" in {
-    val depts = Path.Relative("departments", Path.Slash)
-    val dept1 = Path.Relative("departments", Path.Absolute("1", Path.Empty))
-    assert(dept1 / Path.Absolute("a", Path.Empty) === Path.Relative("departments", Path.Absolute("1", Path.Absolute("a", Path.Empty))))
-    assert(dept1 / Path.Relative("a", Path.Empty) === Path.Relative("departments", Path.Absolute("1", Path.Absolute("a", Path.Empty))))
-    assert(dept1 / Path.Slash === Path.Relative("departments", Path.Absolute("1", Path.Slash)))
-    assert(dept1 / Path.Empty === Path.Relative("departments", Path.Absolute("1", Path.Slash)))
+    assert((Path.Base / "departments").value === "departments")
+  }
 
-    assert(depts / Path.Absolute("a", Path.Empty) === Path.Relative("departments", Path.Absolute("a", Path.Empty)))
-    assert(depts / Path.Relative("a", Path.Empty) === Path.Relative("departments", Path.Absolute("a", Path.Empty)))
-    assert(depts / Path.Slash === depts)
-    assert(depts / Path.Empty === depts)
+  behavior of "Relative"
+
+  it should "have a string representation" in {
+    assert((Path.Base / "departments").value === "departments")
+  }
+
+  it should "be parsed from a string" in {
+    assert(Path("departments/1") === Path.Base / "departments" / "1")
+    assert(Path("departments/1/") === Path.Base / "departments" / "1" / "")
+  }
+
+  it should "pattern match" in {
+    Path("departments/23") match {
+      case Path.Base / "departments" / d => assert(d === "23")
+      case _ => fail("Should match Path.Base / departments / id")
+    }
+    Path("departments/foo/") match {
+      case Path.Base / d / "foo" / "" => assert(d === "departments")
+      case _ => fail("Should pattern match")
+    }
   }
 
 
+  it should "compose paths with /" in {
+    val depts = Path.Base / "departments" / ""
+    val dept1 = Path.Base / "departments" / "1"
+    assert((dept1 / "a").value === "departments/1/a")
+    assert((dept1 / "").value === "departments/1/")
+
+    assert((depts / "a").value === "departments/a")
+    assert((depts / "").value === "departments/")
+  }
+
+  behavior of ".."
+
+  it should "work with absolute paths" in {
+    assert(Path("/departments/23/..").value === "/departments")
+    assert(Path("/departments/23/../12").value === "/departments/12")
+    assert(Path("/departments/23/../12") === Path.Slash / "departments" / "23" / ".." / "12")
+    assert(Path("/departments/23/../..").value === "/")
+    assert(Path("/departments/23/../../../..").value === "/")
+  }
+
+  it should "work with relative paths" in {
+    assert(Path("departments/23/..").value === "departments")
+    assert(Path("departments/23/../12").value === "departments/12")
+    assert(Path("departments/23/../12") === Path.Base / "departments" / "23" / ".." / "12")
+    assert(Path("departments/23/../..").value === ".")
+    assert(Path("departments/23/../../../..").value === "../..")
+  }
+
+  behavior of "."
+
+  it should "work with absolute paths" in {
+    assert(Path("/departments/23/./12") === Path.Slash / "departments" / "23" / "." / "12")
+    assert(Path("/departments/23/.").value === "/departments/23")
+    assert(Path("/departments/23/./").value === "/departments/23/")
+    assert(Path("/departments/23/./12").value === "/departments/23/12")
+    assert(Path("/departments/././23").value === "/departments/23")
+    assert(Path("/departments/23/./././.").value === "/departments/23")
+  }
+
+  it should "work with relative paths" in {
+    assert(Path("departments/23/./12") === Path.Base / "departments" / "23" / "." / "12")
+    assert(Path("departments/23/.").value === "departments/23")
+    assert(Path("departments/23/./").value === "departments/23/")
+    assert(Path("departments/23/./12").value === "departments/23/12")
+    assert(Path("departments/././23").value === "departments/23")
+    assert(Path("departments/23/./././.").value === "departments/23")
+    assert(Path.Base / "." === Path.Base)
+  }
 
 }
