@@ -42,4 +42,10 @@ class UriSpec extends FlatSpec{
     assert(a.toString === s"http://example.com/departments?$q#$f")
   }
 
+  it should "have an encoded form" in{
+    val u = Uri.absolute("http",Authority("example.com"), Path.Slash / "/--?--#--[--]", Some("#--[--]"), Some("#--[--]"))
+    val encoded = u.encoded
+    assert(encoded === "http://example.com/%2F---%3F--%23--%5B--%5D?%23--%5B--%5D#%23--%5B--%5D")
+  }
+
 }

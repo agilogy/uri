@@ -20,14 +20,14 @@ trait UriReference{
       result.append("//")
       result.append(authority.toString)
     }
-    result.append(path)
+    result.append(path.encoded)
     query.foreach{ q =>
       result.append("?")
-      result.append(q)
+      result.append(q.encoded)
     }
     fragment.foreach{ f =>
       result.append("#")
-      result.append(f)
+      result.append(f.encoded)
     }
     result.toString
 
@@ -37,20 +37,38 @@ trait UriReference{
 
 }
 
-case class Scheme(value: String) extends AnyVal{
+case class Scheme (value: String) extends AnyVal{
+
   override def toString: String = value
+
+  def validate():Unit = {
+    if(Scheme.validSchemeRE.unapplySeq(value).isEmpty) throw new IllegalArgumentException("Illegal scheme")
+  }
+
 }
 
 object Scheme {
   val http = Scheme("http")
   val https = Scheme("https")
+
+  val validSchemeRE = """[a-zA-Z][a-zA-Z0-9+-\.]+""".r
 }
 
 case class Query(value: String) extends AnyVal{
+  def encoded: String = {
+    import Encoder._
+    value.pctEncode(query2Encode)
+  }
+
   override def toString: String = value
 }
 
 case class Fragment(value: String) extends AnyVal{
+  def encoded: String = {
+    import Encoder._
+    value.pctEncode(fragment2Encode)
+  }
+
   override def toString: String = value
 }
 

@@ -1,10 +1,19 @@
 package com.agilogy.uri
 
+import com.agilogy.uri.Encoder._
+
 case class UserInfo(value:String) extends AnyVal{
+
+  def encoded: String = {
+    import Encoder._
+    value.pctEncode(userInfo2Encode)
+  }
+
   override def toString: String = value
 }
 
 case class Host(value:String) extends AnyVal{
+  def encoded:String = value
   override def toString: String = value
 }
 
@@ -13,11 +22,15 @@ case class Port(value:Int) extends AnyVal{
 }
 
 case class Authority(userInfo:Option[UserInfo], host:Host, port:Option[Port]){
-  override def toString: String = {
-    def sUserInfo = userInfo.map(ui => s"${ui.value}@").getOrElse("")
+
+  lazy val encoded: String = {
+    import Encoder._
+    def sUserInfo = userInfo.map(ui => s"${ui.encoded}@").getOrElse("")
     def sPort = port.map(p => s":$p").getOrElse("")
-    s"$sUserInfo$host$sPort"
+    val sHost = host.encoded
+    s"$sUserInfo$sHost$sPort"
   }
+  override def toString:String = encoded
 }
 
 object Authority{

@@ -2,6 +2,8 @@ package com.agilogy.uri
 
 sealed trait Path {
 
+  def encoded:String
+
   val value: String
 
   override def toString: String = value
@@ -46,6 +48,7 @@ object Path {
 
     override val value: String = ""
 
+    override lazy val encoded: String = ""
   }
 
   trait Absolute extends Path with AbsoluteOrEmpty {
@@ -58,10 +61,13 @@ object Path {
 
     override val value: String = "/"
 
+    override lazy val encoded: String = "/"
+
     override def /(segment: String): Absolute = {
       if (segment.isEmpty || segment == ".") Slash
       else new AbsoluteCompound(Slash, segment)
     }
+
 
   }
 
@@ -70,6 +76,13 @@ object Path {
     override val value: String = {
       if(parent == Slash) s"/$segment"
       else s"${parent.value}/$segment"
+    }
+
+    override lazy val encoded: String = {
+      import Encoder._
+      val encodedSegment = segment.pctEncode(path2Encode)
+      if(parent == Slash) s"/$encodedSegment"
+      else s"${parent.encoded}/$encodedSegment"
     }
 
     def /(segment: String): Absolute = {
@@ -96,6 +109,7 @@ object Path {
 
     override val value: String = "."
 
+    override def encoded: String = "."
   }
 
   case class RelativeCompound(parent: Relative, segment: String) extends Relative {
@@ -104,6 +118,14 @@ object Path {
       if (parent == Base) segment
       else s"${parent.value}/$segment"
     }
+
+    override lazy val encoded: String = {
+      import Encoder._
+      val encodedSegment = segment.pctEncode(path2Encode)
+      if (parent == Base) encodedSegment
+      else s"${parent.encoded}/$encodedSegment"
+    }
+
 
     override def /(segment: String): Relative = {
       if (this.segment.isEmpty) parent / segment
