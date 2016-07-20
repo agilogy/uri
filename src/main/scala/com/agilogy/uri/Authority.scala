@@ -1,43 +1,57 @@
 package com.agilogy.uri
 
-import com.agilogy.uri.Encoder._
+import scala.util.{Failure, Success, Try}
 
-case class UserInfo(value:String) extends AnyVal{
+abstract case class UserInfo private (stringValue:String) {
+  override def toString: String = s"""UserInfo("$stringValue")"""
+  def asciiStringValue = Encoder.asciiEncode(stringValue)
+}
 
-  def encoded: String = {
-    import Encoder._
-    value.pctEncode(userInfo2Encode)
+object UserInfo{
+  def apply(s:String):UserInfo = new UserInfo(Encoder.normalize(s)){}
+}
+
+abstract case class Port private (intValue:Int){
+  val stringValue:String = intValue.toString
+  val asciiStringValue:String = stringValue
+}
+
+object Port{
+  def apply(v:Int):Port = {
+    require(v >= 0)
+    new Port(v){}
   }
-
-  override def toString: String = value
 }
 
-case class Host(value:String) extends AnyVal{
-  def encoded:String = value
-  override def toString: String = value
-}
+case class Authority(userInfo: Option[UserInfo], host: Host, port: Option[Port]) {
 
-case class Port(value:Int) extends AnyVal{
-  override def toString: String = value.toString
-}
+  def stringValue:String = Encoder.quoteAuthority(this)
+  def asciiStringValue:String = Encoder.asciiEncode(stringValue)
 
-case class Authority(userInfo:Option[UserInfo], host:Host, port:Option[Port]){
-
-  lazy val encoded: String = {
-    import Encoder._
-    def sUserInfo = userInfo.map(ui => s"${ui.encoded}@").getOrElse("")
-    def sPort = port.map(p => s":$p").getOrElse("")
-    val sHost = host.encoded
-    s"$sUserInfo$sHost$sPort"
-  }
-  override def toString:String = encoded
 }
 
 object Authority{
 
-  def apply(host:String): Authority = Authority(userInfo = None, Host(host), port = None)
+  def apply(host:Host):Authority = Authority(None, host, None)
+  def apply(host:String):Authority = Authority(RegisteredName(host))
+  def apply(userInfo: UserInfo, host:Host):Authority = Authority(Some(userInfo), host, None)
+  def apply(userInfo: String, host:String):Authority = Authority(UserInfo(userInfo),RegisteredName(host))
+  def apply(host:Host, port: Port):Authority = Authority(None, host, Some(port))
+  def apply(host:String, port: Int):Authority = Authority(RegisteredName(host),Port(port))
+  def apply(userInfo: UserInfo, host:Host, port: Port):Authority = Authority(Some(userInfo), host, Some(port))
+  def apply(userInfo: String, host:String, port: Int):Authority = Authority(UserInfo(userInfo),RegisteredName(host),Port(port))
 
-  def apply(host:String, port:Int):Authority = Authority(userInfo = None, Host(host), Some(Port(port)))
+  private val AuthorityRe = "(([^/?#@]*)@)?([^/?#@:]*)(:([0-9]*))?".r
 
-  def apply(userInfo:String, host:String, port:Int):Authority = Authority(Some(UserInfo(userInfo)), Host(host), Some(Port(port)))
+  def parse(s:String):Try[Authority] = {
+    s match {
+      case AuthorityRe(_,sUserInfo,sHost,_,sPort) =>
+        val userInfo = Option(sUserInfo).map(ui => UserInfo(Encoder.decode(ui)))
+        val host = RegisteredName(Encoder.decode(Option(sHost).getOrElse("")))
+        val port = Option(sPort).map(p => Port(p.toInt))
+        Success(Authority(userInfo,host,port))
+      case _ =>
+        Failure(new IllegalArgumentException(s"Illegal authority: $s"))
+    }
+  }
 }

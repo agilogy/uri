@@ -1,141 +1,118 @@
 package com.agilogy.uri
 
-sealed trait Path {
+import scala.util.{Success, Try}
 
-  def encoded:String
-
-  val value: String
-
-  override def toString: String = value
-
+trait Path {
+  type PathWithSegmentsType <: Path with PathWithSegments
+  def isAbsolute: Boolean
+  def segments:Seq[Segment]
+  def stringValue:String
+  def asciiStringValue:String = Encoder.asciiEncode(stringValue)
+//  override def toString: String = segments.map(_.toString).mkString("/")
+  def /(s:Segment):PathWithSegmentsType
+  def /(s:String): PathWithSegmentsType = this / Segment(s)
 }
 
-object / {
+object Path{
+  val Slash = Path / ""
+  def / (s:Segment): AbsoluteSingleSegmentPath = AbsoluteSingleSegmentPath(s)
+  def / (s:String): AbsoluteSingleSegmentPath = Path / Segment(s)
+  def apply(s:Segment): RootlessPath = RootlessSingleSegmentPath(s)
+  def apply(s:String): RootlessPath = apply(Segment(s))
 
-  def unapply(p:Path):Option[(Path, String)] = p match {
-    case Path.AbsoluteCompound(a,s) => Some(a,s)
-    case Path.RelativeCompound(r,s) => Some(r,s)
-    case _ => None
-  }
+  private val AbsolutePathRe = "(/[^?#]*)+".r
+  private val RelativePathRe = "([^?#/]+)(/[^?#]*)*".r
 
-}
+  private val SegmentRe = "/([^?#/]*)".r
 
-
-object Path {
-
-  def apply(s: String): Path = s match {
-    case "" => Empty
-    case "/" => Path.Slash
-    case _ if s.startsWith("/") =>
-      val p = s.split("/").foldLeft[Absolute](Slash) {
-        case (acc, segment) => acc / segment
-      }
-      if (s.endsWith("/")) p / ""
-      else p
-    case _ =>
-      val p = s.split("/").foldLeft[Relative](Base) {
-        case (acc, segment) => acc / segment
-      }
-      if (s.endsWith("/")) p / ""
-      else p
-  }
-
-  trait AbsoluteOrEmpty {
-    self: Path =>
-  }
-
-  case object Empty extends Path with AbsoluteOrEmpty {
-
-    override val value: String = ""
-
-    override lazy val encoded: String = ""
-  }
-
-  trait Absolute extends Path with AbsoluteOrEmpty {
-
-    def /(segment: String): Absolute
-
-  }
-
-  object Slash extends Absolute {
-
-    override val value: String = "/"
-
-    override lazy val encoded: String = "/"
-
-    override def /(segment: String): Absolute = {
-      if (segment.isEmpty || segment == ".") Slash
-      else new AbsoluteCompound(Slash, segment)
+  def parse(s:String):Try[Option[Path]] = {
+    s match {
+      case "" => Success(None)
+      case AbsolutePathRe(_) =>
+        val res = SegmentRe.findAllIn(s).matchData.foldLeft[Option[AbsolutePath]](None){
+          case (acc,m) => Some(acc.fold[AbsolutePath](Path / Encoder.decode(m.group(1)))(_ / Encoder.decode(m.group(1))))
+        }
+        Success(res)
+      case RelativePathRe(headSegment,segmentsOrNull) =>
+//        println(s"Matched relative $headSegment, $segmentsOrNull")
+        val segments = Option(segmentsOrNull).getOrElse("")
+        val res = SegmentRe.findAllIn(segments).matchData.foldLeft[RootlessPath](RootlessSingleSegmentPath(Segment(Encoder.decode(headSegment)))){
+          case (acc,m) => acc / Encoder.decode(m.group(1))
+        }
+        Success(Some(res))
     }
-
-
-  }
-
-  case class AbsoluteCompound(parent: Absolute, segment: String) extends Absolute {
-
-    override val value: String = {
-      if(parent == Slash) s"/$segment"
-      else s"${parent.value}/$segment"
-    }
-
-    override lazy val encoded: String = {
-      import Encoder._
-      val encodedSegment = segment.pctEncode(path2Encode)
-      if(parent == Slash) s"/$encodedSegment"
-      else s"${parent.encoded}/$encodedSegment"
-    }
-
-    def /(segment: String): Absolute = {
-      if (this.segment.isEmpty) parent / segment
-      else if (segment == "..") parent
-      else if (segment == ".") this
-      else new AbsoluteCompound(this, segment)
-    }
-
-  }
-
-  trait Relative extends Path {
-
-    def /(segment: String): Relative
-
-  }
-
-  case object Base extends Relative {
-
-    override def /(segment: String): Relative = {
-      if(segment == ".") Base
-      else RelativeCompound(this, segment)
-    }
-
-    override val value: String = "."
-
-    override def encoded: String = "."
-  }
-
-  case class RelativeCompound(parent: Relative, segment: String) extends Relative {
-
-    override val value: String = {
-      if (parent == Base) segment
-      else s"${parent.value}/$segment"
-    }
-
-    override lazy val encoded: String = {
-      import Encoder._
-      val encodedSegment = segment.pctEncode(path2Encode)
-      if (parent == Base) encodedSegment
-      else s"${parent.encoded}/$encodedSegment"
-    }
-
-
-    override def /(segment: String): Relative = {
-      if (this.segment.isEmpty) parent / segment
-      else if (segment == ".") this
-      else if (segment == ".." && this.segment != "..") parent
-      else RelativeCompound(this, segment)
-
-    }
-
   }
 
 }
 
+trait PathWithSegments {
+  self:Path =>
+}
+
+trait AbsolutePath extends Path{
+  type PathWithSegmentsType = NonEmptyAbsolutePath
+//  def /(s:String): NonEmptyAbsolutePath = this / Segment(s)
+  def /(s:Segment): NonEmptyAbsolutePath = NonEmptyAbsolutePath(this,s)
+  override def isAbsolute: Boolean = true
+  override def stringValue: String = segments.map(s => "/" + Encoder.quoteSegment(s)).mkString("")
+
+  override def toString: String = s"""AbsolutePath(${segments.map(_.toString).mkString(",")})"""
+}
+
+object AbsolutePath{
+  def apply(segments:Segment*):AbsolutePath = {
+    require(segments.nonEmpty)
+    val (head :: tail) = segments.toList
+    tail.foldLeft[AbsolutePath](AbsoluteSingleSegmentPath(head))(_ / _)
+  }
+}
+
+case class NonEmptyAbsolutePath(parent:AbsolutePath, segment:Segment) extends AbsolutePath with PathWithSegments{
+  override def segments: Seq[Segment] = parent.segments :+ segment
+}
+
+trait RootlessPath extends Path{
+
+  type PathWithSegmentsType = ConsRootlessPath
+
+  def parentOption:Option[RootlessPath]
+  val segment:Segment
+  override def isAbsolute: Boolean = false
+
+  override def stringValue: String = segments.map(s => Encoder.quoteSegment(s)).mkString("/")
+  override def toString: String = s"""RootlessPath(${segments.map(_.toString).mkString(",")})"""
+
+}
+
+object RootlessPath{
+  def apply(segments:Segment*):RootlessPath = {
+    require(segments.nonEmpty)
+    val (head :: tail) = segments.toList
+    tail.foldLeft[RootlessPath](RootlessSingleSegmentPath(head))(_ / _)
+  }
+}
+
+case class ConsRootlessPath(parent:RootlessPath, segment:Segment) extends RootlessPath with PathWithSegments{
+
+  def /(s:Segment): ConsRootlessPath = ConsRootlessPath(this,s)
+
+  override def segments: Seq[Segment] = parent.segments :+ segment
+
+  override def parentOption: Some[RootlessPath] = Some(parent)
+}
+
+case class AbsoluteSingleSegmentPath(segment: Segment) extends AbsolutePath {
+
+  override def segments: Seq[Segment] = Seq(segment)
+}
+
+case class RootlessSingleSegmentPath(segment: Segment) extends RootlessPath {
+
+  require(segment.stringValue.nonEmpty, "The first segment of a rootless path can't be empty")
+
+  override def parentOption: None.type = None
+
+  override def segments: Seq[Segment] = Seq(segment)
+
+  override def /(s: Segment): ConsRootlessPath = ConsRootlessPath(this,s)
+}
