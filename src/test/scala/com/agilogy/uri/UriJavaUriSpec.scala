@@ -13,7 +13,7 @@ class UriJavaUriSpec extends FreeSpec with GeneratorDrivenPropertyChecks with Sh
 //    val u = CompleteUri(Scheme("v5v"),None,Some(RootlessPath(Segment("abc"))),None,None)
 //    val u = CompleteUri(Scheme("foo"),None,Some(RootlessPath(Segment("}iV쵑"))), None, None)
 //    assert(u.authority.isEmpty)
-    val u = CompleteUri(Scheme("r+"),Some(Authority(Some(UserInfo("1gs")),RegisteredName("-$"),None)),Some(AbsolutePath(Segment("F;c"),Segment("𥳐L2*-2]¤S"),Segment("T=l"),Segment("_,齈wb/"),Segment("L,["))),None,None)
+    val u = CompleteUri(Scheme("r+"),Some(Authority(Some(UserInfo("1gs")),RegisteredName("-$"),None)),Path.absolute(Segment("F;c"), Segment("𥳐L2*-2]¤S"), Segment("T=l"), Segment("_,齈wb/"), Segment("L,[")),None,None)
     val ju = u.toJava
     val su = ju.toString
     assert(new java.net.URI(su) === ju)
@@ -23,7 +23,7 @@ class UriJavaUriSpec extends FreeSpec with GeneratorDrivenPropertyChecks with Sh
   """Represent URI like java.net.URI""" in {
     forAll(uris) {
       u =>
-        if(u.path.nonEmpty || u.query.nonEmpty || u.fragment.nonEmpty || u.authority.exists(_.host.stringValue.nonEmpty)) {
+        if(!u.path.isEmpty || u.query.nonEmpty || u.fragment.nonEmpty || u.authority.exists(_.host.stringValue.nonEmpty)) {
           val ju = u.toJava
           val su = ju.toString
           assert(new java.net.URI(su) === ju)

@@ -147,7 +147,7 @@ object Encoder {
   def quoteUri(uri: Uri): String = {
     val sScheme = uri.scheme.stringValue
     val sAuthority = uri.authority.map(a => "//" + a.stringValue).getOrElse("")
-    val sPath = uri.path.map(_.stringValue).getOrElse("")
+    val sPath = uri.path.stringValue
     val sQuery = uri.query.map(q => "?" + Encoder.quote(q.stringValue,Encoder.queryChars)).getOrElse("")
     val sFragment = uri.fragment.map(f => "#" + f.stringValue).getOrElse("")
     s"$sScheme:$sAuthority$sPath$sQuery$sFragment"

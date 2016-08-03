@@ -8,16 +8,15 @@ class UriParseSpec extends FreeSpec with GeneratorDrivenPropertyChecks with Shou
 
   "Simple case" in {
     val uri = CompleteUri(Scheme("http"), Some(Authority(Some(UserInfo("쏦⥺맃꙽䐪%")), RegisteredName("阮䳐똦ꉫ⋃切鱙뻟➥ᘟ㡚"), Some(Port(49514)))),
-      Some(Path./("፷覀뎳ﹸ夏偩")/"듃㓯音ꨈ꾥䳊⻋吜"/"䧝䉟鮇鄽"/"ꝯ閵Ũ㊸"/"䵇ी᦮鰏莞"/"鈇ൃ퐗㥝▀ꏥኑ嚷뛿"/"䱩"/"䙞튆"/""/"ⰶ겏ﱅ⺬펯䃙"/"쑢◚잲"),None,None)
+      Path / "፷覀뎳ﹸ夏偩" / "듃㓯音ꨈ꾥䳊⻋吜" / "䧝䉟鮇鄽" / "ꝯ閵Ũ㊸" / "䵇ी᦮鰏莞" / "鈇ൃ퐗㥝▀ꏥኑ嚷뛿" / "䱩" / "䙞튆" / "" / "ⰶ겏ﱅ⺬펯䃙" / "쑢◚잲",None,None)
     assert(Uri.parse(uri.stringValue).get === uri)
   }
 
   "Parse a path" in {
     val p = Path("a b") / "b"
     assert(p.stringValue === "a%20b/b")
-    assert(Path.parse(p.stringValue).success.value === Some(p))
+    assert(Path.parse(p.stringValue).success.value === p)
   }
-
 
   "Parse  the string value of an authority" in {
     forAll(authorities)(a => Authority.parse(a.stringValue).success.value should equal(a))

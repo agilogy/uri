@@ -62,10 +62,10 @@ class UriSpec extends FreeSpec with OptionValues with ShouldMatchers {
       "add a path to an authority uri" in {
         val uri = Uri("http", "www.example.com")
         val uri1 = uri / Segment("a")
-        assert(uri1.path.value === Path / "a")
+        assert(uri1.path === Path / "a")
         assert(uri / "a" === uri1)
         val uri2 = uri1 / Segment("b")
-        assert(uri2.path.value === Path / "a" / "b")
+        assert(uri2.path === Path / "a" / "b")
         assert(uri1 / "b" === uri2)
       }
 
@@ -104,7 +104,7 @@ class UriSpec extends FreeSpec with OptionValues with ShouldMatchers {
         assert(res.scheme === Scheme("http"))
         assert(res.theAuthority === res.authority.value)
         assert(res.theAuthority.host === RegisteredName("www.example.com"))
-        assert(res.path.value === Path / "employees" / "23")
+        assert(res.path === Path / "employees" / "23")
         assert(res.theQuery === res.query.value)
         assert(res.query.value === Query("withSalaryInfo=true"))
         assert(res.fragment.value === Fragment("salaryInfo"))
@@ -118,9 +118,9 @@ class UriSpec extends FreeSpec with OptionValues with ShouldMatchers {
 
       "build an authority uri ending in '/'" in {
         val res2 = Uri("http","www.example.com") / ""
-        assert(res2.path.value.isAbsolute)
-        assert(res2.path.value.segments.size === 1)
-        assert(res2.path.value.segments.head === Segment.Empty)
+        assert(res2.path.isAbsolute)
+        assert(res2.path.segments.size === 1)
+        assert(res2.path.segments.head === Segment.Empty)
       }
 
 //      "build an uri without authority nor path" in {
@@ -133,9 +133,8 @@ class UriSpec extends FreeSpec with OptionValues with ShouldMatchers {
       "build an uri without authority but with path" in {
         val authorityPathUri = Uri(Scheme("mailto"),Path("john@example.com"))
         assert(authorityPathUri.scheme === Scheme("mailto"))
-        assert(authorityPathUri.thePath === authorityPathUri.path.value)
-        assert(!authorityPathUri.thePath.isAbsolute)
-        assert(authorityPathUri.thePath.segments === Seq(Segment("john@example.com")))
+        assert(!authorityPathUri.path.isAbsolute)
+        assert(authorityPathUri.path.segments === Seq(Segment("john@example.com")))
         assert(Uri("mailto",Path("john@example.com")) === authorityPathUri)
       }
 

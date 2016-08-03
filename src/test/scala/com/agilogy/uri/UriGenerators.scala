@@ -47,13 +47,12 @@ object UriGenerators {
 
   val segments: Gen[Segment] = Gen.frequency(1 -> Gen.const(Segment.Empty), 9 -> nonEmptySegments)
 
-  lazy val absolutePaths: Gen[AbsolutePath] = {
+  lazy val absolutePaths: Gen[PathAbEmpty] = {
     Gen.sized { size =>
       for {
-        head <- segments
-        tailSize <- Gen.choose(0, size)
-        segmentList <- Gen.listOfN(tailSize, segments)
-      } yield segmentList.foldLeft[AbsolutePath](AbsoluteSingleSegmentPath(head))(_ / _)
+        size <- Gen.choose(0, size)
+        segmentList <- Gen.listOfN(size, segments)
+      } yield Path.absoluteOrEmpty(segmentList :_*)
     }
   }
 
@@ -83,14 +82,13 @@ object UriGenerators {
     s <- schemes
     a <- authorities
     p <- absolutePaths
-    op <- Gen.frequency(7 -> Some(p), 3 -> None)
     q <- Gen.option(queries)
     f <- Gen.option(fragments)
-  } yield CompleteUri(s, Some(a), op, q, None)
+  } yield CompleteUri(s, Some(a), p, q, None)
 
   val authoritylessUris = for {
     s <- schemes
-    p <- Gen.option(paths).filter(!_.exists(p => p.stringValue.startsWith("//")))
+    p <- paths if !p.stringValue.startsWith("//")
     q <- if(p.isEmpty) queries.map(Some.apply) else Gen.option(queries)
     f <- Gen.option(fragments)
   } yield CompleteUri(s, None, p, q, None)

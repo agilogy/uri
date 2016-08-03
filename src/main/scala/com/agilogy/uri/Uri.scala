@@ -10,7 +10,7 @@ trait Uri extends UriReference {
 
   def authority: Option[Authority]
 
-  def path: Option[Path]
+  def path: Path
 
   def query: Option[Query]
 
@@ -51,16 +51,6 @@ trait AuthorityUri extends Uri {
   def theAuthority: Authority
 
   override def authority: Some[Authority] = Some(theAuthority)
-}
-
-trait NoPathUri extends Uri {
-  override def path: None.type = None
-}
-
-trait PathUri extends Uri {
-  def thePath: Path
-
-  override def path: Some[Path] = Some(thePath)
 }
 
 trait NoQueryUri extends Uri{
@@ -137,29 +127,29 @@ trait UriBuilderF[S<:Uri] extends NoFragmentUri {
 //
 //}
 
-case class CompleteUri(scheme: Scheme, authority: Option[Authority], path: Option[Path] = None, query: Option[Query] = None, fragment: Option[Fragment] = None) extends Uri {
-  require(authority.nonEmpty || !path.exists(_.stringValue.startsWith("//")), s"An uri with no authority can't have a path starting with //: $this")
-  require(authority.isDefined || path.isDefined || query.isDefined, s"sExpected scheme-specific part with scheme ${scheme.stringValue}")
+case class CompleteUri(scheme: Scheme, authority: Option[Authority], path: Path, query: Option[Query] = None, fragment: Option[Fragment] = None) extends Uri {
+  require(authority.nonEmpty || !path.stringValue.startsWith("//"), s"An uri with no authority can't have a path starting with //: $this")
+  require(authority.isDefined || !path.isEmpty || query.isDefined, s"sExpected scheme-specific part with scheme ${scheme.stringValue}")
 }
 
 
-case class NoAuthorityPathUri(scheme: Scheme, thePath:Path) extends NoAuthorityUri with PathUri with UriBuilderQF[NoAuthorityUri with PathUri] {
+case class NoAuthorityPathUri(scheme: Scheme, path:Path) extends NoAuthorityUri with UriBuilderQF[NoAuthorityUri] {
 
   self =>
 
-  def ?(q: Query): NoAuthorityUri with PathUri with QueryUri with UriBuilderF[NoAuthorityUri with PathUri with QueryUri] =
-    new NoAuthorityUri with PathUri with QueryUri with UriBuilderF[NoAuthorityUri with PathUri with QueryUri]{
+  def ?(q: Query): NoAuthorityUri with QueryUri with UriBuilderF[NoAuthorityUri with QueryUri] =
+    new NoAuthorityUri with QueryUri with UriBuilderF[NoAuthorityUri with QueryUri]{
 
     override def scheme: Scheme = self.scheme
 
-    override def thePath: Path = self.thePath
+      override def path: Path = self.path
 
-    override def theQuery: Query = q
+      override def theQuery: Query = q
 
-    override def ##(f: Fragment): NoAuthorityUri with PathUri with QueryUri with FragmentUri = new NoAuthorityUri with PathUri with QueryUri with FragmentUri{
+    override def ##(f: Fragment): NoAuthorityUri with QueryUri with FragmentUri = new NoAuthorityUri with QueryUri with FragmentUri{
       override def scheme: Scheme = self.scheme
 
-      override def thePath: Path = self.thePath
+      override def path: Path = self.path
 
       override def theQuery: Query = q
 
@@ -167,10 +157,10 @@ case class NoAuthorityPathUri(scheme: Scheme, thePath:Path) extends NoAuthorityU
     }
   }
 
-  override def ##(f: Fragment): NoAuthorityUri with PathUri with NoQueryUri with FragmentUri = new NoAuthorityUri with PathUri with NoQueryUri with FragmentUri{
+  override def ##(f: Fragment): NoAuthorityUri with NoQueryUri with FragmentUri = new NoAuthorityUri with NoQueryUri with FragmentUri{
     override def scheme: Scheme = self.scheme
 
-    override def thePath: Path = self.thePath
+    override def path: Path = self.path
 
     override def theFragment: Fragment = f
 
@@ -178,22 +168,22 @@ case class NoAuthorityPathUri(scheme: Scheme, thePath:Path) extends NoAuthorityU
 
 }
 
-case class AuthorityPathUri(scheme:Scheme, theAuthority: Authority, path:Option[AbsolutePath] = None) extends AuthorityUri with UriBuilderQF[AuthorityUri] {
+case class AuthorityPathUri(scheme:Scheme, theAuthority: Authority, path:PathAbEmpty = Path.empty) extends AuthorityUri with UriBuilderQF[AuthorityUri] {
   self =>
 
-  def /(s:Segment):AuthorityPathUri = this.copy(path = Some(path.fold[AbsolutePath](AbsoluteSingleSegmentPath(s))(_ / s)))
+  def /(s:Segment):AuthorityPathUri = this.copy(path = path / s)
   def /(s:String):AuthorityPathUri = this / Segment(s)
 
   override def ?(q: Query): AuthorityUri with QueryUri with UriBuilderF[AuthorityUri with QueryUri] =
     new AuthorityUri with QueryUri with UriBuilderF[AuthorityUri with QueryUri] {
     override def scheme: Scheme = self.scheme
     override def theAuthority: Authority = self.theAuthority
-    override def path: Option[Path] = self.path
+    override def path: PathAbEmpty = self.path
     override def theQuery: Query = q
     override def ##(f: Fragment): AuthorityUri with QueryUri with FragmentUri = new AuthorityUri with QueryUri with FragmentUri {
       override def scheme: Scheme = self.scheme
       override def theAuthority: Authority = self.theAuthority
-      override def path: Option[Path] = self.path
+      override def path: PathAbEmpty = self.path
       override def theQuery: Query = q
       override def theFragment: Fragment = f
     }
@@ -203,7 +193,7 @@ case class AuthorityPathUri(scheme:Scheme, theAuthority: Authority, path:Option[
   override def ##(f: Fragment): AuthorityUri with NoQueryUri with FragmentUri = new AuthorityUri with NoQueryUri with FragmentUri {
     override def scheme: Scheme = self.scheme
     override def theAuthority: Authority = self.theAuthority
-    override def path: Option[Path] = self.path
+    override def path: PathAbEmpty = self.path
     override def theFragment: Fragment = f
   }
 }
@@ -236,7 +226,8 @@ object Uri {
         for {
           scheme <- Success(Option(sScheme).map(s => Scheme(Encoder.decode(s))))
           authority <- swap(Option(sAuthority).map(Authority.parse))
-          path <- swap(Option(sPath).map(Path.parse)).map(_.flatten)
+          //swap(Option(sPath).map(Path.parse)).map(_.flatten)
+          path <- Option(sPath).fold[Try[Path]](Success(Path.empty))(Path.parse)
           query <- Success(Option(sQuery).map(q => Query(Encoder.decode(q))))
           fragment <- Success(Option(sFragment).map(f => Fragment(Encoder.decode(f))))
         } yield CompleteUri(scheme.get,authority,path,query,fragment)
