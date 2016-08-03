@@ -1,7 +1,5 @@
 package com.agilogy.uri
 
-import java.text.ParseException
-
 import scala.util.{Failure, Success, Try}
 
 sealed trait UriReference
@@ -38,100 +36,193 @@ trait Uri extends UriReference {
 //    }
     new java.net.URI(stringValue)
   }
+
+  override def equals(obj: Any): Boolean = obj match {
+    case u: Uri => this.stringValue == u.stringValue
+    case _ => false
+  }
 }
 
-trait PathOnlyUri[PathType <: Path] extends Uri {
+trait NoAuthorityUri extends Uri {
+  override val authority: None.type = None
+}
 
-  type Self <: PathOnlyUri[PathType]
+trait AuthorityUri extends Uri {
+  def theAuthority: Authority
 
-  def scheme: Scheme
+  override def authority: Some[Authority] = Some(theAuthority)
+}
 
-  override def path: Option[PathType]
+trait NoPathUri extends Uri {
+  override def path: None.type = None
+}
 
-  def /(segment: Segment): Self
+trait PathUri extends Uri {
+  def thePath: Path
 
-  def /(segment: String): Self = this / Segment(segment)
+  override def path: Some[Path] = Some(thePath)
+}
 
-  def ?(query: Query): UriWithQuery[PathType] = UriWithQuery(scheme, authority, path, query)
-
-  def ?(query: String): UriWithQuery[PathType] = this ? Query(query)
-
-  def ##(fragment: String): CompleteUri[PathType] = this ## Fragment(fragment)
-
-  def ##(f: Fragment): CompleteUri[PathType] = CompleteUri(scheme, authority, path, None, Some(f))
-
+trait NoQueryUri extends Uri{
   override def query: None.type = None
+}
 
+trait QueryUri extends Uri{
+  def theQuery:Query
+  override def query: Some[Query] = Some(theQuery)
+}
+
+trait NoFragmentUri extends Uri{
   override def fragment: None.type = None
+}
+
+trait FragmentUri extends Uri{
+  def theFragment:Fragment
+
+  override def fragment: Some[Fragment] = Some(theFragment)
+}
+
+
+//@deprecated
+//trait PathOnlyUri extends Uri {
+//
+//  def /(segment: Segment): PathOnlyUri = {
+//    new CompleteUri(scheme, authority, Some(path.fold[Path](Path / segment)(_ / segment)), None, None) with PathOnlyUri
+//        this.copy(path = Some(path.fold[Path](Path / segment)(_ / segment)))
+//  }
+//
+//  def /(segment: String): PathOnlyUri = this / Segment(segment)
+//
+//  def ?(query: Query): UriWithQuery = UriWithQuery(scheme, authority, path, query)
+//
+//  def ?(query: String): UriWithQuery = this ? Query(query)
+//
+//  def ##(fragment: String): CompleteUri = this ## Fragment(fragment)
+//
+//  def ##(f: Fragment): CompleteUri = CompleteUri(scheme, authority, path, None, Some(f))
+//
+//    override def query: None.type = None
+//
+//    override def fragment: None.type = None
+//
+//}
+
+trait UriBuilderQF[S<:Uri] extends NoQueryUri with NoFragmentUri {
+
+  def ?(query: Query): S with QueryUri with UriBuilderF[S with QueryUri]
+  def ?(query: String): S with QueryUri with UriBuilderF[S with QueryUri] = this ? Query(query)
+  def ##(f: Fragment): S with NoQueryUri  with FragmentUri
+  def ##(f: String): S with NoQueryUri  with FragmentUri = this ## Fragment(f)
 
 }
 
-case class PathOnlyAuthorityUri(scheme: Scheme, definedAuthority: Authority, path: Option[AbsolutePath] = None) extends PathOnlyUri[AbsolutePath] {
+trait UriBuilderF[S<:Uri] extends NoFragmentUri {
 
-  type Self = PathOnlyAuthorityUri
-
-  override def authority: Some[Authority] = Some(definedAuthority)
-
-  override def /(segment: Segment): PathOnlyAuthorityUri = {
-    this.copy(path = Some(path.fold[AbsolutePath](Path / segment)(_ / segment)))
-  }
-}
-
-case class PathOnlyAuthoritylessUri(scheme: Scheme, path: Option[Path] = None) extends PathOnlyUri[Path] {
-
-  override type Self = PathOnlyAuthoritylessUri
-
-  override def authority: None.type = None
-
-  override def /(segment: Segment): PathOnlyAuthoritylessUri = {
-    val newPath: Path = path.fold[Path](Path / segment)(_ / segment)
-    this.copy(path = Some(newPath))
-  }
-}
-
-case class UriWithQuery[PathType <: Path](scheme: Scheme, authority: Option[Authority], path: Option[PathType], definedQuery: Query) extends Uri {
-  require(authority.nonEmpty || !path.exists(_.stringValue.startsWith("//")), s"An uri with no authority can't have a path starting with //: $this")
-
-  override def query: Some[Query] = Some(definedQuery)
-
-  override def fragment: None.type = None
-
-  def ##(fragment: String): CompleteUri[PathType] = this ## Fragment(fragment)
-
-  def ##(f: Fragment): CompleteUri[PathType] = CompleteUri(scheme, authority, path, Some(definedQuery), Some(f))
+  def ##(f: Fragment): S with FragmentUri
+  def ##(f: String): S with FragmentUri = this ## Fragment(f)
 
 }
 
-case class CompleteUri[PathType <: Path](scheme: Scheme, authority: Option[Authority], path: Option[PathType], query: Option[Query], fragment: Option[Fragment]) extends Uri {
+
+//case class UriWithQuery(scheme: Scheme, authority: Option[Authority], path: Option[Path], definedQuery: Query) extends Uri {
+//  require(authority.nonEmpty || !path.exists(_.stringValue.startsWith("//")), s"An uri with no authority can't have a path starting with //: $this")
+//
+//  override def query: Some[Query] = Some(definedQuery)
+//
+//  override def fragment: None.type = None
+//
+//  def ##(fragment: String): CompleteUri = this ## Fragment(fragment)
+//
+//  def ##(f: Fragment): CompleteUri = CompleteUri(scheme, authority, path, Some(definedQuery), Some(f))
+//
+//}
+
+case class CompleteUri(scheme: Scheme, authority: Option[Authority], path: Option[Path] = None, query: Option[Query] = None, fragment: Option[Fragment] = None) extends Uri {
   require(authority.nonEmpty || !path.exists(_.stringValue.startsWith("//")), s"An uri with no authority can't have a path starting with //: $this")
   require(authority.isDefined || path.isDefined || query.isDefined, s"sExpected scheme-specific part with scheme ${scheme.stringValue}")
 }
 
+
+case class NoAuthorityPathUri(scheme: Scheme, thePath:Path) extends NoAuthorityUri with PathUri with UriBuilderQF[NoAuthorityUri with PathUri] {
+
+  self =>
+
+  def ?(q: Query): NoAuthorityUri with PathUri with QueryUri with UriBuilderF[NoAuthorityUri with PathUri with QueryUri] =
+    new NoAuthorityUri with PathUri with QueryUri with UriBuilderF[NoAuthorityUri with PathUri with QueryUri]{
+
+    override def scheme: Scheme = self.scheme
+
+    override def thePath: Path = self.thePath
+
+    override def theQuery: Query = q
+
+    override def ##(f: Fragment): NoAuthorityUri with PathUri with QueryUri with FragmentUri = new NoAuthorityUri with PathUri with QueryUri with FragmentUri{
+      override def scheme: Scheme = self.scheme
+
+      override def thePath: Path = self.thePath
+
+      override def theQuery: Query = q
+
+      override def theFragment: Fragment = f
+    }
+  }
+
+  override def ##(f: Fragment): NoAuthorityUri with PathUri with NoQueryUri with FragmentUri = new NoAuthorityUri with PathUri with NoQueryUri with FragmentUri{
+    override def scheme: Scheme = self.scheme
+
+    override def thePath: Path = self.thePath
+
+    override def theFragment: Fragment = f
+
+  }
+
+}
+
+case class AuthorityPathUri(scheme:Scheme, theAuthority: Authority, path:Option[AbsolutePath] = None) extends AuthorityUri with UriBuilderQF[AuthorityUri] {
+  self =>
+
+  def /(s:Segment):AuthorityPathUri = this.copy(path = Some(path.fold[AbsolutePath](AbsoluteSingleSegmentPath(s))(_ / s)))
+  def /(s:String):AuthorityPathUri = this / Segment(s)
+
+  override def ?(q: Query): AuthorityUri with QueryUri with UriBuilderF[AuthorityUri with QueryUri] =
+    new AuthorityUri with QueryUri with UriBuilderF[AuthorityUri with QueryUri] {
+    override def scheme: Scheme = self.scheme
+    override def theAuthority: Authority = self.theAuthority
+    override def path: Option[Path] = self.path
+    override def theQuery: Query = q
+    override def ##(f: Fragment): AuthorityUri with QueryUri with FragmentUri = new AuthorityUri with QueryUri with FragmentUri {
+      override def scheme: Scheme = self.scheme
+      override def theAuthority: Authority = self.theAuthority
+      override def path: Option[Path] = self.path
+      override def theQuery: Query = q
+      override def theFragment: Fragment = f
+    }
+
+  }
+
+  override def ##(f: Fragment): AuthorityUri with NoQueryUri with FragmentUri = new AuthorityUri with NoQueryUri with FragmentUri {
+    override def scheme: Scheme = self.scheme
+    override def theAuthority: Authority = self.theAuthority
+    override def path: Option[Path] = self.path
+    override def theFragment: Fragment = f
+  }
+}
+
 object Uri {
 
-  def apply(scheme: Scheme): PathOnlyAuthoritylessUri = PathOnlyAuthoritylessUri(scheme, None)
+  def apply(s: Scheme, p: Path): NoAuthorityPathUri = NoAuthorityPathUri(s,p)
 
-  def apply(scheme: String): PathOnlyAuthoritylessUri = Uri(Scheme(scheme))
+  def apply(scheme: String, path: Path): NoAuthorityPathUri = apply(Scheme(scheme), path)
 
-  def apply(scheme: Scheme, path:Path): PathOnlyAuthoritylessUri = PathOnlyAuthoritylessUri(scheme, Some(path))
+  def apply(s: Scheme, authority:Authority): AuthorityPathUri = AuthorityPathUri(s,authority)
 
-  def apply(scheme: String, path:Path): PathOnlyAuthoritylessUri = PathOnlyAuthoritylessUri(Scheme(scheme), Some(path))
+  def apply(s: Scheme, host: RegisteredName): AuthorityPathUri = Uri(s, Authority(host))
 
-  def apply(scheme: Scheme, host: RegisteredName): PathOnlyAuthorityUri = PathOnlyAuthorityUri(scheme, Authority(host))
+  def apply(scheme: String, host: String):  AuthorityPathUri = Uri(Scheme(scheme), RegisteredName(host))
 
-  def apply(scheme: String, host: String): PathOnlyAuthorityUri = Uri(Scheme(scheme), RegisteredName(host))
+  def apply(s: Scheme, host: RegisteredName, port: Port):AuthorityPathUri = Uri(s,Authority(host, port))
 
-  def apply(scheme: Scheme, userInfo: UserInfo, host: RegisteredName): PathOnlyAuthorityUri = PathOnlyAuthorityUri(scheme, Authority(userInfo, host))
-
-  def apply(scheme: String, userInfo: String, host: String): PathOnlyAuthorityUri = Uri(Scheme(scheme), UserInfo(userInfo), RegisteredName(host))
-
-  def apply(scheme: Scheme, host: RegisteredName, port: Port): PathOnlyAuthorityUri = PathOnlyAuthorityUri(scheme, Authority(host, port))
-
-  def apply(scheme: String, host: String, port: Int): PathOnlyAuthorityUri = Uri(Scheme(scheme), RegisteredName(host), Port(port))
-
-  def apply(scheme: Scheme, userInfo: UserInfo, host: RegisteredName, port: Port): PathOnlyAuthorityUri = PathOnlyAuthorityUri(scheme, Authority(userInfo, host, port))
-
-  def apply(scheme: String, userInfo: String, host: String, port: Int): PathOnlyAuthorityUri = Uri(Scheme(scheme), UserInfo(userInfo), RegisteredName(host), Port(port))
+  def apply(scheme: String, host: String, port: Int): AuthorityPathUri = Uri(Scheme(scheme), RegisteredName(host), Port(port))
 
   private val UriRe = "^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?".r
 
@@ -140,7 +231,6 @@ object Uri {
       optTry.map(_.map(Some.apply)).getOrElse(Success(None))
     }
 
-    val UriRe = "^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?".r
     s match {
       case UriRe(_,sScheme,_,sAuthority,sPath,_,sQuery,_,sFragment) =>
         for {

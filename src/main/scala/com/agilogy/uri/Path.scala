@@ -2,7 +2,7 @@ package com.agilogy.uri
 
 import scala.util.{Success, Try}
 
-trait Path {
+sealed trait Path {
   type PathWithSegmentsType <: Path with PathWithSegments
   def isAbsolute: Boolean
   def segments:Seq[Segment]
