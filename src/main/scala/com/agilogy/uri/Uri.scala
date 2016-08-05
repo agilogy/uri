@@ -1,6 +1,6 @@
 package com.agilogy.uri
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{Failure, Success, Try, control}
 
 sealed trait UriReference
 
@@ -216,23 +216,24 @@ object Uri {
 
   private val UriRe = "^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?".r
 
-  def parse(s:String):Try[Uri] = {
-    def swap[T](optTry: Option[Try[T]]): Try[Option[T]] = {
-      optTry.map(_.map(Some.apply)).getOrElse(Success(None))
-    }
+  import validation.ValidationExceptions._
+
+  def parseTry(s:String):Try[Uri] = parse(s).toTry
+
+  def parse(s:String):Validation[Throwable,Uri] = {
+
+    import validation.Validators._
 
     s match {
       case UriRe(_,sScheme,_,sAuthority,sPath,_,sQuery,_,sFragment) =>
-        for {
-          scheme <- Success(Option(sScheme).map(s => Scheme(Encoder.decode(s))))
-          authority <- swap(Option(sAuthority).map(Authority.parse))
-          //swap(Option(sPath).map(Path.parse)).map(_.flatten)
-          path <- Option(sPath).fold[Try[Path]](Success(Path.empty))(Path.parse)
-          query <- Success(Option(sQuery).map(q => Query(Encoder.decode(q))))
-          fragment <- Success(Option(sFragment).map(f => Fragment(Encoder.decode(f))))
-        } yield CompleteUri(scheme.get,authority,path,query,fragment)
+        lift(CompleteUri.curried) <*>
+          notNull(sScheme).map(Scheme.apply) <*>
+          swap(Option(sAuthority).map(Authority.parse)) <*>
+          notNull(sPath).flatMap(p => fromTry(Path.parse(p))) <*>
+          success(Option(sQuery).map(q => Query(Encoder.decode(q)))) <*>
+          success(Option(sFragment).map(f => Fragment(Encoder.decode(f))))
       case _ =>
-        Failure(new IllegalArgumentException())
+        failure(new UnsupportedOperationException()) //Failure(new IllegalArgumentException())
     }
 
   }

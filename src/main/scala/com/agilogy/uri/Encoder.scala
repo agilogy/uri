@@ -73,7 +73,7 @@ object Encoder {
         sb.append(JavaNetCodec.encode("" + hs + c))
         hs = 0.toChar
       } else if (isLowSurrogate) {
-        throw new IllegalArgumentException(s"Unexpecte low surrogate ${Integer.toHexString(c.toInt)}")
+        throw new IllegalArgumentException(s"Unexpected low surrogate ${Integer.toHexString(c.toInt)}")
       }
       else if  (c.isLetterOrDigit || allowedChars.contains(c)) {
         // (isAlphaNum(c) || allowedChars.contains(c)) {

@@ -43,15 +43,22 @@ object Authority{
 
   private val AuthorityRe = "(([^/?#@]*)@)?([^/?#@:]*)(:([0-9]*))?".r
 
-  def parse(s:String):Try[Authority] = {
+  import validation.ValidationExceptions._
+  import validation.Validators._
+
+  def parse(s:String): Validation[DoesNotMatch, Authority] = {
     s match {
       case AuthorityRe(_,sUserInfo,sHost,_,sPort) =>
         val userInfo = Option(sUserInfo).map(ui => UserInfo(Encoder.decode(ui)))
         val host = RegisteredName(Encoder.decode(Option(sHost).getOrElse("")))
         val port = Option(sPort).map(p => Port(p.toInt))
-        Success(Authority(userInfo,host,port))
+        success(Authority(userInfo,host,port))
       case _ =>
-        Failure(new IllegalArgumentException(s"Illegal authority: $s"))
+        failure(new DoesNotMatch(AuthorityRe))
     }
+
   }
+
+
+  def parseTry(s:String):Try[Authority] = parse(s).toTry
 }
