@@ -1,8 +1,8 @@
 package com.agilogy.uri
 
-import org.scalatest.{FreeSpec, OptionValues, ShouldMatchers}
+import org.scalatest.{ FreeSpec, OptionValues, Matchers }
 
-class UriSpec extends FreeSpec with OptionValues with ShouldMatchers {
+class UriSpec extends FreeSpec with OptionValues with Matchers {
 
   """
     |A Uniform Resource Identifier (URI) provides a simple and extensible means for identifying a resource.
@@ -15,10 +15,10 @@ class UriSpec extends FreeSpec with OptionValues with ShouldMatchers {
       |             / ... """.stripMargin - {
 
       val scheme = "http"
-      val userInfo = "johnDoe"
+      //      val userInfo = "johnDoe"
       val host = "www.example.com"
       val port = 8080
-      val path = Path / "posts" / "23"
+      //      val path = Path / "posts" / "23"
 
       "minimal authority uri" in {
         val minimalAuthorityUri = Uri(Scheme(scheme), RegisteredName(host))
@@ -31,14 +31,14 @@ class UriSpec extends FreeSpec with OptionValues with ShouldMatchers {
         assert(Uri(scheme, host) === Uri(Scheme(scheme), RegisteredName(host)))
       }
 
-//      "authority uri with userInfo + host" in {
-//        val userInfoUri = Uri(Scheme(scheme), UserInfo(userInfo), RegisteredName(host))
-//        assert(userInfoUri.authority.value === Authority(userInfo, host))
-//        assert(userInfoUri.path.isEmpty)
-//        assert(userInfoUri.query === None)
-//        assert(userInfoUri.fragment === None)
-//        assert(Uri(scheme, userInfo, host) === Uri(Scheme(scheme), UserInfo(userInfo), RegisteredName(host)))
-//      }
+      //            "authority uri with userInfo + host" in {
+      //              val userInfoUri = Uri(Scheme(scheme), UserInfo(userInfo), RegisteredName(host))
+      //              assert(userInfoUri.authority.value === Authority(userInfo, host))
+      //              assert(userInfoUri.path.isEmpty)
+      //              assert(userInfoUri.query === None)
+      //              assert(userInfoUri.fragment === None)
+      //              assert(Uri(scheme, userInfo, host) === Uri(Scheme(scheme), UserInfo(userInfo), RegisteredName(host)))
+      //            }
 
       "authority uri with host + port" in {
         val portInfoUri = Uri(Scheme(scheme), RegisteredName(host), Port(port))
@@ -50,14 +50,14 @@ class UriSpec extends FreeSpec with OptionValues with ShouldMatchers {
         assert(Uri(scheme, host, port) === Uri(Scheme(scheme), RegisteredName(host), Port(port)))
       }
 
-//      "authority uri with userinfo + host + port" in {
-//        val fullAuthorityUri = Uri(Scheme(scheme), UserInfo(userInfo), RegisteredName(host), Port(port))
-//        assert(fullAuthorityUri.authority.value === Authority(userInfo, host, port))
-//        assert(fullAuthorityUri.path.isEmpty)
-//        assert(fullAuthorityUri.query === None)
-//        assert(fullAuthorityUri.fragment === None)
-//        assert(Uri(scheme, userInfo, host, port) === Uri(Scheme(scheme), UserInfo(userInfo), RegisteredName(host), Port(port)))
-//      }
+      //      "authority uri with userinfo + host + port" in {
+      //        val fullAuthorityUri = Uri(Scheme(scheme), UserInfo(userInfo), RegisteredName(host), Port(port))
+      //        assert(fullAuthorityUri.authority.value === Authority(userInfo, host, port))
+      //        assert(fullAuthorityUri.path.isEmpty)
+      //        assert(fullAuthorityUri.query === None)
+      //        assert(fullAuthorityUri.fragment === None)
+      //        assert(Uri(scheme, userInfo, host, port) === Uri(Scheme(scheme), UserInfo(userInfo), RegisteredName(host), Port(port)))
+      //      }
 
       "add a path to an authority uri" in {
         val uri = Uri("http", "www.example.com")
@@ -80,7 +80,7 @@ class UriSpec extends FreeSpec with OptionValues with ShouldMatchers {
 
       "add a fragment to an authority uri" in {
         val fragment = "address"
-        val uri = Uri(scheme,host)
+        val uri = Uri(scheme, host)
         val uri1 = uri ## Fragment(fragment)
         assert(uri1.theFragment === Fragment(fragment))
         assert(uri1.fragment.value === Fragment(fragment))
@@ -100,7 +100,7 @@ class UriSpec extends FreeSpec with OptionValues with ShouldMatchers {
       }
 
       "build a full authority uri" in {
-        val res = (Uri("http","www.example.com") / "employees" / "23") ? "withSalaryInfo=true" ## "salaryInfo"
+        val res = (Uri("http", "www.example.com") / "employees" / "23") ? "withSalaryInfo=true" ## "salaryInfo"
         assert(res.scheme === Scheme("http"))
         assert(res.theAuthority === res.authority.value)
         assert(res.theAuthority.host === RegisteredName("www.example.com"))
@@ -117,25 +117,25 @@ class UriSpec extends FreeSpec with OptionValues with ShouldMatchers {
       }
 
       "build an authority uri ending in '/'" in {
-        val res2 = Uri("http","www.example.com") / ""
+        val res2 = Uri("http", "www.example.com") / ""
         assert(res2.path.isAbsolute)
         assert(res2.path.segments.size === 1)
         assert(res2.path.segments.head === Segment.Empty)
       }
 
-//      "build an uri without authority nor path" in {
-//        val minimalUri = Uri(Scheme("example"))
-//        assert(minimalUri.scheme === Scheme("example"))
-//        assert(minimalUri.path.isEmpty)
-//        assert(Uri("example") === minimalUri)
-//      }
+      //      "build an uri without authority nor path" in {
+      //        val minimalUri = Uri(Scheme("example"))
+      //        assert(minimalUri.scheme === Scheme("example"))
+      //        assert(minimalUri.path.isEmpty)
+      //        assert(Uri("example") === minimalUri)
+      //      }
 
       "build an uri without authority but with path" in {
-        val authorityPathUri = Uri(Scheme("mailto"),Path("john@example.com"))
+        val authorityPathUri = Uri(Scheme("mailto"), Path("john@example.com"))
         assert(authorityPathUri.scheme === Scheme("mailto"))
         assert(!authorityPathUri.path.isAbsolute)
         assert(authorityPathUri.path.segments === Seq(Segment("john@example.com")))
-        assert(Uri("mailto",Path("john@example.com")) === authorityPathUri)
+        assert(Uri("mailto", Path("john@example.com")) === authorityPathUri)
       }
 
     }

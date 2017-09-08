@@ -17,38 +17,38 @@ class UriStringValueSpec extends FreeSpec {
     |Uri stringValue""".stripMargin - {
 
     """Ascii uri string value""" in {
-//      val httpUri = Uri(http)
-//      assert(httpUri.stringValue === "http:")
+      //      val httpUri = Uri(http)
+      //      assert(httpUri.stringValue === "http:")
       val exampleComUri = Uri(http, exampleDotCom)
       assert(exampleComUri.stringValue === "http://example.com")
-//      val johnDoeExampleComUri = Uri(http, johnDoe, exampleDotCom)
-//      assert(johnDoeExampleComUri.stringValue === "http://johnDoe@example.com")
+      //      val johnDoeExampleComUri = Uri(http, johnDoe, exampleDotCom)
+      //      assert(johnDoeExampleComUri.stringValue === "http://johnDoe@example.com")
       val exampleComPortUri = Uri(http, exampleDotCom, port)
       assert(exampleComPortUri.stringValue === "http://example.com:8080")
-//      val johnDoeExampleComPortUri = Uri(http, johnDoe, exampleDotCom, port)
-//      assert(johnDoeExampleComPortUri.stringValue === "http://johnDoe@example.com:8080")
+      //      val johnDoeExampleComPortUri = Uri(http, johnDoe, exampleDotCom, port)
+      //      assert(johnDoeExampleComPortUri.stringValue === "http://johnDoe@example.com:8080")
       val authorityPathUri = Uri(http, exampleDotCom) / employees / b12
       assert(authorityPathUri.stringValue === "http://example.com/employees/b12")
       val authorityPortPathUri = Uri(http, exampleDotCom, port) / employees / b12
       assert(authorityPortPathUri.stringValue === "http://example.com:8080/employees/b12")
-//      val fullUri = (Uri(http, johnDoe, exampleDotCom, port) / employees / b12) ? withSalaryInfo ## salaryInfo
-//      assert(fullUri.stringValue === s"http://johnDoe@example.com:8080/employees/b12?withSalaryInfo#salaryInfo")
+      //      val fullUri = (Uri(http, johnDoe, exampleDotCom, port) / employees / b12) ? withSalaryInfo ## salaryInfo
+      //      assert(fullUri.stringValue === s"http://johnDoe@example.com:8080/employees/b12?withSalaryInfo#salaryInfo")
     }
 
-//    """Escape ':' in scheme """ in {
-//      assert((Uri("foo:bar", exampleDotCom)  / "a").stringValue === "foo%3Abar://example.com/a")
-//    }
+    //    """Escape ':' in scheme """ in {
+    //      assert((Uri("foo:bar", exampleDotCom)  / "a").stringValue === "foo%3Abar://example.com/a")
+    //    }
 
     """Escape '/', '?' and '#' in authority""" in {
-      assert(Uri(Scheme(http),Authority("john/jane?doe#","example?/.foo#.com")).stringValue === "http://john%2Fjane%3Fdoe%23@example%3F%2F.foo%23.com")
+      assert(Uri(Scheme(http), Authority("john/jane?doe#", "example?/.foo#.com")).stringValue === "http://john%2Fjane%3Fdoe%23@example%3F%2F.foo%23.com")
     }
 
-    """Escape '@' in userinfo""" in{
-      assert(Uri(Scheme(http),Authority("j@ne","example.com")).stringValue === "http://j%40ne@example.com")
+    """Escape '@' in userinfo""" in {
+      assert(Uri(Scheme(http), Authority("j@ne", "example.com")).stringValue === "http://j%40ne@example.com")
     }
 
     """Escape ':' in registered name""" in {
-      assert(Uri(http,"ex:ample.com").stringValue === "http://ex%3Aample.com")
+      assert(Uri(http, "ex:ample.com").stringValue === "http://ex%3Aample.com")
     }
 
     """Escape '?' and '#' in paths""" in {

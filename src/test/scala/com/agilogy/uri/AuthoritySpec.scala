@@ -85,8 +85,8 @@ class AuthoritySpec extends FreeSpec {
       "Simple authority" in {
         val userInfo = "JohnDoe"
         assert(Authority(hostName).stringValue === hostName)
-        assert(Authority(userInfo,hostName).stringValue === s"$userInfo@$hostName")
-        assert(Authority(hostName,port).stringValue === s"$hostName:$port")
+        assert(Authority(userInfo, hostName).stringValue === s"$userInfo@$hostName")
+        assert(Authority(hostName, port).stringValue === s"$hostName:$port")
         assert(Authority(userInfo, hostName, port).stringValue === s"$userInfo@$hostName:$port")
       }
 
@@ -95,11 +95,11 @@ class AuthoritySpec extends FreeSpec {
       }
 
       "Escape ':' in host so that ':' delimits the port" in {
-        assert(Authority("example.com:12",port).stringValue === "example.com%3A12:8080")
+        assert(Authority("example.com:12", port).stringValue === "example.com%3A12:8080")
       }
 
       "Escape ':' in userinfo to distinguish it from user:password deprecated format" in {
-        assert(Authority("john:doe",hostName).stringValue === s"john%3Adoe@$hostName")
+        assert(Authority("john:doe", hostName).stringValue === s"john%3Adoe@$hostName")
       }
 
     }

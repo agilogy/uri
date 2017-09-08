@@ -1,12 +1,12 @@
 package com.agilogy.uri
 
-import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.{ Arbitrary, Gen }
 
 object UriGenerators {
 
   val utfChars = implicitly[Arbitrary[Char]].arbitrary
 
-  val chars: Gen[Char] = for{
+  val chars: Gen[Char] = for {
     option <- Gen.frequency(90 -> "a", 7 -> "l", 3 -> "o")
     c <- option match {
       case "a" =>
@@ -26,7 +26,6 @@ object UriGenerators {
 
   //Gen.listOfN(maxSize,Gen.alphaChar).map(_.mkString).suchThat(_.forall(_.isLetter))
 
-
   private val schemeChars = Gen.frequency(9 -> Gen.alphaNumChar, 1 -> Gen.oneOf('+', '-', '.'))
 
   val schemes = for {
@@ -43,7 +42,7 @@ object UriGenerators {
 
   val ports = Gen.chooseNum(1, 65000).map(Port.apply)
 
-  val nonEmptySegments = for (s <- alphaStr(10,1)) yield Segment(s)
+  val nonEmptySegments = for (s <- alphaStr(10, 1)) yield Segment(s)
 
   val segments: Gen[Segment] = Gen.frequency(1 -> Gen.const(Segment.Empty), 9 -> nonEmptySegments)
 
@@ -52,7 +51,7 @@ object UriGenerators {
       for {
         size <- Gen.choose(0, size)
         segmentList <- Gen.listOfN(size, segments)
-      } yield Path.absoluteOrEmpty(segmentList :_*)
+      } yield Path.absoluteOrEmpty(segmentList: _*)
     }
   }
 
@@ -89,7 +88,7 @@ object UriGenerators {
   val authoritylessUris = for {
     s <- schemes
     p <- paths if !p.stringValue.startsWith("//")
-    q <- if(p.isEmpty) queries.map(Some.apply) else Gen.option(queries)
+    q <- if (p.isEmpty) queries.map(Some.apply) else Gen.option(queries)
     f <- Gen.option(fragments)
   } yield CompleteUri(s, None, p, q, None)
 

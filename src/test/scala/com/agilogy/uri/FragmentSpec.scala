@@ -2,7 +2,7 @@ package com.agilogy.uri
 
 import org.scalatest.FreeSpec
 
-class FragmentSpec extends FreeSpec{
+class FragmentSpec extends FreeSpec {
 
   """
     |The fragment identifier component of a URI allows indirect identification of a secondary resource by reference to
@@ -16,7 +16,6 @@ class FragmentSpec extends FreeSpec{
       |producing the URI from its component parts.""".stripMargin in {
       assert(Fragment(":/?#%").stringValue === ":/?#%")
     }
-
 
   }
 

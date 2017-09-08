@@ -13,17 +13,17 @@ class SchemeSpec extends FreeSpec {
       assert(Scheme("http").stringValue === "http")
     }
 
-//    """Under normal circumstances, the only time when octets within a URI are percent-encoded is during the process of
-//      |producing the URI from its component parts.""".stripMargin in {
-//      assert(Scheme(":/?#%").stringValue === ":/?#%")
-//    }
+    //    """Under normal circumstances, the only time when octets within a URI are percent-encoded is during the process of
+    //      |producing the URI from its component parts.""".stripMargin in {
+    //      assert(Scheme(":/?#%").stringValue === ":/?#%")
+    //    }
 
     """Although schemes are case-insensitive, the canonical form is lowercase and documents that specify schemes must do
       |so with lowercase letters.  An implementation should accept uppercase letters as equivalent to lowercase in scheme
       |names (e.g., allow "HTTP" as well as "http") for the sake of robustness but should only produce lowercase scheme
       |names for consistency.""".stripMargin in {
       assert(Scheme("HttP").stringValue === "http")
-//      assert(Scheme("ÀÇ").stringValue === "àç")
+      //      assert(Scheme("ÀÇ").stringValue === "àç")
     }
 
     //  """When presented with a URI that violates one or more scheme-specific restrictions, the scheme-specific resolution

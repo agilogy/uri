@@ -1,14 +1,18 @@
-import bintray.Keys._
+import com.typesafe.sbt.SbtScalariform.ScalariformKeys
+import scalariform.formatter.preferences._
 
 organization := "com.agilogy"
 
 name := "uris"
 
-scalaVersion := "2.11.7"
+scalaVersion := "2.12.3"
 
-libraryDependencies += "org.scalatest" %% "scalatest" % "2.2.6" % "test"
+crossScalaVersions := Seq("2.12.3", "2.11.11")
 
-libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.12.5" % "test"
+libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.1"
+libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
+
+libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.13.4" % "test"
 
 // --> Linters
 
@@ -60,7 +64,7 @@ scalacOptions in Compile := (scalacOptions in Compile).value filterNot { switch 
 
 resolvers += "Linter Repository" at "https://hairyfotr.github.io/linteRepo/releases"
 
-addCompilerPlugin("org.psywerx.hairyfotr" %% "linter" % "0.1.12")
+addCompilerPlugin("org.psywerx.hairyfotr" %% "linter" % "0.1.17")
 
 scalastyleFailOnError := true
 
@@ -68,19 +72,21 @@ scalastyleFailOnError := true
 
 // Reformat at every compile.
 // See https://github.com/sbt/sbt-scalariform
-scalariformSettings
+val preferences =
+ScalariformKeys.preferences := ScalariformKeys.preferences.value
+  .setPreference(AlignSingleLineCaseStatements, true)
+  .setPreference(DoubleIndentConstructorArguments, true)
+  .setPreference(DanglingCloseParenthesis, Preserve)
 
-ScoverageSbtPlugin.ScoverageKeys.coverageExcludedPackages := "<empty>"
+Seq(preferences)
 
 // --> bintray
 
-seq(bintrayPublishSettings:_*)
+bintrayRepository := "scala"
 
-repository in bintray := "scala"
+bintrayOrganization := Some("agilogy")
 
-bintrayOrganization in bintray := Some("agilogy")
-
-packageLabels in bintray := Seq("scala")
+bintrayPackageLabels := Seq("scala")
 
 licenses += ("Apache-2.0", url("https://www.apache.org/licenses/LICENSE-2.0.html"))
 

@@ -2,7 +2,7 @@ package com.agilogy.uri
 
 import org.scalatest.FreeSpec
 
-class PathSpec extends FreeSpec{
+class PathSpec extends FreeSpec {
 
   """
     |The path component contains data, usually organized in hierarchical form, that, along with data in the
@@ -36,7 +36,7 @@ class PathSpec extends FreeSpec{
         assert(slashPosts.isAbsolute === true)
         val post23 = slashPosts / "23"
         assert(post23.isAbsolute === true)
-        assert(post23.segments === Seq(Segment("Posts"),Segment("23")))
+        assert(post23.segments === Seq(Segment("Posts"), Segment("23")))
       }
 
       "path-rootless" in {
@@ -45,7 +45,7 @@ class PathSpec extends FreeSpec{
         assert(posts.segments === Seq(Segment("Posts")))
         val post23 = posts / "23"
         assert(post23.isAbsolute === false)
-        assert(post23.segments === Seq(Segment("Posts"),Segment("23")))
+        assert(post23.segments === Seq(Segment("Posts"), Segment("23")))
       }
     }
 
