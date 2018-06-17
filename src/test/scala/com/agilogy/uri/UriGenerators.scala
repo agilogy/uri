@@ -38,7 +38,7 @@ object UriGenerators {
 
   val registeredNames = for {
     s <- alphaStr(20) //if Encoder.isValidRegisteredName(s)
-  } yield RegisteredName(s)
+  } yield Host(s)
 
   val ports = Gen.chooseNum(1, 65000).map(Port.apply)
 
@@ -83,14 +83,14 @@ object UriGenerators {
     p <- absolutePaths
     q <- Gen.option(queries)
     f <- Gen.option(fragments)
-  } yield CompleteUri(s, Some(a), p, q, None)
+  } yield Uri.of(s, Some(a), p, q, None)
 
   val authoritylessUris = for {
     s <- schemes
     p <- paths if !p.stringValue.startsWith("//")
     q <- if (p.isEmpty) queries.map(Some.apply) else Gen.option(queries)
     f <- Gen.option(fragments)
-  } yield CompleteUri(s, None, p, q, None)
+  } yield Uri.of(s, None, p, q, None)
 
   val uris = Gen.frequency(9 -> authorityUris, 1 -> authoritylessUris)
 

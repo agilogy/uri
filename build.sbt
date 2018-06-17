@@ -5,9 +5,9 @@ organization := "com.agilogy"
 
 name := "uris"
 
-scalaVersion := "2.12.3"
+scalaVersion := "2.12.6"
 
-crossScalaVersions := Seq("2.12.3", "2.11.11")
+crossScalaVersions := Seq("2.11.7","2.12.6")
 
 libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.1"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test"

@@ -13,7 +13,7 @@ class UriJavaUriSpec extends FreeSpec with GeneratorDrivenPropertyChecks with Ma
     //    val u = CompleteUri(Scheme("v5v"),None,Some(RootlessPath(Segment("abc"))),None,None)
     //    val u = CompleteUri(Scheme("foo"),None,Some(RootlessPath(Segment("}iV쵑"))), None, None)
     //    assert(u.authority.isEmpty)
-    val u = CompleteUri(Scheme("r+"), Some(Authority(Some(UserInfo("1gs")), RegisteredName("-$"), None)), Path.absolute(Segment("F;c"), Segment("𥳐L2*-2]¤S"), Segment("T=l"), Segment("_,齈wb/"), Segment("L,[")), None, None)
+    val u = Uri.of(Scheme("r+"), Some(Authority(Some(UserInfo("1gs")), Host("-$"), None)), Path.absolute(Segment("F;c"), Segment("𥳐L2*-2]¤S"), Segment("T=l"), Segment("_,齈wb/"), Segment("L,[")), None, None)
     val ju = u.toJava
     val su = ju.toString
     assert(new java.net.URI(su) === ju)

@@ -1,21 +1,18 @@
 package com.agilogy.uri
 
-trait Host {
-  def stringValue: String
+// reg-name      = *( unreserved / pct-encoded / sub-delims )
+abstract case class Host(stringValue: String)  {
   def asciiStringValue: String = Encoder.asciiEncode(stringValue)
+  override def toString: String = s"""Host("$stringValue")"""
 }
 
-abstract case class RegisteredName(stringValue: String) extends Host {
-  override def toString: String = s"""RegisteredName("$stringValue")"""
-}
+object Host {
 
-object RegisteredName {
+//  def IllegalRegisteredName(registeredName: String) =
+//    s"""Illegal registered name: $registeredName""".stripMargin
 
-  def IllegalRegisteredName(registeredName: String) =
-    s"""Illegal registered name: $registeredName""".stripMargin
-
-  def apply(v: String): RegisteredName = {
-    //    require(Encoder.isValidRegisteredName(v), IllegalRegisteredName(v))
-    new RegisteredName(Encoder.normalize(v).toLowerCase) {}
+  def apply(v: String): Host = {
+//        require(Encoder.isValidRegisteredName(v), IllegalRegisteredName(v))
+    new Host(Encoder.normalize(v).toLowerCase) {}
   }
 }

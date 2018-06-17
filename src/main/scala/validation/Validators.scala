@@ -7,12 +7,19 @@ import scala.util.matching.Regex
 
 object Validators {
 
-  class IsEmpty extends Exception
-  def nonEmpty[T](o: Option[T]): Validation[IsEmpty, T] = o.fold[Validation[IsEmpty, T]](failure(new IsEmpty))(success)
+  case class IsEmpty(context:String) extends Exception{
+    override def toString: String = s"IsEmpty($context)"
+  }
+  def notEmpty[T <: AnyRef](context:String, v: Option[T]): Validation[IsEmpty, T] = v match {
+    case None => failure(IsEmpty(context))
+    case Some(vv) => success(vv)
+  }
 
-  class IsNull extends Exception
-  def notNull[T <: AnyRef](v: T): Validation[IsNull, T] = if (v == null) failure(new IsNull) else success(v)
+  case class IsNull(context:String) extends Exception{
+    override def toString: String = s"IsNull($context)"
+  }
+  def notNull[T <: AnyRef](context:String, v: T): Validation[IsNull, T] = if (v == null) failure(new IsNull(context)) else success(v)
 
-  case class DoesNotMatch(re: Regex) extends Exception
+  case class DoesNotMatch(context:String, re: Regex) extends Exception
 
 }

@@ -1,13 +1,15 @@
 package com.agilogy.uri
 
-import org.scalatest.{ FreeSpec, Matchers, TryValues }
+import org.scalatest.{EitherValues, FreeSpec, Matchers, TryValues}
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import UriGenerators._
+import validation.ValidationExceptions._
+import validation.Validators.IsNull
 
-class UriParseSpec extends FreeSpec with GeneratorDrivenPropertyChecks with Matchers with TryValues {
+class UriParseSpec extends FreeSpec with GeneratorDrivenPropertyChecks with Matchers with TryValues with EitherValues {
 
   "Simple case" in {
-    val uri = CompleteUri(Scheme("http"), Some(Authority(Some(UserInfo("쏦⥺맃꙽䐪%")), RegisteredName("阮䳐똦ꉫ⋃切鱙뻟➥ᘟ㡚"), Some(Port(49514)))),
+    val uri = Uri.of(Scheme("http"), Some(Authority(Some(UserInfo("쏦⥺맃꙽䐪%")), Host("阮䳐똦ꉫ⋃切鱙뻟➥ᘟ㡚"), Some(Port(49514)))),
       Path / "፷覀뎳ﹸ夏偩" / "듃㓯音ꨈ꾥䳊⻋吜" / "䧝䉟鮇鄽" / "ꝯ閵Ũ㊸" / "䵇ी᦮鰏莞" / "鈇ൃ퐗㥝▀ꏥኑ嚷뛿" / "䱩" / "䙞튆" / "" / "ⰶ겏ﱅ⺬펯䃙" / "쑢◚잲", None, None)
     assert(Uri.parseTry(uri.stringValue).get === uri)
   }
@@ -29,6 +31,26 @@ class UriParseSpec extends FreeSpec with GeneratorDrivenPropertyChecks with Matc
         Uri.parseTry(u.stringValue).success.value should equal(u)
         Uri.parseTry(u.asciiStringValue).success.value should equal(u)
     }
+  }
+
+  "Uri validation should report parse errors" - {
+
+    "missing scheme" in {
+      val expectedFailure = List(IsNull("scheme"))
+      val res = Uri.parse("/foo")
+      assert(res.isLeft)
+      assert(res.left.value === expectedFailure)
+      val tryRes = Uri.parseTry("/foo")
+      assert(tryRes.isFailure)
+      assert(tryRes.failure.exception === MultipleErrorsException(expectedFailure))
+    }
+
+//    "foo" in {
+//      val res = Uri.parse("http://#")
+//      println(res)
+//      assert(res.isLeft)
+//    }
+
   }
 
 }

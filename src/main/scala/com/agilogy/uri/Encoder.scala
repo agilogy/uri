@@ -1,7 +1,5 @@
 package com.agilogy.uri
 
-import java.net.{ URLDecoder, URLEncoder }
-import java.nio.charset.Charset
 import java.text.Normalizer
 
 import scala.util.{ Failure, Success, Try }
@@ -11,12 +9,12 @@ object Encoder {
   private val subDelims = "!$&'()*+,;=".toSet
   private val reserved = genDelims ++ subDelims
   private val unreserved = "-._~".toSet
-  val schemeChars = "+-.".toSet
-  val userInfoChars = unreserved ++ subDelims ++ Set(':')
-  val registeredNameChars = unreserved ++ subDelims
-  val pathSegmentChars = unreserved ++ subDelims ++ ":@".toSet
-  val queryChars = pathSegmentChars ++ "/?".toSet
-  val fragmentChars = queryChars
+  private val schemeChars = "+-.".toSet
+  private val userInfoChars = unreserved ++ subDelims ++ Set(':')
+  private val registeredNameChars = unreserved ++ subDelims
+  private val pathSegmentChars = unreserved ++ subDelims ++ ":@".toSet
+  private val queryChars = pathSegmentChars ++ "/?".toSet
+  private val fragmentChars = queryChars
   //  val allChars = reserved ++ unreserved ++ schemeChars ++ " %".toSet
 
   private def pctEncode(c: Char): String = {
@@ -44,7 +42,7 @@ object Encoder {
 
   @inline private def isDigit(c: Char) = c >= '0' && c <= '9'
 
-  def isAlphaNum(c: Char) = isAlpha(c) || isDigit(c)
+  private def isAlphaNum(c: Char): Boolean = isAlpha(c) || isDigit(c)
 
   private def isValidSchemeChar(c: Char): Boolean = isAlphaNum(c) || schemeChars.contains(c)
 

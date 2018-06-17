@@ -33,18 +33,18 @@ class AuthoritySpec extends FreeSpec {
         |System (DNS).""".stripMargin - {
 
         "Registered names have a string representation" in {
-          assert(RegisteredName("www.example.com").stringValue === "www.example.com")
+          assert(Host("www.example.com").stringValue === "www.example.com")
         }
 
         """Although host is case-insensitive, producers and normalizers should use lowercase for registered names and
           |hexadecimal addresses for the sake ofnuniformity.""".stripMargin in {
-          assert(RegisteredName("eXaMpLÈ.coM").stringValue === "examplè.com"
+          assert(Host("eXaMpLÈ.coM").stringValue === "examplè.com"
           )
         }
 
         """Under normal circumstances, the only time when octets within a URI are percent-encoded is during the process of
           |producing the URI from its component parts.""".stripMargin in {
-          assert(RegisteredName(":/?#%").stringValue === ":/?#%")
+          assert(Host(":/?#%").stringValue === ":/?#%")
         }
 
       }
@@ -67,14 +67,14 @@ class AuthoritySpec extends FreeSpec {
       val hostName = "www.example.com"
       val port = 8080
       val userInfo = "JohnDoe"
-      assert(Authority(RegisteredName(hostName)) === Authority(None, RegisteredName(hostName), None))
-      assert(Authority(hostName) === Authority(None, RegisteredName(hostName), None))
-      assert(Authority(UserInfo(userInfo), RegisteredName(hostName)) === Authority(Some(UserInfo(userInfo)), RegisteredName(hostName), None))
-      assert(Authority(userInfo, hostName) === Authority(Some(UserInfo(userInfo)), RegisteredName(hostName), None))
-      assert(Authority(RegisteredName(hostName), Port(port)) === Authority(None, RegisteredName(hostName), Some(Port(port))))
-      assert(Authority(hostName, port) === Authority(None, RegisteredName(hostName), Some(Port(port))))
-      assert(Authority(UserInfo(userInfo), RegisteredName(hostName), Port(port)) === Authority(Some(UserInfo(userInfo)), RegisteredName(hostName), Some(Port(port))))
-      assert(Authority(userInfo, hostName, port) === Authority(Some(UserInfo(userInfo)), RegisteredName(hostName), Some(Port(port))))
+      assert(Authority(Host(hostName)) === Authority(None, Host(hostName), None))
+      assert(Authority(hostName) === Authority(None, Host(hostName), None))
+      assert(Authority(UserInfo(userInfo), Host(hostName)) === Authority(Some(UserInfo(userInfo)), Host(hostName), None))
+      assert(Authority(userInfo, hostName) === Authority(Some(UserInfo(userInfo)), Host(hostName), None))
+      assert(Authority(Host(hostName), Port(port)) === Authority(None, Host(hostName), Some(Port(port))))
+      assert(Authority(hostName, port) === Authority(None, Host(hostName), Some(Port(port))))
+      assert(Authority(UserInfo(userInfo), Host(hostName), Port(port)) === Authority(Some(UserInfo(userInfo)), Host(hostName), Some(Port(port))))
+      assert(Authority(userInfo, hostName, port) === Authority(Some(UserInfo(userInfo)), Host(hostName), Some(Port(port))))
     }
 
     """Authority has a string representation""" - {

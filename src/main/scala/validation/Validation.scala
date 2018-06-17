@@ -14,7 +14,11 @@ trait ValidationModule {
     case Failure(th) => failure(fromThrowable(th))
   }
 
-  case class MultipleErrorsException[E <: ValidationError](errors: List[E]) extends Exception
+  case class MultipleErrorsException[E <: ValidationError](errors: List[E]) extends Exception{
+    override def toString: String = {
+      s"MultipleErrorsException(List(${errors.mkString(",")}))"
+    }
+  }
 
   type Validation[+E <: ValidationError, +R] = Either[List[E], R]
   type Valid[+R] = Right[Nothing, R]

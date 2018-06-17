@@ -21,14 +21,14 @@ class UriSpec extends FreeSpec with OptionValues with Matchers {
       //      val path = Path / "posts" / "23"
 
       "minimal authority uri" in {
-        val minimalAuthorityUri = Uri(Scheme(scheme), RegisteredName(host))
+        val minimalAuthorityUri = Uri(Scheme(scheme), Authority(Host(host)))
         assert(minimalAuthorityUri.scheme === Scheme(scheme))
         assert(minimalAuthorityUri.theAuthority === Authority(host))
         assert(minimalAuthorityUri.authority.value === Authority(host))
         assert(minimalAuthorityUri.path.isEmpty)
         assert(minimalAuthorityUri.query === None)
         assert(minimalAuthorityUri.fragment === None)
-        assert(Uri(scheme, host) === Uri(Scheme(scheme), RegisteredName(host)))
+        assert(Uri(scheme, host) === Uri(Scheme(scheme), Authority(Host(host))))
       }
 
       //            "authority uri with userInfo + host" in {
@@ -41,13 +41,14 @@ class UriSpec extends FreeSpec with OptionValues with Matchers {
       //            }
 
       "authority uri with host + port" in {
-        val portInfoUri = Uri(Scheme(scheme), RegisteredName(host), Port(port))
-        assert(portInfoUri.theAuthority === Authority(host, port))
-        assert(portInfoUri.authority.value === Authority(host, port))
+        val portInfoUri = Uri(Scheme(scheme), Authority(Host(host), Port(port)))
+        assert(portInfoUri.theAuthority.host.stringValue === host)
+        assert(portInfoUri.theAuthority.port.value.intValue === port)
+        assert(portInfoUri.authority.value === portInfoUri.theAuthority)
         assert(portInfoUri.path.isEmpty)
         assert(portInfoUri.query === None)
         assert(portInfoUri.fragment === None)
-        assert(Uri(scheme, host, port) === Uri(Scheme(scheme), RegisteredName(host), Port(port)))
+//        assert(Uri(scheme, Authority(host, port)) === Uri(Scheme(scheme), RegisteredName(host), Port(port)))
       }
 
       //      "authority uri with userinfo + host + port" in {
@@ -103,7 +104,7 @@ class UriSpec extends FreeSpec with OptionValues with Matchers {
         val res = (Uri("http", "www.example.com") / "employees" / "23") ? "withSalaryInfo=true" ## "salaryInfo"
         assert(res.scheme === Scheme("http"))
         assert(res.theAuthority === res.authority.value)
-        assert(res.theAuthority.host === RegisteredName("www.example.com"))
+        assert(res.theAuthority.host === Host("www.example.com"))
         assert(res.path === Path / "employees" / "23")
         assert(res.theQuery === res.query.value)
         assert(res.query.value === Query("withSalaryInfo=true"))

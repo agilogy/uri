@@ -1,6 +1,6 @@
 package com.agilogy.uri
 
-import scala.util.{ Failure, Success, Try }
+import scala.util.Try
 
 abstract case class UserInfo private (stringValue: String) {
   override def toString: String = s"""UserInfo("$stringValue")"""
@@ -33,13 +33,13 @@ case class Authority(userInfo: Option[UserInfo], host: Host, port: Option[Port])
 object Authority {
 
   def apply(host: Host): Authority = Authority(None, host, None)
-  def apply(host: String): Authority = Authority(RegisteredName(host))
+  def apply(host: String): Authority = Authority(Host(host))
   def apply(userInfo: UserInfo, host: Host): Authority = Authority(Some(userInfo), host, None)
-  def apply(userInfo: String, host: String): Authority = Authority(UserInfo(userInfo), RegisteredName(host))
+  def apply(userInfo: String, host: String): Authority = Authority(UserInfo(userInfo), Host(host))
   def apply(host: Host, port: Port): Authority = Authority(None, host, Some(port))
-  def apply(host: String, port: Int): Authority = Authority(RegisteredName(host), Port(port))
+  def apply(host: String, port: Int): Authority = Authority(Host(host), Port(port))
   def apply(userInfo: UserInfo, host: Host, port: Port): Authority = Authority(Some(userInfo), host, Some(port))
-  def apply(userInfo: String, host: String, port: Int): Authority = Authority(UserInfo(userInfo), RegisteredName(host), Port(port))
+  def apply(userInfo: String, host: String, port: Int): Authority = Authority(UserInfo(userInfo), Host(host), Port(port))
 
   private val AuthorityRe = "(([^/?#@]*)@)?([^/?#@:]*)(:([0-9]*))?".r
 
@@ -50,11 +50,11 @@ object Authority {
     s match {
       case AuthorityRe(_, sUserInfo, sHost, _, sPort) =>
         val userInfo = Option(sUserInfo).map(ui => UserInfo(Encoder.decode(ui)))
-        val host = RegisteredName(Encoder.decode(Option(sHost).getOrElse("")))
+        val host = Host(Encoder.decode(Option(sHost).getOrElse("")))
         val port = Option(sPort).map(p => Port(p.toInt))
         success(Authority(userInfo, host, port))
       case _ =>
-        failure(new DoesNotMatch(AuthorityRe))
+        failure(new DoesNotMatch("authority", AuthorityRe))
     }
 
   }
