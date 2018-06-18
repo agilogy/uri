@@ -1,8 +1,11 @@
 package com.agilogy.uri
 
-import org.scalatest.FreeSpec
+import org.scalatest.{EitherValues, FreeSpec}
+import validation.Validation._
 
-class PathSpec extends FreeSpec {
+//TODO: Test Path.parse
+//TODO: Test Path.parse("")
+class PathSpec extends FreeSpec with EitherValues{
 
   """
     |The path component contains data, usually organized in hierarchical form, that, along with data in the
@@ -40,12 +43,23 @@ class PathSpec extends FreeSpec {
       }
 
       "path-rootless" in {
-        val posts = Path("Posts")
+        val postsAttempt = Path("Posts")
+        val posts = postsAttempt.right.value
         assert(posts.isAbsolute === false)
         assert(posts.segments === Seq(Segment("Posts")))
+
         val post23 = posts / "23"
         assert(post23.isAbsolute === false)
         assert(post23.segments === Seq(Segment("Posts"), Segment("23")))
+
+        assert((postsAttempt / "23").right.value === post23)
+      }
+
+      "path-rootless with errors" in {
+        val posts = Path("")
+        assert(posts === Left(FirstSegmentIsEmptyInRootlessPath))
+        val err = posts / "23"
+        assert(err === Left(FirstSegmentIsEmptyInRootlessPath))
       }
     }
 
@@ -54,12 +68,12 @@ class PathSpec extends FreeSpec {
       """Simple paths""" in {
         assert(Path.Slash.stringValue === "/")
         assert((Path / "a" / "b").stringValue === "/a/b")
-        assert((Path("a") / "b").stringValue === "a/b")
+        assert((Path("a").right.value / "b").stringValue === "a/b")
       }
 
       """Encode '/' so that the segments can be identified""" in {
         assert((Path / "/" / "a").stringValue === "/%2F/a")
-        assert((Path("/") / "a").stringValue === "%2F/a")
+        assert((Path("/").right.value / "a").stringValue === "%2F/a")
       }
     }
 

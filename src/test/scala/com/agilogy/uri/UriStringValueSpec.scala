@@ -1,20 +1,17 @@
 package com.agilogy.uri
 
-import org.scalatest.FreeSpec
+import org.scalatest.{EitherValues, FreeSpec}
 
-class UriStringValueSpec extends FreeSpec {
-
-  val http = "http"
-  val johnDoe = "johnDoe"
-  val exampleDotCom = "example.com"
-  val port = 8080
-  val employees = "employees"
-  val b12 = "b12"
-  val withSalaryInfo = "withSalaryInfo"
-  val salaryInfo = "salaryInfo"
+class UriStringValueSpec extends FreeSpec with EitherValues{
 
   """
     |Uri stringValue""".stripMargin - {
+
+    val http = Scheme("http").right.value
+    val exampleDotCom = "example.com"
+    val port = Port(8080).right.value
+    val employees = "employees"
+    val b12 = "b12"
 
     """Ascii uri string value""" in {
       //      val httpUri = Uri(http)
@@ -40,11 +37,11 @@ class UriStringValueSpec extends FreeSpec {
     //    }
 
     """Escape '/', '?' and '#' in authority""" in {
-      assert(Uri(Scheme(http), Authority("john/jane?doe#", "example?/.foo#.com")).stringValue === "http://john%2Fjane%3Fdoe%23@example%3F%2F.foo%23.com")
+      assert(Uri(http, Authority("john/jane?doe#", "example?/.foo#.com")).stringValue === "http://john%2Fjane%3Fdoe%23@example%3F%2F.foo%23.com")
     }
 
     """Escape '@' in userinfo""" in {
-      assert(Uri(Scheme(http), Authority("j@ne", "example.com")).stringValue === "http://j%40ne@example.com")
+      assert(Uri(http, Authority("j@ne", "example.com")).stringValue === "http://j%40ne@example.com")
     }
 
     """Escape ':' in registered name""" in {

@@ -1,8 +1,8 @@
 package com.agilogy.uri
 
-import org.scalatest.FreeSpec
+import org.scalatest.{EitherValues, FreeSpec}
 
-class AuthoritySpec extends FreeSpec {
+class AuthoritySpec extends FreeSpec with EitherValues{
 
   """
     |Many URI schemes include a hierarchical element for a naming authority so that governance of the name space defined
@@ -54,40 +54,43 @@ class AuthoritySpec extends FreeSpec {
     """The port subcomponent of authority is designated by an optional port number in decimal""" - {
 
       "Registered names have an Int representation" in {
-        assert(Port(80).intValue === 80)
+        assert(Port(80).right.value.intValue === 80)
       }
 
       "port = *DIGIT" in {
-        intercept[IllegalArgumentException](Port(-13))
+        assert(Port(-13) === Left(NegativePort(-13)))
       }
 
     }
 
     """Authority user friendly constructors""" in {
       val hostName = "www.example.com"
-      val port = 8080
+      val iPort = 8080
+      val port = Port(iPort).right.value
       val userInfo = "JohnDoe"
       assert(Authority(Host(hostName)) === Authority(None, Host(hostName), None))
       assert(Authority(hostName) === Authority(None, Host(hostName), None))
       assert(Authority(UserInfo(userInfo), Host(hostName)) === Authority(Some(UserInfo(userInfo)), Host(hostName), None))
       assert(Authority(userInfo, hostName) === Authority(Some(UserInfo(userInfo)), Host(hostName), None))
-      assert(Authority(Host(hostName), Port(port)) === Authority(None, Host(hostName), Some(Port(port))))
-      assert(Authority(hostName, port) === Authority(None, Host(hostName), Some(Port(port))))
-      assert(Authority(UserInfo(userInfo), Host(hostName), Port(port)) === Authority(Some(UserInfo(userInfo)), Host(hostName), Some(Port(port))))
-      assert(Authority(userInfo, hostName, port) === Authority(Some(UserInfo(userInfo)), Host(hostName), Some(Port(port))))
+      assert(Authority(Host(hostName), port) === Authority(None, Host(hostName), Some(port)))
+      assert(Authority(hostName, iPort).right.value === Authority(None, Host(hostName), Some(port)))
+      assert(Authority(hostName, -30) === Left(NegativePort(-30)))
+      assert(Authority(UserInfo(userInfo), Host(hostName), port) === Authority(Some(UserInfo(userInfo)), Host(hostName), Some(port)))
+      assert(Authority(userInfo, hostName, iPort).right.value === Authority(Some(UserInfo(userInfo)), Host(hostName), Some(port)))
+      assert(Authority(userInfo, hostName, -30) === Left(NegativePort(-30)))
     }
 
     """Authority has a string representation""" - {
 
       val hostName = "www.example.com"
-      val port = 8080
+      val port = Port(8080).right.value
 
       "Simple authority" in {
         val userInfo = "JohnDoe"
         assert(Authority(hostName).stringValue === hostName)
         assert(Authority(userInfo, hostName).stringValue === s"$userInfo@$hostName")
-        assert(Authority(hostName, port).stringValue === s"$hostName:$port")
-        assert(Authority(userInfo, hostName, port).stringValue === s"$userInfo@$hostName:$port")
+        assert(Authority(hostName, port).stringValue === s"$hostName:${port.intValue}")
+        assert(Authority(userInfo, hostName, port).stringValue === s"$userInfo@$hostName:${port.intValue}")
       }
 
       "Escape '@' in userinfo" in {

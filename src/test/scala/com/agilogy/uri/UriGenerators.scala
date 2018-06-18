@@ -2,6 +2,7 @@ package com.agilogy.uri
 
 import org.scalacheck.{ Arbitrary, Gen }
 
+//TODO: Make stuff private
 object UriGenerators {
 
   val utfChars = implicitly[Arbitrary[Char]].arbitrary
@@ -32,7 +33,7 @@ object UriGenerators {
     c <- Gen.alphaChar
     size <- Gen.choose(0, 5)
     list <- Gen.listOfN(size, schemeChars)
-  } yield Scheme(c + list.mkString(""))
+  } yield Scheme(c + list.mkString("")).right.get
 
   val userInfos = for (s <- alphaStr(10)) yield UserInfo(s)
 
@@ -40,9 +41,9 @@ object UriGenerators {
     s <- alphaStr(20) //if Encoder.isValidRegisteredName(s)
   } yield Host(s)
 
-  val ports = Gen.chooseNum(1, 65000).map(Port.apply)
+  val ports = Gen.chooseNum(1, 65000).map(i => Port(i).right.get)
 
-  val nonEmptySegments = for (s <- alphaStr(10, 1)) yield Segment(s)
+  val nonEmptySegments = for (s <- alphaStr(10, 1)) yield NonEmptySegment(s)
 
   val segments: Gen[Segment] = Gen.frequency(1 -> Gen.const(Segment.Empty), 9 -> nonEmptySegments)
 
@@ -61,7 +62,7 @@ object UriGenerators {
         head <- nonEmptySegments
         tailSize <- Gen.choose(0, size)
         segmentList <- Gen.listOfN(tailSize, segments)
-      } yield segmentList.foldLeft[RootlessPath](RootlessSingleSegmentPath(head))(_ / _)
+      } yield segmentList.foldLeft[RootlessPath](Path(head))(_ / _)
     }
   }
 
@@ -83,15 +84,15 @@ object UriGenerators {
     p <- absolutePaths
     q <- Gen.option(queries)
     f <- Gen.option(fragments)
-  } yield Uri.of(s, Some(a), p, q, None)
+  } yield Uri(s, a, p, q, None)
 
   val authoritylessUris = for {
     s <- schemes
     p <- paths if !p.stringValue.startsWith("//")
     q <- if (p.isEmpty) queries.map(Some.apply) else Gen.option(queries)
     f <- Gen.option(fragments)
-  } yield Uri.of(s, None, p, q, None)
+  } yield Uri.noAuthority(s, p, q, None).right.get
 
-  val uris = Gen.frequency(9 -> authorityUris, 1 -> authoritylessUris)
+  val uris: Gen[Uri] = Gen.frequency(9 -> authorityUris, 1 -> authoritylessUris)
 
 }

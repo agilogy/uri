@@ -5,16 +5,16 @@ import java.text.Normalizer
 import scala.util.{ Failure, Success, Try }
 
 object Encoder {
-  private val genDelims = ":/?#[]@".toSet
+  //  private val genDelims = ":/?#[]@".toSet
   private val subDelims = "!$&'()*+,;=".toSet
-  private val reserved = genDelims ++ subDelims
+  //  private val reserved = genDelims ++ subDelims
   private val unreserved = "-._~".toSet
   private val schemeChars = "+-.".toSet
   private val userInfoChars = unreserved ++ subDelims ++ Set(':')
   private val registeredNameChars = unreserved ++ subDelims
   private val pathSegmentChars = unreserved ++ subDelims ++ ":@".toSet
   private val queryChars = pathSegmentChars ++ "/?".toSet
-  private val fragmentChars = queryChars
+  //  private val fragmentChars = queryChars
   //  val allChars = reserved ++ unreserved ++ schemeChars ++ " %".toSet
 
   private def pctEncode(c: Char): String = {
@@ -26,8 +26,9 @@ object Encoder {
       Try(JavaNetCodec.encode(c.toString)) match {
         case Success(s) => s
         case Failure(t) =>
-          println(s"ERROR encoding $c")
-          throw t
+//          println(s"ERROR encoding $c")
+//          throw new RuntimeException(t)
+          "?"
 
       }
     }
@@ -63,20 +64,30 @@ object Encoder {
   def quote(s: String, allowedChars: Set[Char]): String = {
     //    val forbiddenChars = allChars -- allowedChars
     val sb = new StringBuilder
-    var hs: Char = 0.toChar
-    s.foreach { c =>
-      val isLowSurrogate = c.isLowSurrogate
-      if (hs != 0.toChar) {
-        if (!isLowSurrogate) throw new IllegalArgumentException(s"Unexpected char $c (${Integer.toHexString(c.toInt)}) after high surrogate ${Integer.toHexString(hs.toInt)}")
-        sb.append(JavaNetCodec.encode("" + hs + c))
-        hs = 0.toChar
-      } else if (isLowSurrogate) {
-        throw new IllegalArgumentException(s"Unexpected low surrogate ${Integer.toHexString(c.toInt)}")
+    //    var hs: Char = 0.toChar
+    val i = s.iterator
+    while (i.hasNext) {
+      val c = i.next()
+      if (c.isHighSurrogate && i.hasNext) {
+        //      } else if (c.isHighSurrogate) {
+        //          if (!i.hasNext) {
+//        sb.append(pctEncode(c))
+        //          throw new RuntimeException(s"Unexpected low surrogate ${Integer.toHexString(c.toInt)}")
+        //          } else {
+        val l = i.next()
+        if (!l.isLowSurrogate) {
+          //            throw new IllegalArgumentException(s"Unexpected char $c (${Integer.toHexString(l.toInt)}) after high surrogate ${Integer.toHexString(c.toInt)}")
+          sb.append(pctEncode(l))
+        } else {
+          // e.g. 𥳐 = '\uD857' + '\uDCD0'
+          sb.append(JavaNetCodec.encode("" + c + l))
+        }
+        //          }
       } else if (c.isLetterOrDigit || allowedChars.contains(c)) {
-        // (isAlphaNum(c) || allowedChars.contains(c)) {
-        sb.append(c)
-      } else if (c.isHighSurrogate) {
-        hs = c
+          // (isAlphaNum(c) || allowedChars.contains(c)) {
+          sb.append(c)
+          //      } else if (c.isLowSurrogate) {
+          //        throw new RuntimeException(s"Unexpected low surrogate ${Integer.toHexString(c.toInt)}")
       } else {
         sb.append(pctEncode(c))
       }
@@ -95,16 +106,7 @@ object Encoder {
   //  }
 
   def decode(s: String): String = {
-    Try(JavaNetCodec.decode(s)) match {
-      case Success(s) => s
-      case Failure(t) =>
-        println(s"ERROR decoding $s")
-        throw t
-
-    }
-    //    val sb = new StringBuilder
-    //    chars(s).foreach(c => sb.append(pctDecodeChar(c)))
-    //    sb.toString()
+    JavaNetCodec.decode(s)
   }
 
   //  private def chars(s:String):Iterator[String] = new Iterator[String]{

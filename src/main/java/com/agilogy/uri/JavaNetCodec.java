@@ -25,10 +25,13 @@ public final class JavaNetCodec {
         sb.append(hexDigits[(b >> 0) & 0x0f]);
     }
 
+    /**
+     * @see java.net.URI#encode(String)
+     */
     // Encodes all characters >= \u0080 into escaped, normalized UTF-8 octets,
     // assuming that s is otherwise legal
     //
-    static String encode(String s) {
+    public static String encode(String s) {
         int n = s.length();
         if (n == 0)
             return s;
@@ -47,7 +50,7 @@ public final class JavaNetCodec {
         try {
             bb = ThreadLocalCoders.encoderFor("UTF-8").encode(charBuffer);
         } catch (CharacterCodingException x) {
-            throw new RuntimeException("Exception encoding " + charBuffer,x);
+            assert false;
         }
 
         StringBuffer sb = new StringBuffer();
@@ -61,6 +64,9 @@ public final class JavaNetCodec {
         return sb.toString();
     }
 
+    /**
+     * @see java.net.URI#decode(char)
+     */
     private static int decode(char c) {
         if ((c >= '0') && (c <= '9'))
             return c - '0';
@@ -72,11 +78,17 @@ public final class JavaNetCodec {
         return -1;
     }
 
+    /**
+     * @see java.net.URI#decode(char, char)
+     */
     private static byte decode(char c1, char c2) {
         return (byte)(  ((decode(c1) & 0xf) << 4)
                 | ((decode(c2) & 0xf) << 0));
     }
 
+    /**
+     * @see java.net.URI#decode(String)
+     */
     // Evaluates all escapes in s, applying UTF-8 decoding if needed.  Assumes
     // that escapes are well-formed syntactically, i.e., of the form %XX.  If a
     // sequence of escaped octets is not valid UTF-8 then the erroneous octets

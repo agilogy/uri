@@ -17,9 +17,9 @@ abstract case class Port private (intValue: Int) {
 }
 
 object Port {
-  def apply(v: Int): Port = {
-    require(v >= 0)
-    new Port(v) {}
+  def apply(v: Int): Either[NegativePort,Port] = {
+    if (v < 0) Left(NegativePort(v))
+    else Right(new Port(v) {})
   }
 }
 
@@ -37,27 +37,28 @@ object Authority {
   def apply(userInfo: UserInfo, host: Host): Authority = Authority(Some(userInfo), host, None)
   def apply(userInfo: String, host: String): Authority = Authority(UserInfo(userInfo), Host(host))
   def apply(host: Host, port: Port): Authority = Authority(None, host, Some(port))
-  def apply(host: String, port: Int): Authority = Authority(Host(host), Port(port))
+  def apply(host: String, port: Port): Authority = Authority(Host(host), port)
+  def apply(host: String, port: Int): Either[NegativePort, Authority] = Port(port).map(Authority(Host(host), _))
   def apply(userInfo: UserInfo, host: Host, port: Port): Authority = Authority(Some(userInfo), host, Some(port))
-  def apply(userInfo: String, host: String, port: Int): Authority = Authority(UserInfo(userInfo), Host(host), Port(port))
+  def apply(userInfo: String, host: String, port: Port): Authority = Authority(Some(UserInfo(userInfo)), Host(host), Some(port))
+  def apply(userInfo: String, host: String, port: Int): Either[NegativePort, Authority] = Port(port).map(Authority(UserInfo(userInfo), Host(host), _))
 
   private val AuthorityRe = "(([^/?#@]*)@)?([^/?#@:]*)(:([0-9]*))?".r
 
-  import validation.ValidationExceptions._
-  import validation.Validators._
-
-  def parse(s: String): Validation[DoesNotMatch, Authority] = {
+  def parse(s: String): Either[AuthorityParseError, Authority] = {
     s match {
       case AuthorityRe(_, sUserInfo, sHost, _, sPort) =>
         val userInfo = Option(sUserInfo).map(ui => UserInfo(Encoder.decode(ui)))
         val host = Host(Encoder.decode(Option(sHost).getOrElse("")))
-        val port = Option(sPort).map(p => Port(p.toInt))
-        success(Authority(userInfo, host, port))
+        // The regex guarantees the port wont be negative
+        val port = Option(sPort).map(p => Port(p.toInt).right.get)
+        Right(Authority(userInfo, host, port))
       case _ =>
-        failure(new DoesNotMatch("authority", AuthorityRe))
+        //TODO: Test this case
+        Left(AuthorityParseError(s))
     }
 
   }
 
-  def parseTry(s: String): Try[Authority] = parse(s).validationToTry
+  def parseTry(s: String): Try[Authority] = parse(s).toTry
 }

@@ -1,7 +1,5 @@
 package com.agilogy.uri
 
-import scala.util.{ Success, Try }
-
 sealed trait PathType
 object PathType {
   case object Absolute extends PathType
@@ -9,6 +7,9 @@ object PathType {
   case object Empty extends PathType
 }
 
+/**
+  * @see <a href="https://tools.ietf.org/html/rfc3986#section-3.3">rfc3986#section-3.3</a>
+  */
 sealed trait Path {
   type PathWithSegmentsType <: Path with PathWithSegments
   def pathType: PathType
@@ -24,43 +25,53 @@ sealed trait Path {
 }
 
 object Path {
-  val empty = EmptyPath
-  val Slash = Path / ""
+  val empty: EmptyPath.type = EmptyPath
+  val Slash: AbsoluteSingleSegmentPath = Path / ""
   def /(s: Segment): AbsoluteSingleSegmentPath = AbsoluteSingleSegmentPath(s)
   def /(s: String): AbsoluteSingleSegmentPath = Path / Segment(s)
-  def apply(s: Segment): RootlessPath = RootlessSingleSegmentPath(s)
-  def apply(s: String): RootlessPath = apply(Segment(s))
+  def apply(s: NonEmptySegment) = RootlessSingleSegmentPath(s)
+  def apply(s: String): Either[FirstSegmentIsEmptyInRootlessPath.type, RootlessSingleSegmentPath] = Segment(s) match {
+    case EmptySegment => Left(FirstSegmentIsEmptyInRootlessPath)
+    case s:NonEmptySegment => Right(RootlessSingleSegmentPath(s))
+  }
 
   def absoluteOrEmpty(s: Segment*): PathAbEmpty = {
-    if (s.isEmpty) empty
-    else absolute(s: _*)
+    s match {
+      case Seq()     => empty
+      case h +: tail => absolute(h, tail: _*)
+    }
   }
-  def absolute(s: Segment*): AbsolutePath = AbsolutePath(s: _*)
-  def rootless(s: Segment*): RootlessPath = RootlessPath(s: _*)
+  def absolute(segment: Segment, moreSegments: Segment*): AbsolutePath = AbsolutePath(segment, moreSegments: _*)
+  def rootless(segment: NonEmptySegment, moreSegments: Segment*): RootlessPath = RootlessPath(segment, moreSegments: _*)
 
   private val AbsolutePathRe = "(/[^?#]*)+".r
   private val RelativePathRe = "([^?#/]+)(/[^?#]*)*".r
 
   private val SegmentRe = "/([^?#/]*)".r
 
-  def parse(s: String): Try[Path] = {
+  def parse(s: String): Path = {
     s match {
-      case "" => Success(Path.empty)
+      case "" => Path.empty
       case AbsolutePathRe(_) =>
         val res = SegmentRe.findAllIn(s).matchData.foldLeft[PathAbEmpty](Path.empty) {
           case (acc, m) => acc / Encoder.decode(m.group(1))
         }
-        Success(res)
+        res
       case RelativePathRe(headSegment, segmentsOrNull) =>
         val segmentsString = Option(segmentsOrNull).getOrElse("")
         val tailSegments = SegmentRe.findAllIn(segmentsString).matchData.map(m => m.group(1))
-        val segments = (headSegment +: tailSegments.toSeq).map(s => Segment(Encoder.decode(s)))
-        Success(RootlessPath(segments.toSeq: _*))
+        val h = NonEmptySegment(Encoder.decode(headSegment))
+        val t = tailSegments.toList.map(s => Segment(Encoder.decode(s)))
+        Path.rootless(h, t: _*)
     }
   }
 
 }
 
+/**
+  * A path that begins with "/" or is empty
+  * @see <a href="https://tools.ietf.org/html/rfc3986#section-3.3">rfc3986#section-3.3</a>
+  */
 trait PathAbEmpty extends Path {
   type PathWithSegmentsType <: PathAbEmpty with PathWithSegments
 }
@@ -69,6 +80,12 @@ trait PathWithSegments {
   self: Path =>
 }
 
+/**
+  * A path that begins with "/"
+  * <p>
+  * Note that it does NOT correspond to rfc3986's path-absolute, since it may begin with "//"
+  * @see <a href="https://tools.ietf.org/html/rfc3986#section-3.3">rfc3986#section-3.3</a>
+  */
 trait AbsolutePath extends PathWithSegments with PathAbEmpty {
   type PathWithSegmentsType = NonEmptyAbsolutePath
   //  def /(s:String): NonEmptyAbsolutePath = this / Segment(s)
@@ -82,9 +99,7 @@ trait AbsolutePath extends PathWithSegments with PathAbEmpty {
 }
 
 object AbsolutePath {
-  def apply(segments: Segment*): AbsolutePath = {
-    require(segments.nonEmpty)
-    val (head :: tail) = segments.toList
+  def apply(head: Segment, tail: Segment*): AbsolutePath = {
     tail.foldLeft[AbsolutePath](AbsoluteSingleSegmentPath(head))(_ / _)
   }
 }
@@ -93,6 +108,10 @@ case class NonEmptyAbsolutePath(parent: AbsolutePath, segment: Segment) extends 
   override def segments: Seq[Segment] = parent.segments :+ segment
 }
 
+/**
+  * A path that begins with a non empty segment
+  * @see <a href="https://tools.ietf.org/html/rfc3986#section-3.3">rfc3986#section-3.3</a>
+  */
 trait RootlessPath extends Path {
 
   type PathWithSegmentsType = ConsRootlessPath
@@ -108,13 +127,13 @@ trait RootlessPath extends Path {
 }
 
 object RootlessPath {
-  def apply(segments: Segment*): RootlessPath = {
-    require(segments.nonEmpty)
-    val (head :: tail) = segments.toList
+  private[uri] def apply(head:NonEmptySegment, tail: Segment*): RootlessPath =
     tail.foldLeft[RootlessPath](RootlessSingleSegmentPath(head))(_ / _)
-  }
 }
 
+/**
+  * @see <a href="https://tools.ietf.org/html/rfc3986#section-3.3">rfc3986#section-3.3</a>
+  */
 case class ConsRootlessPath(parent: RootlessPath, segment: Segment) extends RootlessPath with PathWithSegments {
 
   def /(s: Segment): ConsRootlessPath = ConsRootlessPath(this, s)
@@ -129,9 +148,10 @@ case class AbsoluteSingleSegmentPath(segment: Segment) extends AbsolutePath with
   override def segments: Seq[Segment] = Seq(segment)
 }
 
-case class RootlessSingleSegmentPath(segment: Segment) extends RootlessPath with PathWithSegments {
-
-  require(segment.stringValue.nonEmpty, "The first segment of a rootless path can't be empty")
+/**
+  * @see <a href="https://tools.ietf.org/html/rfc3986#section-3.3">rfc3986#section-3.3</a>
+  */
+case class RootlessSingleSegmentPath private[uri] (segment: NonEmptySegment) extends RootlessPath with PathWithSegments {
 
   override def parentOption: None.type = None
 
@@ -140,6 +160,10 @@ case class RootlessSingleSegmentPath(segment: Segment) extends RootlessPath with
   override def /(s: Segment): ConsRootlessPath = ConsRootlessPath(this, s)
 }
 
+/**
+  * The path with zero characters
+  * @see <a href="https://tools.ietf.org/html/rfc3986#section-3.3">rfc3986#section-3.3</a>
+  */
 case object EmptyPath extends PathAbEmpty {
 
   type PathWithSegmentsType = AbsoluteSingleSegmentPath
