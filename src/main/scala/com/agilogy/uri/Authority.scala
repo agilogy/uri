@@ -1,10 +1,9 @@
 package com.agilogy.uri
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
-abstract case class UserInfo private (stringValue: String) {
+abstract case class UserInfo private (stringValue: String) extends UriPart{
   override def toString: String = s"""UserInfo("$stringValue")"""
-  def asciiStringValue = Encoder.asciiEncode(stringValue)
 }
 
 object UserInfo {
@@ -23,10 +22,9 @@ object Port {
   }
 }
 
-case class Authority(userInfo: Option[UserInfo], host: Host, port: Option[Port]) {
+case class Authority(userInfo: Option[UserInfo], host: Host, port: Option[Port]) extends UriPart {
 
   def stringValue: String = Encoder.quoteAuthority(this)
-  def asciiStringValue: String = Encoder.asciiEncode(stringValue)
 
 }
 
@@ -60,5 +58,8 @@ object Authority {
 
   }
 
-  def parseTry(s: String): Try[Authority] = parse(s).toTry
+  def parseTry(s: String): Try[Authority] = parse(s) match {
+    case Left(e) => Failure(AuthorityParseException(e))
+    case Right(r) => Success(r)
+  }
 }

@@ -3,7 +3,6 @@ package com.agilogy.uri
 import org.scalatest.{ EitherValues, FreeSpec, Matchers, TryValues }
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
 import UriGenerators._
-import validation.Validation._
 
 class UriParseSpec extends FreeSpec with GeneratorDrivenPropertyChecks with Matchers with TryValues with EitherValues {
 
@@ -42,13 +41,38 @@ class UriParseSpec extends FreeSpec with GeneratorDrivenPropertyChecks with Matc
 
     "missing scheme" in {
       val uri = "/foo"
-      val expectedFailure = List(MissingScheme(uri))
+      val expectedFailure = UriParseError(scheme = Some(MissingScheme(uri)))
       val res = Uri.parse(uri)
       assert(res.isLeft)
       assert(res.left.value === expectedFailure)
       val tryRes = Uri.parseTry(uri)
       assert(tryRes.isFailure)
-      assert(tryRes.failure.exception === ValidationFailure(expectedFailure))
+      assert(tryRes.failure.exception === UriParseException(expectedFailure))
+    }
+
+    "illegal scheme name" in {
+      val uri = "&&:localhost/foo"
+      val res = Uri.parse(uri)
+      assert(res.left.value === UriParseError(scheme = Some(IllegalSchemeName("&&"))))
+    }
+
+    "authority parse error" in {
+      val uri = "http://lo:a:b/foo"
+      val res = Uri.parse(uri)
+      assert(res.left.value === UriParseError(authority = Some(AuthorityParseError("lo:a:b"))))
+    }
+
+    "no authority,path '////'" in {
+      val uri = "http://///"
+      val res = Uri.parse(uri)
+      val http = Scheme("http").right.get
+      assert(res.right.value === Uri(http, Authority(""), Path./("") / "" / ""))
+    }
+
+    "accumulate errors" in {
+      val uri = "&&://lo:a:b/foo"
+      val res = Uri.parse(uri)
+      assert(res.left.value === UriParseError(scheme = Some(IllegalSchemeName("&&")), authority = Some(AuthorityParseError("lo:a:b"))))
     }
 
     //    "foo" in {

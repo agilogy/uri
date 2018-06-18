@@ -1,8 +1,7 @@
 package com.agilogy.uri
 
-trait Segment{
+trait Segment extends UriPart{
   def stringValue:String
-  def asciiStringValue: String = Encoder.asciiEncode(stringValue)
   override def toString: String = s"""Segment("$stringValue")"""
 }
 

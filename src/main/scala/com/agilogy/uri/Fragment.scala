@@ -1,5 +1,7 @@
 package com.agilogy.uri
 
-case class Fragment(stringValue: String) {
-  def asciiStringValue: String = Encoder.asciiEncode(stringValue)
+abstract case class Fragment(stringValue: String) extends UriPart
+
+object Fragment{
+  def apply(stringValue:String): Fragment = new Fragment(Encoder.normalize(stringValue)){}
 }

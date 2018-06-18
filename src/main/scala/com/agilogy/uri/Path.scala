@@ -10,7 +10,7 @@ object PathType {
 /**
   * @see <a href="https://tools.ietf.org/html/rfc3986#section-3.3">rfc3986#section-3.3</a>
   */
-sealed trait Path {
+sealed trait Path extends UriPart {
   type PathWithSegmentsType <: Path with PathWithSegments
   def pathType: PathType
   def isAbsolute: Boolean = pathType == PathType.Absolute
@@ -18,7 +18,6 @@ sealed trait Path {
   def isEmpty: Boolean = pathType == PathType.Empty
   def segments: Seq[Segment]
   def stringValue: String
-  def asciiStringValue: String = Encoder.asciiEncode(stringValue)
   //  override def toString: String = segments.map(_.toString).mkString("/")
   def /(s: Segment): PathWithSegmentsType
   def /(s: String): PathWithSegmentsType = this / Segment(s)

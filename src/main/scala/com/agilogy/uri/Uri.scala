@@ -1,11 +1,11 @@
 package com.agilogy.uri
 
-import scala.util.Try
+import scala.util.{Failure, Success, Try}
 
 //TODO: Implement other subclasses of UriReference
 sealed trait UriReference
 
-trait Uri extends UriReference {
+trait Uri extends UriReference with UriPart{
 
   def scheme: Scheme
 
@@ -18,8 +18,6 @@ trait Uri extends UriReference {
   def fragment: Option[Fragment]
 
   def stringValue: String = Encoder.quoteUri(this)
-
-  def asciiStringValue: String = Encoder.asciiEncode(stringValue)
 
   def toJava: java.net.URI = {
     new java.net.URI(stringValue)
@@ -89,7 +87,7 @@ abstract case class NoAuthorityPathUri private (scheme: Scheme, path: Path) exte
 }
 
 object NoAuthorityPathUri{
-  def apply(scheme: Scheme, path: EmptyPath.type) = new NoAuthorityPathUri(scheme, path){}
+  def apply(scheme: Scheme, path: EmptyPath.type): NoAuthorityPathUri = new NoAuthorityPathUri(scheme, path){}
   def apply(scheme: Scheme, path: Path): Either[PathStartsWithDoubleSlashInNoAuhtorityUri, NoAuthorityPathUri] = {
 
     // See https://tools.ietf.org/html/rfc3986#section-3.3
@@ -170,30 +168,103 @@ object Uri {
       case (None, _)                  => Uri.noAuthority(scheme, path, query, fragment)
     }
   }
-  // This is infact the regexp for URI-Reference, not for URI
+  // This is in fact the regexp for URI-Reference, not for URI
   // See https://tools.ietf.org/html/rfc3986#appendix-B
   private val UriRe = "^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?".r
 
   import validation.Validation._
 
-  def parseTry(s: String): Try[Uri] = parse(s).validationToTry
+  def parseTry(s: String): Try[Uri] = parse(s) match {
+    case Left(e) => Failure(UriParseException(e))
+    case Right(r) => Success(r)
+  }
 
-  def parse(s: String): Validation[UriParseError, Uri] = {
+  private def matchParts(uri:String):(Option[String],Option[String],Option[String],Option[String],Option[String]) = {
 
-    import validation.Validators._
+    val chars = uri.toCharArray
+    val length = chars.length
+    var i = 0
 
-    s match {
-      case UriRe(_, sScheme, _, sAuthority, sPath, _, sQuery, _, sFragment) =>
-        val scheme: Validation[UriParseError, Scheme] = notNull(MissingScheme(s), sScheme).andValidate(Scheme.apply)
-        val authority: Either[UriParseError, Option[Authority]] = sequence(Option(sAuthority).map(Authority.parse))
-        val res = lift((Uri.of _).curried) <*>
-          scheme <*>
-          toValidation(authority) <*>
-          success(Path.parse(sPath)) <*>
-          success(Option(sQuery).map(q => Query(Encoder.decode(q)))) <*>
-          success(Option(sFragment).map(f => Fragment(Encoder.decode(f))))
-        // THe regexp guaranteees that if there are "//" then they are the authority
-        res.right.map(_.right.get)
+    def readUntil(delimiters:Set[Char]):String = {
+      if(i >= length) ""
+      else {
+        val res = StringBuilder.newBuilder
+        while (i < length && !delimiters.contains(chars(i))) {
+          res.append(chars(i))
+          i += 1
+        }
+        res.toString()
+      }
+    }
+
+    def read():String = {
+      if(i >= length) ""
+      else {
+        val res = StringBuilder.newBuilder
+        while (i < length) {
+          res.append(i)
+          i += 1
+        }
+        res.toString()
+      }
+    }
+
+    var scheme:Option[String] = Some(readUntil(Set(':','/','?','#')))
+    if(i < length && chars(i) == ':'){
+      i += 1
+    } else {
+      scheme = None
+      i = 0
+    }
+    val authority = {
+      if (i + 1 < length && chars(i) == '/' && chars(i + 1) == '/') {
+        i = i + 2
+        Some(readUntil(Set('/', '?', '#')))
+      } else {
+        None
+      }
+    }
+    val path = if(i < length && !Set('?','#').contains(chars(i))){
+      Some(readUntil(Set('?', '#')))
+    } else {
+      None
+    }
+
+    val query = if(i < length && chars(i) == '?'){
+      i += 1
+      Some(readUntil(Set('#')))
+    } else {
+      None
+    }
+
+    val fragment = if(i < length && chars(i) == '#'){
+      i += 1
+      Some(read())
+    } else {
+      None
+    }
+
+    (scheme, authority, path, query, fragment)
+  }
+
+
+  def parse(value: String): Either[UriParseError, Uri] = {
+
+    matchParts(value) match {
+      case (s,a,p,q,f) =>
+        println(s"s = '$s', a = '$a', p = '$p', q = '$q', f = '$f'")
+        val scheme: Either[SchemeError, Scheme] = notNull(MissingScheme(value), s).flatMap(Scheme.apply)
+        val authority: Either[AuthorityParseError, Option[Authority]] = sequence(a.map(Authority.parse))
+        (scheme, authority) match {
+          case (Right(s),Right(a))=>
+            val path = Path.parse(p.getOrElse(""))
+            val query = q.map(q => Query(Encoder.decode(q)))
+            val fragment = f.map(f => Fragment(Encoder.decode(f)))
+            // The regular expression makes it impossible for a PathError to occur
+            Right(Uri.of(s, a, path, query, fragment).right.get)
+          case _ =>
+            Left(UriParseError(scheme.left.toOption, authority.left.toOption))
+        }
       case _ =>
         // It actually never happens. Every possible string matches de url regexp, afaik
         throw new IllegalStateException("Unreachable code")

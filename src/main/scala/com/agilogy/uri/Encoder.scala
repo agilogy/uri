@@ -135,12 +135,10 @@ object Encoder {
     a.userInfo.fold("")(ui => Encoder.quote(ui.stringValue, Encoder.userInfoChars -- Set(':')) + "@") +
       Encoder.quote(a.host.stringValue, Encoder.registeredNameChars) +
       a.port.fold("")(":" + _.stringValue)
-    //    new java.net.URI("s",a.userInfo.map(_.stringValue).orNull,a.host.stringValue,a.port.map(_.intValue).getOrElse(-1),null,null,null).getRawAuthority
   }
 
   def quoteSegment(s: Segment): String = {
     Encoder.quote(s.stringValue, Encoder.pathSegmentChars)
-    //    new java.net.URI("s",s.stringValue,null).getRawSchemeSpecificPart
   }
 
   def quoteUri(uri: Uri): String = {
@@ -150,13 +148,6 @@ object Encoder {
     val sQuery = uri.query.map(q => "?" + Encoder.quote(q.stringValue, Encoder.queryChars)).getOrElse("")
     val sFragment = uri.fragment.map(f => "#" + f.stringValue).getOrElse("")
     s"$sScheme:$sAuthority$sPath$sQuery$sFragment"
-    //    new java.net.URI(
-    //      uri.scheme.stringValue,
-    //      uri.authority.map(encodeAuthority).orNull,
-    //      uri.path.map(_.stringValue).getOrElse(""),
-    //      uri.query.map(_.stringValue).orNull,
-    //      uri.fragment.map(_.stringValue).orNull)
-    //      .toString
   }
 
   def normalize(s: String): String = Normalizer.normalize(s, Normalizer.Form.NFC)
