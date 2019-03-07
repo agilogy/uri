@@ -2,12 +2,11 @@ package com.agilogy.uri
 
 import org.scalacheck.{ Arbitrary, Gen }
 
-//TODO: Make stuff private
 object UriGenerators {
 
-  val utfChars = implicitly[Arbitrary[Char]].arbitrary
+  private val utfChars = implicitly[Arbitrary[Char]].arbitrary
 
-  val chars: Gen[Char] = for {
+  private val chars: Gen[Char] = for {
     option <- Gen.frequency(90 -> "a", 7 -> "l", 3 -> "o")
     c <- option match {
       case "a" =>
@@ -20,7 +19,7 @@ object UriGenerators {
     }
   } yield c
 
-  def alphaStr(maxSize: Int, minSize: Int = 0): Gen[String] = for {
+  private def alphaStr(maxSize: Int, minSize: Int = 0): Gen[String] = for {
     size <- Gen.choose(minSize, maxSize)
     list <- Gen.listOfN(size, chars)
   } yield list.mkString
@@ -29,25 +28,25 @@ object UriGenerators {
 
   private val schemeChars = Gen.frequency(9 -> Gen.alphaNumChar, 1 -> Gen.oneOf('+', '-', '.'))
 
-  val schemes = for {
+  private val schemes = for {
     c <- Gen.alphaChar
     size <- Gen.choose(0, 5)
     list <- Gen.listOfN(size, schemeChars)
   } yield Scheme(c + list.mkString("")).right.get
 
-  val userInfos = for (s <- alphaStr(10)) yield UserInfo(s)
+  private val userInfos = for (s <- alphaStr(10)) yield UserInfo(s)
 
-  val registeredNames = for {
+  private val registeredNames = for {
     s <- alphaStr(20) //if Encoder.isValidRegisteredName(s)
   } yield Host(s)
 
-  val ports = Gen.chooseNum(1, 65000).map(i => Port(i).right.get)
+  private val ports = Gen.chooseNum(1, 65000).map(i => Port(i).right.get)
 
-  val nonEmptySegments = for (s <- alphaStr(10, 1)) yield NonEmptySegment(s)
+  private val nonEmptySegments = for (s <- alphaStr(10, 1)) yield NonEmptySegment(s)
 
-  val segments: Gen[Segment] = Gen.frequency(1 -> Gen.const(Segment.Empty), 9 -> nonEmptySegments)
+  private val segments: Gen[Segment] = Gen.frequency(1 -> Gen.const(Segment.Empty), 9 -> nonEmptySegments)
 
-  lazy val absolutePaths: Gen[PathAbEmpty] = {
+  private lazy val absolutePaths: Gen[PathAbEmpty] = {
     Gen.sized { size =>
       for {
         size <- Gen.choose(0, size)
@@ -56,7 +55,7 @@ object UriGenerators {
     }
   }
 
-  lazy val rootlessPaths: Gen[RootlessPath] = {
+  private lazy val rootlessPaths: Gen[RootlessPath] = {
     Gen.sized { size =>
       for {
         head <- nonEmptySegments
@@ -66,19 +65,19 @@ object UriGenerators {
     }
   }
 
-  lazy val paths: Gen[Path] = Gen.oneOf(absolutePaths, rootlessPaths)
+  private lazy val paths: Gen[Path] = Gen.oneOf(absolutePaths, rootlessPaths)
 
-  val authorities = for {
+  val authorities: Gen[Authority] = for {
     ui <- Gen.option(userInfos)
     h <- registeredNames
     p <- Gen.option(ports)
   } yield Authority(ui, h, p)
 
-  val queries = alphaStr(10).map(Query.apply)
+  private val queries = alphaStr(10).map(Query.apply)
 
-  val fragments = alphaStr(6).map(Fragment.apply)
+  private val fragments = alphaStr(6).map(Fragment.apply)
 
-  val authorityUris = for {
+  private val authorityUris = for {
     s <- schemes
     a <- authorities
     p <- absolutePaths
@@ -86,7 +85,7 @@ object UriGenerators {
     f <- Gen.option(fragments)
   } yield Uri(s, a, p, q, None)
 
-  val authoritylessUris = for {
+  private val authoritylessUris = for {
     s <- schemes
     p <- paths if !p.stringValue.startsWith("//")
     q <- if (p.isEmpty) queries.map(Some.apply) else Gen.option(queries)
