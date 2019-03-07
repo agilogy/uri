@@ -1,15 +1,14 @@
 package com.agilogy.uri
 
-trait Segment extends UriPart{
-  def stringValue:String
-  override def toString: String = s"""Segment("$stringValue")"""
+sealed trait Segment extends UriPart {
+  def stringValue: String
 }
 
 // TODO: Enforce segment constraints
-abstract case class NonEmptySegment private (stringValue: String) extends Segment
+sealed abstract case class NonEmptySegment private (stringValue: String) extends Segment
 
-object NonEmptySegment{
-  private[uri] def apply(stringValue:String): NonEmptySegment = new NonEmptySegment(Encoder.normalize(stringValue)){}
+object NonEmptySegment {
+  private[uri] def apply(stringValue: String): NonEmptySegment = new NonEmptySegment(Encoder.normalize(stringValue)) {}
 }
 
 case object EmptySegment extends Segment {

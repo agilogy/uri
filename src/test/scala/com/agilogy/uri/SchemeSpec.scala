@@ -1,8 +1,8 @@
 package com.agilogy.uri
 
-import org.scalatest.{EitherValues, FreeSpec}
+import org.scalatest.{ EitherValues, FreeSpec }
 
-class SchemeSpec extends FreeSpec with EitherValues{
+class SchemeSpec extends FreeSpec with EitherValues {
 
   """
     |Each URI begins with a scheme name that refers to a specification for assigning identifiers within that scheme.

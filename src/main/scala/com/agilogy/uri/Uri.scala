@@ -55,6 +55,7 @@ trait NoFragmentUri[U <: Uri] extends Uri {
 
   def ##(f: Fragment): UF
   def ##(f: String): UF = this ## Fragment(f)
+  def f(f: Fragment): UF = this ## f
   def f(f: String): UF = this ## Fragment(f)
 }
 
@@ -63,6 +64,7 @@ trait NoQueryFragmentUri[U <: Uri] extends NoQueryUri with NoFragmentUri[U] {
 
   def ?(query: Query): UQ
   def ?(query: String): UQ = this ? Query(query)
+  def q(query: Query): UQ = this ? query
   def q(query: String): UQ = this ? Query(query)
 
 }
@@ -168,9 +170,6 @@ object Uri {
       case (None, _)                  => Uri.noAuthority(scheme, path, query, fragment)
     }
   }
-  // This is in fact the regexp for URI-Reference, not for URI
-  // See https://tools.ietf.org/html/rfc3986#appendix-B
-  private val UriRe = "^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?".r
 
   import validation.Validation._
 

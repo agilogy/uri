@@ -1,8 +1,8 @@
 package com.agilogy.uri
 
-import org.scalatest.{EitherValues, FreeSpec}
+import org.scalatest.{ EitherValues, FreeSpec }
 
-class UriStringValueSpec extends FreeSpec with EitherValues{
+class UriStringValueSpec extends FreeSpec with EitherValues {
 
   """
     |Uri stringValue""".stripMargin - {

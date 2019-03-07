@@ -26,8 +26,8 @@ object Encoder {
       Try(JavaNetCodec.encode(c.toString)) match {
         case Success(s) => s
         case Failure(t) =>
-//          println(s"ERROR encoding $c")
-//          throw new RuntimeException(t)
+          //          println(s"ERROR encoding $c")
+          //          throw new RuntimeException(t)
           "?"
 
       }
@@ -71,7 +71,7 @@ object Encoder {
       if (c.isHighSurrogate && i.hasNext) {
         //      } else if (c.isHighSurrogate) {
         //          if (!i.hasNext) {
-//        sb.append(pctEncode(c))
+        //        sb.append(pctEncode(c))
         //          throw new RuntimeException(s"Unexpected low surrogate ${Integer.toHexString(c.toInt)}")
         //          } else {
         val l = i.next()
@@ -84,10 +84,10 @@ object Encoder {
         }
         //          }
       } else if (c.isLetterOrDigit || allowedChars.contains(c)) {
-          // (isAlphaNum(c) || allowedChars.contains(c)) {
-          sb.append(c)
-          //      } else if (c.isLowSurrogate) {
-          //        throw new RuntimeException(s"Unexpected low surrogate ${Integer.toHexString(c.toInt)}")
+        // (isAlphaNum(c) || allowedChars.contains(c)) {
+        sb.append(c)
+        //      } else if (c.isLowSurrogate) {
+        //        throw new RuntimeException(s"Unexpected low surrogate ${Integer.toHexString(c.toInt)}")
       } else {
         sb.append(pctEncode(c))
       }

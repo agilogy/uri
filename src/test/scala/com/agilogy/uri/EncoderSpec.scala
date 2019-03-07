@@ -44,11 +44,11 @@ class EncoderSpec extends FlatSpec with PrivateMethodTester {
     assert(Encoder.decode("hello") === "hello")
   }
 
-  //  it should "encode non ascii chars" in {
-  //    val s = "㮜"
-  //    val encoded = Encoder invokePrivate encode(s, Set.empty)
-  //    val res = Encoder.decode(encoded)
-  //    assert(res === s, s"$s is encoded as $encoded but not decoded to $s but to $res")
-  //  }
+//    it should "encode non ascii chars" in {
+//      val s = "㮜"
+//      val encoded = Encoder invokePrivate encode(s, Set.empty)
+//      val res = Encoder.decode(encoded)
+//      assert(res === s, s"$s is encoded as $encoded but not decoded to $s but to $res")
+//    }
 
 }
