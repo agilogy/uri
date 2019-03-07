@@ -13,13 +13,13 @@ class UriParseSpec extends FreeSpec with GeneratorDrivenPropertyChecks with Matc
   }
 
   "Segment case" in {
-    val uri = Uri(Scheme("http").right.value, Authority("localhost"),Path./(NonEmptySegment("ίTb")))
+    val uri = Uri(Scheme("http").right.value, Authority("localhost"), Path./(NonEmptySegment("ίTb")))
     val parsed = Uri.parse(uri.stringValue)
     assert(parsed.right.value === uri)
   }
 
   "Parse a path" in {
-    val p = Path("a b").right.value / "b"
+    val p = Path("a b") / "b"
     assert(p.stringValue === "a%20b/b")
     assert(Path.parse(p.stringValue) === p)
   }
@@ -58,8 +58,9 @@ class UriParseSpec extends FreeSpec with GeneratorDrivenPropertyChecks with Matc
 
     "authority parse error" in {
       val uri = "http://lo:a:b/foo"
+      val expectedFailure = UriParseError(authority = Some(AuthorityParseError("lo:a:b")))
       val res = Uri.parse(uri)
-      assert(res.left.value === UriParseError(authority = Some(AuthorityParseError("lo:a:b"))))
+      assert(res.left.value === expectedFailure)
     }
 
     "no authority,path '////'" in {

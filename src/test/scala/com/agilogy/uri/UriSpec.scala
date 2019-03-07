@@ -1,9 +1,9 @@
 package com.agilogy.uri
 
-import org.scalatest.{EitherValues, FreeSpec, Matchers, OptionValues}
+import org.scalatest.{ EitherValues, FreeSpec, Matchers, OptionValues }
 import validation.Validation._
 
-class UriSpec extends FreeSpec with OptionValues with Matchers with EitherValues{
+class UriSpec extends FreeSpec with OptionValues with Matchers with EitherValues {
 
   """
     |A Uniform Resource Identifier (URI) provides a simple and extensible means for identifying a resource.
@@ -17,8 +17,9 @@ class UriSpec extends FreeSpec with OptionValues with Matchers with EitherValues
 
       val sHttp = "http"
       val http = Scheme(sHttp).right.value
-      val sAless = "aless"
-      val aless = Scheme(sAless).right.value
+      val sMailto = "mailto"
+      val mailto = Scheme(sMailto).right.value
+      val johnDoe = "john.doe@example.com"
 
       //      val userInfo = "johnDoe"
       val host = "www.example.com"
@@ -37,12 +38,12 @@ class UriSpec extends FreeSpec with OptionValues with Matchers with EitherValues
       }
 
       "minimal no authority uri" in {
-        val minimalNoAuthorityUri = Uri(aless)
-        assert(minimalNoAuthorityUri.scheme === aless)
+        val minimalNoAuthorityUri = Uri(mailto)
+        assert(minimalNoAuthorityUri.scheme === mailto)
         assert(minimalNoAuthorityUri.authority === None)
         assert(minimalNoAuthorityUri.path === Path.empty)
         assert(minimalNoAuthorityUri.query === None)
-        assert(minimalNoAuthorityUri.fragment=== None)
+        assert(minimalNoAuthorityUri.fragment === None)
       }
 
       "authority uri with host + port" in {
@@ -67,22 +68,48 @@ class UriSpec extends FreeSpec with OptionValues with Matchers with EitherValues
       }
 
       "add a path to a no authority uri" in {
-        val uri = Uri(aless)
-        val uri1: Either[PathStartsWithDoubleSlashInNoAuhtorityUri, NoAuthorityPathUri] = uri / Segment("a")
-        assert(uri1.right.value.path === Path / "a")
+        val uri = Uri.noAuthority(mailto, johnDoe)
+        val uri1 = uri / Segment("a")
+        assert(uri1.right.value.path === Path(johnDoe) / "a")
         assert(uri / "a" === uri1)
         val uri2 = uri1 / Segment("b")
-        assert(uri2.right.value.path === Path / "a" / "b")
+        assert(uri2.right.value.path === Path(johnDoe) / "a" / "b")
         assert(uri1 / "b" === uri2)
       }
 
-        "add a query to an authority uri" in {
+      "add a query to an authority uri" in {
         val uri = Uri(http, host)
         val uri1 = uri ? Query("name=john")
         assert(uri1.theQuery === Query("name=john"))
         assert(uri1.query.value === Query("name=john"))
+        """uri1 ? "a=b" """ shouldNot compile
         """uri1 / "a" """ shouldNot compile
         assert((uri ? "name=john") === uri1)
+        assert((uri q "name=john") === uri1)
+      }
+
+      "add a query to a no authority uri" in {
+        val uri = Uri.noAuthority(mailto, johnDoe)
+        val uri1 = uri ? Query("name=john")
+        assert(uri1.theQuery === Query("name=john"))
+        assert(uri1.query.value === Query("name=john"))
+        """uri1 ? "a=b" """ shouldNot compile
+        """uri1 / "a" """ shouldNot compile
+        assert((uri ? "name=john") === uri1)
+        assert((uri q "name=john") === uri1)
+      }
+
+      "add a query to a potentially erroneous no authority uri" in {
+        val query = "name=john"
+        val uri = Uri.noAuthority(mailto, johnDoe) / "foo"
+        val uri1 = uri ? Query(query)
+        assert(uri1.right.value.theQuery === Query(query))
+        assert(uri1.right.value.query.value === Query(query))
+        """uri1 ? "a=b" """ shouldNot compile
+        """uri1 / "a" """ shouldNot compile
+        assert((uri ? query) === uri1)
+        assert((uri q Query(query)) === uri1)
+        assert((uri q query) === uri1)
       }
 
       "add a fragment to an authority uri" in {
@@ -106,12 +133,73 @@ class UriSpec extends FreeSpec with OptionValues with Matchers with EitherValues
         assert((queryUri ## fragment) === uri2)
       }
 
+      "add a fragment to a no authority uri" in {
+        val fragment = "address"
+        val uri = Uri.noAuthority(mailto, johnDoe)
+        val uri1 = uri ## Fragment(fragment)
+        assert(uri1.theFragment === Fragment(fragment))
+        assert(uri1.fragment.value === Fragment(fragment))
+        """uri1 ## Fragment("foo")""" shouldNot compile
+        """uri1 ? "a=b"""" shouldNot compile
+        """uri1 / "foo"""" shouldNot compile
+        assert((uri ## fragment) == uri1)
+        assert((uri f Fragment(fragment)) == uri1)
+        assert((uri f fragment) == uri1)
+        val query = "name=john"
+        val queryUri = uri ? query
+        val uri2 = queryUri ## Fragment(fragment)
+        assert(uri2.theQuery === Query(query))
+        assert(uri2.theFragment === Fragment(fragment))
+        """uri2 ## Fragment("foo")""" shouldNot compile
+        """uri2 ? "a=b"""" shouldNot compile
+        """uri2 / "foo"""" shouldNot compile
+        assert((queryUri ## fragment) === uri2)
+        assert((queryUri f Fragment(fragment)) === uri2)
+        assert((queryUri f fragment) === uri2)
+      }
+
+      "add a fragment to a potentially erroneous no authority uri" in {
+        val fragment = "address"
+        val uri = Uri.noAuthority(mailto, johnDoe) / "foo"
+        val uri1 = uri ## Fragment(fragment)
+        assert(uri1.right.value.theFragment === Fragment(fragment))
+        assert(uri1.right.value.fragment.value === Fragment(fragment))
+        """uri1 ## Fragment("foo")""" shouldNot compile
+        """uri1 ? "a=b"""" shouldNot compile
+        """uri1 / "foo"""" shouldNot compile
+        assert((uri ## fragment) == uri1)
+        assert((uri f Fragment(fragment)) == uri1)
+        assert((uri f fragment) == uri1)
+        val query = "name=john"
+        val queryUri = uri ? query
+        val uri2 = queryUri ## Fragment(fragment)
+        assert(uri2.right.value.theQuery === Query(query))
+        assert(uri2.right.value.theFragment === Fragment(fragment))
+        """uri2 ## Fragment("foo")""" shouldNot compile
+        """uri2 ? "a=b"""" shouldNot compile
+        """uri2 / "foo"""" shouldNot compile
+        assert((queryUri ## fragment) === uri2)
+        assert((queryUri f Fragment(fragment)) === uri2)
+        assert((queryUri f fragment) === uri2)
+      }
+
       "build a full authority uri" in {
-        val res = (Uri(http, "www.example.com") / "employees" / "23") ? "withSalaryInfo=true" ## "salaryInfo"
-        assert(res.scheme === Scheme("http").right.value)
+        val res = Uri(http, "www.example.com") / "employees" / "23" q "withSalaryInfo=true" f "salaryInfo"
+        assert(res.scheme === http)
         assert(res.theAuthority === res.authority.value)
         assert(res.theAuthority.host === Host("www.example.com"))
         assert(res.path === Path / "employees" / "23")
+        assert(res.theQuery === res.query.value)
+        assert(res.query.value === Query("withSalaryInfo=true"))
+        assert(res.fragment.value === Fragment("salaryInfo"))
+        assert(res.theFragment === res.fragment.value)
+      }
+
+      "build a full no authority uri" in {
+        val attempt = (Uri.noAuthority(mailto, johnDoe) / "a" / "b") ? "withSalaryInfo=true" ## "salaryInfo"
+        val res = attempt.right.value
+        assert(res.scheme === mailto)
+        assert(res.path === Path(johnDoe) / "a" / "b")
         assert(res.theQuery === res.query.value)
         assert(res.query.value === Query("withSalaryInfo=true"))
         assert(res.fragment.value === Fragment("salaryInfo"))
@@ -139,7 +227,7 @@ class UriSpec extends FreeSpec with OptionValues with Matchers with EitherValues
 
       "build an uri without authority but with path" in {
         val mailto = Scheme("mailto").right.value
-        val user = Path("john@example.com").right.value
+        val user = Path("john@example.com")
         val authorityPathUri = Uri(mailto, user).right.value
         assert(authorityPathUri.scheme === mailto)
         assert(!authorityPathUri.path.isAbsolute)
@@ -147,8 +235,6 @@ class UriSpec extends FreeSpec with OptionValues with Matchers with EitherValues
         val wrongPath = Path.Slash / "" / ""
         assert(Uri(mailto, wrongPath) === Left(PathStartsWithDoubleSlashInNoAuhtorityUri(mailto, wrongPath)))
       }
-
-
 
     }
 

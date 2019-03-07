@@ -1,11 +1,11 @@
 package com.agilogy.uri
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 //TODO: Implement other subclasses of UriReference
 sealed trait UriReference
 
-trait Uri extends UriReference with UriPart{
+trait Uri extends UriReference with UriPart {
 
   def scheme: Scheme
 
@@ -88,16 +88,16 @@ abstract case class NoAuthorityPathUri private (scheme: Scheme, path: Path) exte
   override def ##(f: Fragment): NoAuthorityPathFUri = NoAuthorityPathFUri(scheme, path, f)
 }
 
-object NoAuthorityPathUri{
-  def apply(scheme: Scheme, path: EmptyPath.type): NoAuthorityPathUri = new NoAuthorityPathUri(scheme, path){}
+object NoAuthorityPathUri {
+  def apply(scheme: Scheme): NoAuthorityPathUri = new NoAuthorityPathUri(scheme, Path.empty) {}
+  def apply(scheme: Scheme, path: RootlessPath): NoAuthorityPathUri = new NoAuthorityPathUri(scheme, path) {}
   def apply(scheme: Scheme, path: Path): Either[PathStartsWithDoubleSlashInNoAuhtorityUri, NoAuthorityPathUri] = {
 
     // See https://tools.ietf.org/html/rfc3986#section-3.3
     // If a URI does not contain an authority component, then the path cannot begin with two slash characters ("//").
     if (path.stringValue.startsWith("//")) {
       Left(PathStartsWithDoubleSlashInNoAuhtorityUri(scheme, path))
-    }
-    //else if(path.isEmpty && !query.isDefined) throw new RuntimeException(s"Expected scheme-specific part with scheme ${scheme.stringValue}")
+    } //else if(path.isEmpty && !query.isDefined) throw new RuntimeException(s"Expected scheme-specific part with scheme ${scheme.stringValue}")
     else {
       Right(new NoAuthorityPathUri(scheme, path) {})
     }
@@ -137,7 +137,7 @@ case class AuthorityPathQFUri(scheme: Scheme, theAuthority: Authority, path: Pat
 
 object Uri {
 
-  def apply(s: Scheme): NoAuthorityPathUri = NoAuthorityPathUri(s, Path.empty)
+  def apply(s: Scheme): NoAuthorityPathUri = NoAuthorityPathUri(s)
   def apply(s: Scheme, p: Path): Either[PathStartsWithDoubleSlashInNoAuhtorityUri, NoAuthorityPathUri] = NoAuthorityPathUri(s, p)
 
   def apply(s: Scheme, authority: Authority): AuthorityPathUri = AuthorityPathUri(s, authority, Path.empty)
@@ -154,6 +154,13 @@ object Uri {
     }
   }
 
+  def noAuthority(scheme: Scheme, segment: String): NoAuthorityPathUri = {
+    Path(segment) match {
+      case Path.empty      => NoAuthorityPathUri(scheme)
+      case p: RootlessPath => NoAuthorityPathUri(scheme, p)
+    }
+  }
+
   def noAuthority(scheme: Scheme, path: Path, query: Option[Query] = None, fragment: Option[Fragment] = None): Either[PathStartsWithDoubleSlashInNoAuhtorityUri, NoAuthorityUri] = {
     (path, query, fragment) match {
       case (_, None, None)       => NoAuthorityPathUri(scheme, path)
@@ -165,8 +172,8 @@ object Uri {
 
   def of(scheme: Scheme, authority: Option[Authority], path: Path, query: Option[Query] = None, fragment: Option[Fragment] = None): Either[PathError, Uri] = {
     (authority, path) match {
-      case (Some(a), p: PathAbEmpty)  => Right(Uri(scheme, a, p, query, fragment))
       case (Some(a), p: RootlessPath) => Left(RootlessPathInAuthorityUri(scheme, a, p))
+      case (Some(a), p: PathAbEmpty)  => Right(Uri(scheme, a, p, query, fragment))
       case (None, _)                  => Uri.noAuthority(scheme, path, query, fragment)
     }
   }
@@ -174,18 +181,18 @@ object Uri {
   import validation.Validation._
 
   def parseTry(s: String): Try[Uri] = parse(s) match {
-    case Left(e) => Failure(UriParseException(e))
+    case Left(e)  => Failure(UriParseException(e))
     case Right(r) => Success(r)
   }
 
-  private def matchParts(uri:String):(Option[String],Option[String],Option[String],Option[String],Option[String]) = {
+  private def matchParts(uri: String): (Option[String], Option[String], Option[String], Option[String], Option[String]) = {
 
     val chars = uri.toCharArray
     val length = chars.length
     var i = 0
 
-    def readUntil(delimiters:Set[Char]):String = {
-      if(i >= length) ""
+    def readUntil(delimiters: Set[Char]): String = {
+      if (i >= length) ""
       else {
         val res = StringBuilder.newBuilder
         while (i < length && !delimiters.contains(chars(i))) {
@@ -196,8 +203,8 @@ object Uri {
       }
     }
 
-    def read():String = {
-      if(i >= length) ""
+    def read(): String = {
+      if (i >= length) ""
       else {
         val res = StringBuilder.newBuilder
         while (i < length) {
@@ -208,8 +215,8 @@ object Uri {
       }
     }
 
-    var scheme:Option[String] = Some(readUntil(Set(':','/','?','#')))
-    if(i < length && chars(i) == ':'){
+    var scheme: Option[String] = Some(readUntil(Set(':', '/', '?', '#')))
+    if (i < length && chars(i) == ':') {
       i += 1
     } else {
       scheme = None
@@ -223,20 +230,20 @@ object Uri {
         None
       }
     }
-    val path = if(i < length && !Set('?','#').contains(chars(i))){
+    val path = if (i < length && !Set('?', '#').contains(chars(i))) {
       Some(readUntil(Set('?', '#')))
     } else {
       None
     }
 
-    val query = if(i < length && chars(i) == '?'){
+    val query = if (i < length && chars(i) == '?') {
       i += 1
       Some(readUntil(Set('#')))
     } else {
       None
     }
 
-    val fragment = if(i < length && chars(i) == '#'){
+    val fragment = if (i < length && chars(i) == '#') {
       i += 1
       Some(read())
     } else {
@@ -246,16 +253,15 @@ object Uri {
     (scheme, authority, path, query, fragment)
   }
 
-
   def parse(value: String): Either[UriParseError, Uri] = {
 
     matchParts(value) match {
-      case (s,a,p,q,f) =>
+      case (s, a, p, q, f) =>
         println(s"s = '$s', a = '$a', p = '$p', q = '$q', f = '$f'")
         val scheme: Either[SchemeError, Scheme] = notNull(MissingScheme(value), s).flatMap(Scheme.apply)
         val authority: Either[AuthorityParseError, Option[Authority]] = sequence(a.map(Authority.parse))
         (scheme, authority) match {
-          case (Right(s),Right(a))=>
+          case (Right(s), Right(a)) =>
             val path = Path.parse(p.getOrElse(""))
             val query = q.map(q => Query(Encoder.decode(q)))
             val fragment = f.map(f => Fragment(Encoder.decode(f)))

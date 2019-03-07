@@ -1,8 +1,8 @@
 package com.agilogy.uri
 
-import org.scalatest.{EitherValues, FreeSpec}
+import org.scalatest.{ EitherValues, FreeSpec, TryValues }
 
-class AuthoritySpec extends FreeSpec with EitherValues{
+class AuthoritySpec extends FreeSpec with EitherValues with TryValues {
 
   """
     |Many URI schemes include a hierarchical element for a naming authority so that governance of the name space defined
@@ -105,6 +105,23 @@ class AuthoritySpec extends FreeSpec with EitherValues{
         assert(Authority("john:doe", hostName).stringValue === s"john%3Adoe@$hostName")
       }
 
+    }
+
+    """Authority.parse""" - {
+      "parse a valid authority" in {
+        val sAuthority = "localhost"
+        val res = Authority.parse(sAuthority)
+        val expectedResult = Authority(Host(sAuthority))
+        assert(res.right.value === expectedResult)
+        assert(Authority.parseTry("localhost").success.value === expectedResult)
+      }
+
+      "parse an invalid authority" in {
+        val sAuthority = "a:b:c"
+        val expectedFailure = AuthorityParseError(sAuthority)
+        assert(Authority.parse(sAuthority).left.value === expectedFailure)
+        assert(Authority.parseTry(sAuthority).failure.exception === AuthorityParseException(expectedFailure))
+      }
     }
   }
 

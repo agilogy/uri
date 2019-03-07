@@ -8,8 +8,8 @@ object PathType {
 }
 
 /**
-  * @see <a href="https://tools.ietf.org/html/rfc3986#section-3.3">rfc3986#section-3.3</a>
-  */
+ * @see <a href="https://tools.ietf.org/html/rfc3986#section-3.3">rfc3986#section-3.3</a>
+ */
 sealed trait Path extends UriPart {
   type PathWithSegmentsType <: Path with PathWithSegments
   def pathType: PathType
@@ -29,9 +29,9 @@ object Path {
   def /(s: Segment): AbsoluteSingleSegmentPath = AbsoluteSingleSegmentPath(s)
   def /(s: String): AbsoluteSingleSegmentPath = Path / Segment(s)
   def apply(s: NonEmptySegment) = RootlessSingleSegmentPath(s)
-  def apply(s: String): Either[FirstSegmentIsEmptyInRootlessPath.type, RootlessSingleSegmentPath] = Segment(s) match {
-    case EmptySegment => Left(FirstSegmentIsEmptyInRootlessPath)
-    case s:NonEmptySegment => Right(RootlessSingleSegmentPath(s))
+  def apply(s: String): PathRootlessEmpty = Segment(s) match {
+    case EmptySegment       => Path.empty
+    case s: NonEmptySegment => RootlessSingleSegmentPath(s)
   }
 
   def absoluteOrEmpty(s: Segment*): PathAbEmpty = {
@@ -68,24 +68,26 @@ object Path {
 }
 
 /**
-  * A path that begins with "/" or is empty
-  * @see <a href="https://tools.ietf.org/html/rfc3986#section-3.3">rfc3986#section-3.3</a>
-  */
-trait PathAbEmpty extends Path {
+ * A path that begins with "/" or is empty
+ * @see <a href="https://tools.ietf.org/html/rfc3986#section-3.3">rfc3986#section-3.3</a>
+ */
+sealed trait PathAbEmpty extends Path {
   type PathWithSegmentsType <: PathAbEmpty with PathWithSegments
 }
 
-trait PathWithSegments {
+sealed trait PathRootlessEmpty extends Path
+
+sealed trait PathWithSegments {
   self: Path =>
 }
 
 /**
-  * A path that begins with "/"
-  * <p>
-  * Note that it does NOT correspond to rfc3986's path-absolute, since it may begin with "//"
-  * @see <a href="https://tools.ietf.org/html/rfc3986#section-3.3">rfc3986#section-3.3</a>
-  */
-trait AbsolutePath extends PathWithSegments with PathAbEmpty {
+ * A path that begins with "/"
+ * <p>
+ * Note that it does NOT correspond to rfc3986's path-absolute, since it may begin with "//"
+ * @see <a href="https://tools.ietf.org/html/rfc3986#section-3.3">rfc3986#section-3.3</a>
+ */
+sealed trait AbsolutePath extends PathWithSegments with PathAbEmpty {
   type PathWithSegmentsType = NonEmptyAbsolutePath
   //  def /(s:String): NonEmptyAbsolutePath = this / Segment(s)
 
@@ -94,7 +96,7 @@ trait AbsolutePath extends PathWithSegments with PathAbEmpty {
   def /(s: Segment): NonEmptyAbsolutePath = NonEmptyAbsolutePath(this, s)
   override def stringValue: String = segments.map(s => "/" + Encoder.quoteSegment(s)).mkString("")
 
-  override def toString: String = s"""AbsolutePath(${segments.map(_.toString).mkString(",")})"""
+  override def toString: String = s"""AbsolutePath($stringValue)"""
 }
 
 object AbsolutePath {
@@ -103,56 +105,52 @@ object AbsolutePath {
   }
 }
 
-case class NonEmptyAbsolutePath(parent: AbsolutePath, segment: Segment) extends AbsolutePath with PathWithSegments {
+final case class NonEmptyAbsolutePath(parent: AbsolutePath, segment: Segment) extends AbsolutePath with PathWithSegments {
   override def segments: Seq[Segment] = parent.segments :+ segment
 }
 
 /**
-  * A path that begins with a non empty segment
-  * @see <a href="https://tools.ietf.org/html/rfc3986#section-3.3">rfc3986#section-3.3</a>
-  */
-trait RootlessPath extends Path {
+ * A path that begins with a non empty segment
+ * @see <a href="https://tools.ietf.org/html/rfc3986#section-3.3">rfc3986#section-3.3</a>
+ */
+sealed trait RootlessPath extends PathRootlessEmpty {
 
   type PathWithSegmentsType = ConsRootlessPath
 
   override def pathType: PathType = PathType.Rootless
 
-  def parentOption: Option[RootlessPath]
   val segment: Segment
 
   override def stringValue: String = segments.map(s => Encoder.quoteSegment(s)).mkString("/")
-  override def toString: String = s"""RootlessPath(${segments.map(_.toString).mkString(",")})"""
+  override def toString: String = s"""RootlessPath($stringValue)"""
 
 }
 
 object RootlessPath {
-  private[uri] def apply(head:NonEmptySegment, tail: Segment*): RootlessPath =
+  private[uri] def apply(head: NonEmptySegment, tail: Segment*): RootlessPath =
     tail.foldLeft[RootlessPath](RootlessSingleSegmentPath(head))(_ / _)
 }
 
 /**
-  * @see <a href="https://tools.ietf.org/html/rfc3986#section-3.3">rfc3986#section-3.3</a>
-  */
-case class ConsRootlessPath(parent: RootlessPath, segment: Segment) extends RootlessPath with PathWithSegments {
+ * @see <a href="https://tools.ietf.org/html/rfc3986#section-3.3">rfc3986#section-3.3</a>
+ */
+final case class ConsRootlessPath(parent: RootlessPath, segment: Segment) extends RootlessPath with PathWithSegments {
 
   def /(s: Segment): ConsRootlessPath = ConsRootlessPath(this, s)
 
   override def segments: Seq[Segment] = parent.segments :+ segment
 
-  override def parentOption: Some[RootlessPath] = Some(parent)
 }
 
-case class AbsoluteSingleSegmentPath(segment: Segment) extends AbsolutePath with PathWithSegments {
+final case class AbsoluteSingleSegmentPath(segment: Segment) extends AbsolutePath with PathWithSegments {
 
   override def segments: Seq[Segment] = Seq(segment)
 }
 
 /**
-  * @see <a href="https://tools.ietf.org/html/rfc3986#section-3.3">rfc3986#section-3.3</a>
-  */
-case class RootlessSingleSegmentPath private[uri] (segment: NonEmptySegment) extends RootlessPath with PathWithSegments {
-
-  override def parentOption: None.type = None
+ * @see <a href="https://tools.ietf.org/html/rfc3986#section-3.3">rfc3986#section-3.3</a>
+ */
+final case class RootlessSingleSegmentPath private[uri] (segment: NonEmptySegment) extends RootlessPath with PathWithSegments {
 
   override def segments: Seq[Segment] = Seq(segment)
 
@@ -160,10 +158,10 @@ case class RootlessSingleSegmentPath private[uri] (segment: NonEmptySegment) ext
 }
 
 /**
-  * The path with zero characters
-  * @see <a href="https://tools.ietf.org/html/rfc3986#section-3.3">rfc3986#section-3.3</a>
-  */
-case object EmptyPath extends PathAbEmpty {
+ * The path with zero characters
+ * @see <a href="https://tools.ietf.org/html/rfc3986#section-3.3">rfc3986#section-3.3</a>
+ */
+case object EmptyPath extends PathAbEmpty with PathRootlessEmpty {
 
   type PathWithSegmentsType = AbsoluteSingleSegmentPath
 

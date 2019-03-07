@@ -1,11 +1,10 @@
 package com.agilogy.uri
 
-import org.scalatest.{EitherValues, FreeSpec}
-import validation.Validation._
+import org.scalatest.{ EitherValues, FreeSpec }
 
 //TODO: Test Path.parse
 //TODO: Test Path.parse("")
-class PathSpec extends FreeSpec with EitherValues{
+class PathSpec extends FreeSpec with EitherValues {
 
   """
     |The path component contains data, usually organized in hierarchical form, that, along with data in the
@@ -33,33 +32,46 @@ class PathSpec extends FreeSpec with EitherValues{
       "path-absolute" in {
         assert(Path.Slash.segments === Seq(Segment.Empty))
         assert(Path.Slash.isAbsolute === true)
+        assert(Path.Slash.isRootless === false)
+        assert(Path.Slash.isEmpty === false)
         val slashPosts = Path / Segment("Posts")
         assert(Path / "Posts" === slashPosts)
         assert(slashPosts.segments === Seq(Segment("Posts")))
         assert(slashPosts.isAbsolute === true)
+        assert(slashPosts.isRootless === false)
+        assert(slashPosts.isEmpty === false)
         val post23 = slashPosts / "23"
         assert(post23.isAbsolute === true)
+        assert(post23.isRootless === false)
+        assert(post23.isEmpty === false)
         assert(post23.segments === Seq(Segment("Posts"), Segment("23")))
       }
 
       "path-rootless" in {
-        val postsAttempt = Path("Posts")
-        val posts = postsAttempt.right.value
+        val posts = Path("Posts")
         assert(posts.isAbsolute === false)
+        assert(posts.isRootless === true)
+        assert(posts.isEmpty === false)
         assert(posts.segments === Seq(Segment("Posts")))
 
         val post23 = posts / "23"
         assert(post23.isAbsolute === false)
+        assert(post23.isRootless === true)
+        assert(post23.isEmpty === false)
         assert(post23.segments === Seq(Segment("Posts"), Segment("23")))
 
-        assert((postsAttempt / "23").right.value === post23)
+        assert((posts / "23") === post23)
       }
 
-      "path-rootless with errors" in {
-        val posts = Path("")
-        assert(posts === Left(FirstSegmentIsEmptyInRootlessPath))
-        val err = posts / "23"
-        assert(err === Left(FirstSegmentIsEmptyInRootlessPath))
+      "rootless or empty path" in {
+        val empty = Path("")
+        assert(empty === Path.empty)
+        assert(empty.isAbsolute === false)
+        assert(empty.isRootless === false)
+        assert(empty.isEmpty === true)
+        assert(empty.segments.isEmpty)
+        val err = empty / "23"
+        assert(err === Path.absolute(Segment("23")))
       }
     }
 
@@ -68,12 +80,12 @@ class PathSpec extends FreeSpec with EitherValues{
       """Simple paths""" in {
         assert(Path.Slash.stringValue === "/")
         assert((Path / "a" / "b").stringValue === "/a/b")
-        assert((Path("a").right.value / "b").stringValue === "a/b")
+        assert((Path("a") / "b").stringValue === "a/b")
       }
 
       """Encode '/' so that the segments can be identified""" in {
         assert((Path / "/" / "a").stringValue === "/%2F/a")
-        assert((Path("/").right.value / "a").stringValue === "%2F/a")
+        assert((Path("/") / "a").stringValue === "%2F/a")
       }
     }
 
