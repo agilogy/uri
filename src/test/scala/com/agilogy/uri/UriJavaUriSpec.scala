@@ -17,7 +17,7 @@ class UriJavaUriSpec extends FreeSpec with GeneratorDrivenPropertyChecks with Ma
     val ju = u.toJava
     val su = ju.toString
     assert(new java.net.URI(su) === ju)
-    assert(Uri.parseTry(su).success.value === u, s"""su = "$su" """)
+    assert(Uri.parseTryRich(su).success.value === u, s"""su = "$su" """)
   }
 
   """Represent URI like java.net.URI""" in {
@@ -27,7 +27,7 @@ class UriJavaUriSpec extends FreeSpec with GeneratorDrivenPropertyChecks with Ma
           val ju = u.toJava
           val su = ju.toString
           assert(new java.net.URI(su) === ju)
-          assert(Uri.parseTry(su).success.value === u, s"""su = "$su" """)
+          assert(Uri.parseTryRich(su).success.value === u, s"""su = "$su" """)
         }
     }
   }

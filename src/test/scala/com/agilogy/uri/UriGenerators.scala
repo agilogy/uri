@@ -83,14 +83,14 @@ object UriGenerators {
     p <- absolutePaths
     q <- Gen.option(queries)
     f <- Gen.option(fragments)
-  } yield Uri(s, a, p, q, None)
+  } yield RichUri(s, a, p, q, None)
 
   private val authoritylessUris = for {
     s <- schemes
     p <- paths if !p.stringValue.startsWith("//")
     q <- if (p.isEmpty) queries.map(Some.apply) else Gen.option(queries)
     f <- Gen.option(fragments)
-  } yield Uri.noAuthority(s, p, q, None).right.get
+  } yield RichUri.noAuthority(s, p, q, None).right.get
 
   val uris: Gen[Uri] = Gen.frequency(9 -> authorityUris, 1 -> authoritylessUris)
 
