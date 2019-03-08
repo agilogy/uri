@@ -1,0 +1,175 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title id="title">
+        com/agilogy/uri/UriError.scala.html
+    </title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/css/theme.default.min.css"
+          type="text/css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/js/jquery.tablesorter.min.js"></script>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css"
+          type="text/css"/>
+    <script src="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {$(".tablesorter").tablesorter();});
+
+    </script>
+    <style>
+          table.codegrid { font-family: monospace; font-size: 12px; width: auto!important; }table.statementlist { width: auto!important; font-size: 13px; } table.codegrid td { padding: 0!important; border: 0!important } table td.linenumber { width: 40px!important; } 
+
+    </style>
+</head>
+<body style="font-family: monospace;">
+<ul class="nav nav-tabs">
+    <li>
+        <a href="#codegrid" data-toggle="tab">Codegrid</a>
+    </li>
+    <li>
+        <a href="#statementlist" data-toggle="tab">Statement List</a>
+    </li>
+</ul>
+<div class="tab-content">
+    <div class="tab-pane active" id="codegrid">
+            <pre style='font-size: 12pt; font-family: courier;'>1 <span style=''>package com.agilogy.uri
+</span>2 <span style=''>
+</span>3 <span style=''>abstract case class UriParseError private (scheme: Option[SchemeError], authority: Option[AuthorityParseError])
+</span>4 <span style=''>
+</span>5 <span style=''>object UriParseError {
+</span>6 <span style=''>  def apply(scheme: Option[SchemeError] = None, authority: Option[AuthorityParseError] = None): UriParseError = {
+</span>7 <span style=''>    </span><span
+                    style='background: #AEF1AE'>require(scheme.isDefined || authority.isDefined)</span><span style=''>
+</span>8 <span style=''>    </span><span style='background: #AEF1AE'>new</span><span style=''> UriParseError(scheme, authority) {}
+</span>9 <span style=''>  }
+</span>10 <span style=''>}
+</span>11 <span style=''>
+</span>12 <span style=''>case class UriParseException(error: UriParseError) extends Exception
+</span>13 <span style=''>
+</span>14 <span style=''>trait SchemeError
+</span>15 <span style=''>
+</span>16 <span style=''>case class MissingScheme(uri: String) extends SchemeError
+</span>17 <span style=''>
+</span>18 <span style=''>/**
+</span>19 <span style=''> * Scheme names consist of a sequence of characters beginning with a letter and followed by any combination of letters,
+</span>20 <span style=''> * digits, plus (&quot;+&quot;), period (&quot;.&quot;), or hyphen (&quot;-&quot;).
+</span>21 <span style=''> * @param scheme The illegal scheme
+</span>22 <span style=''> */
+</span>23 <span style=''>case class IllegalSchemeName(scheme: String) extends SchemeError
+</span>24 <span style=''>
+</span>25 <span style=''>case class AuthorityParseError(authority: String)
+</span>26 <span style=''>
+</span>27 <span style=''>case class AuthorityParseException(error: AuthorityParseError) extends Exception
+</span>28 <span style=''>
+</span>29 <span style=''>case class NegativePort(port: Int)
+</span>30 <span style=''>
+</span>31 <span style=''>trait PathError
+</span>32 <span style=''>
+</span>33 <span style=''>case class RootlessPathInAuthorityUri(scheme: Scheme, authority: Authority, path: RootlessPath) extends PathError
+</span>34 <span style=''>case class PathStartsWithDoubleSlashInNoAuhtorityUri(scheme: Scheme, path: Path) extends PathError
+</span>35 <span style=''>case object FirstSegmentIsEmptyInRootlessPath
+</span></pre>
+    </div>
+    <div class="tab-pane" id="statementlist">
+        <table cellspacing="0" cellpadding="0" class="table statementlist">
+            <tr>
+                <th>Line</th>
+                <th>Stmt Id</th>
+                <th>Pos</th>
+                <th>Tree</th>
+                <th>Symbol</th>
+                <th>Code</th>
+            </tr>
+            <tr>
+                <td>
+                    7
+                </td>
+                <td>
+                    478
+                </td>
+                <td>
+                    279
+                    -
+                    327
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Predef.require
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Predef.require(scheme.isDefined.||(authority.isDefined))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    7
+                </td>
+                <td>
+                    477
+                </td>
+                <td>
+                    287
+                    -
+                    326
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Boolean.||
+                </td>
+                <td style="background: #AEF1AE">
+                    scheme.isDefined.||(authority.isDefined)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    7
+                </td>
+                <td>
+                    476
+                </td>
+                <td>
+                    307
+                    -
+                    326
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    scala.Option.isDefined
+                </td>
+                <td style="background: #AEF1AE">
+                    authority.isDefined
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    8
+                </td>
+                <td>
+                    479
+                </td>
+                <td>
+                    332
+                    -
+                    335
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.UriParseError.$anon.&lt;init&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    new $anon()
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>

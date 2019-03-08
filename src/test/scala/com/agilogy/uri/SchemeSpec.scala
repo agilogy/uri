@@ -1,6 +1,6 @@
 package com.agilogy.uri
 
-import org.scalatest.{ EitherValues, FreeSpec }
+import org.scalatest.{EitherValues, FreeSpec}
 
 class SchemeSpec extends FreeSpec with EitherValues {
 
@@ -13,17 +13,12 @@ class SchemeSpec extends FreeSpec with EitherValues {
       assert(Scheme("http").right.value.stringValue === "http")
     }
 
-    //    """Under normal circumstances, the only time when octets within a URI are percent-encoded is during the process of
-    //      |producing the URI from its component parts.""".stripMargin in {
-    //      assert(Scheme(":/?#%").stringValue === ":/?#%")
-    //    }
 
     """Although schemes are case-insensitive, the canonical form is lowercase and documents that specify schemes must do
       |so with lowercase letters.  An implementation should accept uppercase letters as equivalent to lowercase in scheme
       |names (e.g., allow "HTTP" as well as "http") for the sake of robustness but should only produce lowercase scheme
       |names for consistency.""".stripMargin in {
       assert(Scheme("HttP").right.value.stringValue === "http")
-      //      assert(Scheme("ÀÇ").stringValue === "àç")
     }
 
     //  """When presented with a URI that violates one or more scheme-specific restrictions, the scheme-specific resolution

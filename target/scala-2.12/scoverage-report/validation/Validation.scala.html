@@ -1,0 +1,950 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title id="title">
+        validation/Validation.scala.html
+    </title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/css/theme.default.min.css"
+          type="text/css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/js/jquery.tablesorter.min.js"></script>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css"
+          type="text/css"/>
+    <script src="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {$(".tablesorter").tablesorter();});
+
+    </script>
+    <style>
+          table.codegrid { font-family: monospace; font-size: 12px; width: auto!important; }table.statementlist { width: auto!important; font-size: 13px; } table.codegrid td { padding: 0!important; border: 0!important } table td.linenumber { width: 40px!important; } 
+
+    </style>
+</head>
+<body style="font-family: monospace;">
+<ul class="nav nav-tabs">
+    <li>
+        <a href="#codegrid" data-toggle="tab">Codegrid</a>
+    </li>
+    <li>
+        <a href="#statementlist" data-toggle="tab">Statement List</a>
+    </li>
+</ul>
+<div class="tab-content">
+    <div class="tab-pane active" id="codegrid">
+            <pre style='font-size: 12pt; font-family: courier;'>1 <span style=''>package validation
+</span>2 <span style=''>
+</span>3 <span style=''>import com.agilogy.uri.{ NoAuthorityPathQUri, PathStartsWithDoubleSlashInNoAuhtorityUri, _ }
+</span>4 <span style=''>
+</span>5 <span style=''>trait Validation {
+</span>6 <span style=''>
+</span>7 <span style=''>  //TODO: Move validation implicits somewhere where they can be easily imported
+</span>8 <span style=''>
+</span>9 <span style=''>  def sequence[E, R](optE: Option[Either[E, R]]): Either[E, Option[R]] = {
+</span>10 <span style=''>    </span><span
+                    style='background: #AEF1AE'>optE.map(_.map(Some.apply)).getOrElse(Right(None))</span><span style=''>
+</span>11 <span style=''>  }
+</span>12 <span style=''>
+</span>13 <span style=''>  //  implicit class PathVOps[E](self: Either[E, RootlessPath]) {
+</span>14 <span style=''>  //    def /(s: Segment): Either[E, RootlessPath#PathWithSegmentsType] = self.right.map(_ / s)
+</span>15 <span style=''>  //    def /(s: String): Either[E, RootlessPath#PathWithSegmentsType] = this / Segment(s)
+</span>16 <span style=''>  //  }
+</span>17 <span style=''>
+</span>18 <span style=''>  implicit class NoAuthorityPathUriVOps(self: Either[PathStartsWithDoubleSlashInNoAuhtorityUri, NoAuthorityPathUri]) {
+</span>19 <span style=''>    def /(s: Segment): Either[PathStartsWithDoubleSlashInNoAuhtorityUri, NoAuthorityPathUri] = </span><span
+                    style='background: #AEF1AE'>self.flatMap(_ / s)</span><span style=''>
+</span>20 <span style=''>    def /(s: String): Either[PathStartsWithDoubleSlashInNoAuhtorityUri, NoAuthorityPathUri] = </span><span
+                    style='background: #AEF1AE'>this / Segment(s)</span><span style=''>
+</span>21 <span style=''>
+</span>22 <span style=''>    def ?(query: Query): Either[PathStartsWithDoubleSlashInNoAuhtorityUri, NoAuthorityPathQUri] = </span><span
+                    style='background: #AEF1AE'>self.map(_ ? query)</span><span style=''>
+</span>23 <span style=''>    def ?(query: String): Either[PathStartsWithDoubleSlashInNoAuhtorityUri, NoAuthorityPathQUri] = </span><span
+                    style='background: #AEF1AE'>self.map(_ ? query)</span><span style=''>
+</span>24 <span style=''>    def q(query: Query): Either[PathStartsWithDoubleSlashInNoAuhtorityUri, NoAuthorityPathQUri] = </span><span
+                    style='background: #AEF1AE'>self.map(_ q query)</span><span style=''>
+</span>25 <span style=''>    def q(query: String): Either[PathStartsWithDoubleSlashInNoAuhtorityUri, NoAuthorityPathQUri] = </span><span
+                    style='background: #AEF1AE'>self.map(_ q query)</span><span style=''>
+</span>26 <span style=''>
+</span>27 <span style=''>    def ##(fragment: Fragment): Either[PathStartsWithDoubleSlashInNoAuhtorityUri, NoAuthorityPathFUri] = </span><span
+                    style='background: #AEF1AE'>self.map(_ ## fragment)</span><span style=''>
+</span>28 <span style=''>    def ##(fragment: String): Either[PathStartsWithDoubleSlashInNoAuhtorityUri, NoAuthorityPathFUri] = </span><span
+                    style='background: #AEF1AE'>self.map(_ ## fragment)</span><span style=''>
+</span>29 <span style=''>    def f(fragment: Fragment): Either[PathStartsWithDoubleSlashInNoAuhtorityUri, NoAuthorityPathFUri] = </span><span
+                    style='background: #AEF1AE'>self.map(_ f fragment)</span><span style=''>
+</span>30 <span style=''>    def f(fragment: String): Either[PathStartsWithDoubleSlashInNoAuhtorityUri, NoAuthorityPathFUri] = </span><span
+                    style='background: #AEF1AE'>self.map(_ f fragment)</span><span style=''>
+</span>31 <span style=''>  }
+</span>32 <span style=''>
+</span>33 <span style=''>  implicit class NoAuthorityPathQUriVOps(self: Either[PathStartsWithDoubleSlashInNoAuhtorityUri, NoAuthorityPathQUri]) {
+</span>34 <span style=''>    def ##(fragment: Fragment): Either[PathStartsWithDoubleSlashInNoAuhtorityUri, NoAuthorityPathQFUri] = </span><span
+                    style='background: #AEF1AE'>self.map(_ ## fragment)</span><span style=''>
+</span>35 <span style=''>    def ##(fragment: String): Either[PathStartsWithDoubleSlashInNoAuhtorityUri, NoAuthorityPathQFUri] = </span><span
+                    style='background: #AEF1AE'>self.map(_ ## fragment)</span><span style=''>
+</span>36 <span style=''>    def f(fragment: Fragment): Either[PathStartsWithDoubleSlashInNoAuhtorityUri, NoAuthorityPathQFUri] = </span><span
+                    style='background: #AEF1AE'>self.map(_ f fragment)</span><span style=''>
+</span>37 <span style=''>    def f(fragment: String): Either[PathStartsWithDoubleSlashInNoAuhtorityUri, NoAuthorityPathQFUri] = </span><span
+                    style='background: #AEF1AE'>self.map(_ f fragment)</span><span style=''>
+</span>38 <span style=''>
+</span>39 <span style=''>  }
+</span>40 <span style=''>
+</span>41 <span style=''>  //  trait QueryOps[S&lt;:NoQueryFragmentUri[_], R&lt;:QueryUri]{
+</span>42 <span style=''>  //    def self: Either[IllegalSchemeName, S]
+</span>43 <span style=''>  //    def ?(query: Query): Either[IllegalSchemeName, R] = self.right.map(u =&gt; (u ? query).asInstanceOf[R])
+</span>44 <span style=''>  //    def ?(query: String): Either[IllegalSchemeName, R] = this ? Query(query)
+</span>45 <span style=''>  //    def q(query: String): Either[IllegalSchemeName, R] = this ? Query(query)
+</span>46 <span style=''>  //  }
+</span>47 <span style=''>  //
+</span>48 <span style=''>  //  trait FragmentOps[S&lt;:NoFragmentUri[_],R&lt;:FragmentUri]{
+</span>49 <span style=''>  //    def self: Either[IllegalSchemeName, S]
+</span>50 <span style=''>  //    def ##(f: Fragment): Either[IllegalSchemeName,R] = self.right.map(u =&gt; (u ## f).asInstanceOf[R])
+</span>51 <span style=''>  //    def ##(f: String): Either[IllegalSchemeName,R] = this ## Fragment(f)
+</span>52 <span style=''>  //    def f(f: String): Either[IllegalSchemeName, R] = this ## Fragment(f)
+</span>53 <span style=''>  //
+</span>54 <span style=''>  //  }
+</span>55 <span style=''>  //
+</span>56 <span style=''>  //  implicit class AuthorityPathUriVOps(val self: Either[IllegalSchemeName, AuthorityPathUri])
+</span>57 <span style=''>  //    extends FragmentOps[AuthorityPathUri, AuthorityPathFUri]
+</span>58 <span style=''>  //      with QueryOps[AuthorityPathUri, AuthorityPathQUri] {
+</span>59 <span style=''>  //    def /(s: Segment): Either[IllegalSchemeName, AuthorityPathUri] = self.right.map(_ / s)
+</span>60 <span style=''>  //    def /(s: String): Either[IllegalSchemeName, AuthorityPathUri] = this / Segment(s)
+</span>61 <span style=''>  //  }
+</span>62 <span style=''>  //
+</span>63 <span style=''>  //  implicit class AuthorityPathQUriVOps(val self: Either[IllegalSchemeName, AuthorityPathQUri])
+</span>64 <span style=''>  //    extends FragmentOps[AuthorityPathQUri, AuthorityPathQFUri] {
+</span>65 <span style=''>  //  }
+</span>66 <span style=''>
+</span>67 <span style=''>  def notNull[E, T](error: E, v: Option[T]): Either[E, T] = </span><span
+                    style='background: #AEF1AE'>v.map(Right.apply).getOrElse(Left(error))</span><span style=''>
+</span>68 <span style=''>
+</span>69 <span style=''>}
+</span>70 <span style=''>
+</span>71 <span style=''>object Validation extends Validation
+</span></pre>
+    </div>
+    <div class="tab-pane" id="statementlist">
+        <table cellspacing="0" cellpadding="0" class="table statementlist">
+            <tr>
+                <th>Line</th>
+                <th>Stmt Id</th>
+                <th>Pos</th>
+                <th>Tree</th>
+                <th>Symbol</th>
+                <th>Code</th>
+            </tr>
+            <tr>
+                <td>
+                    10
+                </td>
+                <td>
+                    483
+                </td>
+                <td>
+                    303
+                    -
+                    320
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Either.map
+                </td>
+                <td style="background: #AEF1AE">
+                    x$1.map[Some[R]]({
+                    ((value: R) =&gt; scala.Some.apply[R](value))
+                    })
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    10
+                </td>
+                <td>
+                    486
+                </td>
+                <td>
+                    294
+                    -
+                    344
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Option.getOrElse
+                </td>
+                <td style="background: #AEF1AE">
+                    optE.map[scala.util.Either[E,Some[R]]](((x$1: Either[E,R]) =&gt; x$1.map[Some[R]]({
+                    ((value: R) =&gt; scala.Some.apply[R](value))
+                    }))).getOrElse[scala.util.Either[E,Option[R]]](scala.`package`.Right.apply[Nothing,
+                    None.type](scala.None))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    10
+                </td>
+                <td>
+                    482
+                </td>
+                <td>
+                    309
+                    -
+                    319
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Some.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Some.apply[R](value)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    10
+                </td>
+                <td>
+                    485
+                </td>
+                <td>
+                    332
+                    -
+                    343
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Right.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.`package`.Right.apply[Nothing, None.type](scala.None)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    10
+                </td>
+                <td>
+                    484
+                </td>
+                <td>
+                    338
+                    -
+                    342
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    scala.None
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.None
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    19
+                </td>
+                <td>
+                    487
+                </td>
+                <td>
+                    839
+                    -
+                    844
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoAuthorityPathUri./
+                </td>
+                <td style="background: #AEF1AE">
+                    x$2./(s)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    19
+                </td>
+                <td>
+                    488
+                </td>
+                <td>
+                    826
+                    -
+                    845
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Either.flatMap
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathUriVOps.this.self.flatMap[com.agilogy.uri.PathStartsWithDoubleSlashInNoAuhtorityUri,
+                    com.agilogy.uri.NoAuthorityPathUri](((x$2: com.agilogy.uri.NoAuthorityPathUri) =&gt; x$2./(s)))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    20
+                </td>
+                <td>
+                    490
+                </td>
+                <td>
+                    940
+                    -
+                    957
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    validation.Validation.NoAuthorityPathUriVOps./
+                </td>
+                <td style="background: #AEF1AE">
+                    this./(com.agilogy.uri.Segment.apply(s))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    20
+                </td>
+                <td>
+                    489
+                </td>
+                <td>
+                    947
+                    -
+                    957
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Segment.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    com.agilogy.uri.Segment.apply(s)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    22
+                </td>
+                <td>
+                    492
+                </td>
+                <td>
+                    1057
+                    -
+                    1076
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Either.map
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathUriVOps.this.self.map[com.agilogy.uri.NoAuthorityPathQUri](((x$3:
+                    com.agilogy.uri.NoAuthorityPathUri) =&gt; x$3.?(query)))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    22
+                </td>
+                <td>
+                    491
+                </td>
+                <td>
+                    1066
+                    -
+                    1075
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoAuthorityPathUri.?
+                </td>
+                <td style="background: #AEF1AE">
+                    x$3.?(query)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    23
+                </td>
+                <td>
+                    494
+                </td>
+                <td>
+                    1176
+                    -
+                    1195
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Either.map
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathUriVOps.this.self.map[com.agilogy.uri.NoAuthorityPathQUri](((x$4:
+                    com.agilogy.uri.NoAuthorityPathUri) =&gt; x$4.?(query)))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    23
+                </td>
+                <td>
+                    493
+                </td>
+                <td>
+                    1185
+                    -
+                    1194
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoQueryFragmentUri.?
+                </td>
+                <td style="background: #AEF1AE">
+                    x$4.?(query)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    24
+                </td>
+                <td>
+                    496
+                </td>
+                <td>
+                    1294
+                    -
+                    1313
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Either.map
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathUriVOps.this.self.map[com.agilogy.uri.NoAuthorityPathQUri](((x$5:
+                    com.agilogy.uri.NoAuthorityPathUri) =&gt; x$5.q(query)))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    24
+                </td>
+                <td>
+                    495
+                </td>
+                <td>
+                    1303
+                    -
+                    1312
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoQueryFragmentUri.q
+                </td>
+                <td style="background: #AEF1AE">
+                    x$5.q(query)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    25
+                </td>
+                <td>
+                    498
+                </td>
+                <td>
+                    1413
+                    -
+                    1432
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Either.map
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathUriVOps.this.self.map[com.agilogy.uri.NoAuthorityPathQUri](((x$6:
+                    com.agilogy.uri.NoAuthorityPathUri) =&gt; x$6.q(query)))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    25
+                </td>
+                <td>
+                    497
+                </td>
+                <td>
+                    1422
+                    -
+                    1431
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoQueryFragmentUri.q
+                </td>
+                <td style="background: #AEF1AE">
+                    x$6.q(query)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    27
+                </td>
+                <td>
+                    499
+                </td>
+                <td>
+                    1548
+                    -
+                    1561
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoAuthorityPathUri.##
+                </td>
+                <td style="background: #AEF1AE">
+                    x$7.##(fragment)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    27
+                </td>
+                <td>
+                    500
+                </td>
+                <td>
+                    1539
+                    -
+                    1562
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Either.map
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathUriVOps.this.self.map[com.agilogy.uri.NoAuthorityPathFUri](((x$7:
+                    com.agilogy.uri.NoAuthorityPathUri) =&gt; x$7.##(fragment)))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    28
+                </td>
+                <td>
+                    501
+                </td>
+                <td>
+                    1675
+                    -
+                    1688
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoFragmentUri.##
+                </td>
+                <td style="background: #AEF1AE">
+                    x$8.##(fragment)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    28
+                </td>
+                <td>
+                    502
+                </td>
+                <td>
+                    1666
+                    -
+                    1689
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Either.map
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathUriVOps.this.self.map[com.agilogy.uri.NoAuthorityPathFUri](((x$8:
+                    com.agilogy.uri.NoAuthorityPathUri) =&gt; x$8.##(fragment)))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    29
+                </td>
+                <td>
+                    504
+                </td>
+                <td>
+                    1794
+                    -
+                    1816
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Either.map
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathUriVOps.this.self.map[com.agilogy.uri.NoAuthorityPathFUri](((x$9:
+                    com.agilogy.uri.NoAuthorityPathUri) =&gt; x$9.f(fragment)))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    29
+                </td>
+                <td>
+                    503
+                </td>
+                <td>
+                    1803
+                    -
+                    1815
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoFragmentUri.f
+                </td>
+                <td style="background: #AEF1AE">
+                    x$9.f(fragment)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    30
+                </td>
+                <td>
+                    505
+                </td>
+                <td>
+                    1928
+                    -
+                    1940
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoFragmentUri.f
+                </td>
+                <td style="background: #AEF1AE">
+                    x$10.f(fragment)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    30
+                </td>
+                <td>
+                    506
+                </td>
+                <td>
+                    1919
+                    -
+                    1941
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Either.map
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathUriVOps.this.self.map[com.agilogy.uri.NoAuthorityPathFUri](((x$10:
+                    com.agilogy.uri.NoAuthorityPathUri) =&gt; x$10.f(fragment)))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    34
+                </td>
+                <td>
+                    508
+                </td>
+                <td>
+                    2174
+                    -
+                    2197
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Either.map
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathQUriVOps.this.self.map[com.agilogy.uri.NoAuthorityPathQFUri](((x$11:
+                    com.agilogy.uri.NoAuthorityPathQUri) =&gt; x$11.##(fragment)))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    34
+                </td>
+                <td>
+                    507
+                </td>
+                <td>
+                    2183
+                    -
+                    2196
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoAuthorityPathQUri.##
+                </td>
+                <td style="background: #AEF1AE">
+                    x$11.##(fragment)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    35
+                </td>
+                <td>
+                    510
+                </td>
+                <td>
+                    2302
+                    -
+                    2325
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Either.map
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathQUriVOps.this.self.map[com.agilogy.uri.NoAuthorityPathQFUri](((x$12:
+                    com.agilogy.uri.NoAuthorityPathQUri) =&gt; x$12.##(fragment)))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    35
+                </td>
+                <td>
+                    509
+                </td>
+                <td>
+                    2311
+                    -
+                    2324
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoFragmentUri.##
+                </td>
+                <td style="background: #AEF1AE">
+                    x$12.##(fragment)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    36
+                </td>
+                <td>
+                    512
+                </td>
+                <td>
+                    2431
+                    -
+                    2453
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Either.map
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathQUriVOps.this.self.map[com.agilogy.uri.NoAuthorityPathQFUri](((x$13:
+                    com.agilogy.uri.NoAuthorityPathQUri) =&gt; x$13.f(fragment)))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    36
+                </td>
+                <td>
+                    511
+                </td>
+                <td>
+                    2440
+                    -
+                    2452
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoFragmentUri.f
+                </td>
+                <td style="background: #AEF1AE">
+                    x$13.f(fragment)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    37
+                </td>
+                <td>
+                    514
+                </td>
+                <td>
+                    2557
+                    -
+                    2579
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Either.map
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathQUriVOps.this.self.map[com.agilogy.uri.NoAuthorityPathQFUri](((x$14:
+                    com.agilogy.uri.NoAuthorityPathQUri) =&gt; x$14.f(fragment)))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    37
+                </td>
+                <td>
+                    513
+                </td>
+                <td>
+                    2566
+                    -
+                    2578
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoFragmentUri.f
+                </td>
+                <td style="background: #AEF1AE">
+                    x$14.f(fragment)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    67
+                </td>
+                <td>
+                    517
+                </td>
+                <td>
+                    4023
+                    -
+                    4064
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Option.getOrElse
+                </td>
+                <td style="background: #AEF1AE">
+                    v.map[scala.util.Right[Nothing,T]]({
+                    ((value: T) =&gt; scala.`package`.Right.apply[Nothing, T](value))
+                    }).getOrElse[scala.util.Either[E,T]](scala.`package`.Left.apply[E, Nothing](error))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    67
+                </td>
+                <td>
+                    516
+                </td>
+                <td>
+                    4052
+                    -
+                    4063
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Left.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.`package`.Left.apply[E, Nothing](error)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    67
+                </td>
+                <td>
+                    515
+                </td>
+                <td>
+                    4029
+                    -
+                    4040
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Right.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.`package`.Right.apply[Nothing, T](value)
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>

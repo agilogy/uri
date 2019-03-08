@@ -1,6 +1,6 @@
 package com.agilogy.uri
 
-import org.scalacheck.{ Arbitrary, Gen }
+import org.scalacheck.{Arbitrary, Gen}
 
 object UriGenerators {
 
@@ -24,8 +24,6 @@ object UriGenerators {
     list <- Gen.listOfN(size, chars)
   } yield list.mkString
 
-  //Gen.listOfN(maxSize,Gen.alphaChar).map(_.mkString).suchThat(_.forall(_.isLetter))
-
   private val schemeChars = Gen.frequency(9 -> Gen.alphaNumChar, 1 -> Gen.oneOf('+', '-', '.'))
 
   private val schemes = for {
@@ -37,7 +35,7 @@ object UriGenerators {
   private val userInfos = for (s <- alphaStr(10)) yield UserInfo(s)
 
   private val registeredNames = for {
-    s <- alphaStr(20) //if Encoder.isValidRegisteredName(s)
+    s <- alphaStr(20)
   } yield Host(s)
 
   private val ports = Gen.chooseNum(1, 65000).map(i => Port(i).right.get)

@@ -1,0 +1,1975 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title id="title">
+        com/agilogy/uri/Path.scala.html
+    </title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/css/theme.default.min.css"
+          type="text/css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/js/jquery.tablesorter.min.js"></script>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css"
+          type="text/css"/>
+    <script src="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {$(".tablesorter").tablesorter();});
+
+    </script>
+    <style>
+          table.codegrid { font-family: monospace; font-size: 12px; width: auto!important; }table.statementlist { width: auto!important; font-size: 13px; } table.codegrid td { padding: 0!important; border: 0!important } table td.linenumber { width: 40px!important; } 
+
+    </style>
+</head>
+<body style="font-family: monospace;">
+<ul class="nav nav-tabs">
+    <li>
+        <a href="#codegrid" data-toggle="tab">Codegrid</a>
+    </li>
+    <li>
+        <a href="#statementlist" data-toggle="tab">Statement List</a>
+    </li>
+</ul>
+<div class="tab-content">
+    <div class="tab-pane active" id="codegrid">
+            <pre style='font-size: 12pt; font-family: courier;'>1 <span style=''>package com.agilogy.uri
+</span>2 <span style=''>
+</span>3 <span style=''>sealed trait PathType
+</span>4 <span style=''>object PathType {
+</span>5 <span style=''>  case object Absolute extends PathType
+</span>6 <span style=''>  case object Rootless extends PathType
+</span>7 <span style=''>  case object Empty extends PathType
+</span>8 <span style=''>}
+</span>9 <span style=''>
+</span>10 <span style=''>/**
+</span>11 <span style=''> * @see &lt;a href=&quot;https://tools.ietf.org/html/rfc3986#section-3.3&quot;&gt;rfc3986#section-3.3&lt;/a&gt;
+</span>12 <span style=''> */
+</span>13 <span style=''>sealed trait Path extends UriPart {
+</span>14 <span style=''>  type PathWithSegmentsType &lt;: Path with PathWithSegments
+</span>15 <span style=''>  def pathType: PathType
+</span>16 <span style=''>  def isAbsolute: Boolean = </span><span style='background: #AEF1AE'>pathType == PathType.Absolute</span><span
+                    style=''>
+</span>17 <span style=''>  def isRootless: Boolean = </span><span style='background: #AEF1AE'>pathType == PathType.Rootless</span><span
+                    style=''>
+</span>18 <span style=''>  def isEmpty: Boolean = </span><span
+                    style='background: #AEF1AE'>pathType == PathType.Empty</span><span style=''>
+</span>19 <span style=''>  def segments: Seq[Segment]
+</span>20 <span style=''>  def stringValue: String
+</span>21 <span style=''>  //  override def toString: String = segments.map(_.toString).mkString(&quot;/&quot;)
+</span>22 <span style=''>  def /(s: Segment): PathWithSegmentsType
+</span>23 <span style=''>  def /(s: String): PathWithSegmentsType = </span><span style='background: #AEF1AE'>this / Segment(s)</span><span
+                    style=''>
+</span>24 <span style=''>}
+</span>25 <span style=''>
+</span>26 <span style=''>object Path {
+</span>27 <span style=''>  val empty: EmptyPath.type = EmptyPath
+</span>28 <span style=''>  val Slash: AbsoluteSingleSegmentPath = </span><span style='background: #AEF1AE'>Path / &quot;&quot;</span><span
+                    style=''>
+</span>29 <span style=''>  def /(s: Segment): AbsoluteSingleSegmentPath = </span><span style='background: #AEF1AE'>AbsoluteSingleSegmentPath(s)</span><span
+                    style=''>
+</span>30 <span style=''>  def /(s: String): AbsoluteSingleSegmentPath = </span><span style='background: #AEF1AE'>Path / Segment(s)</span><span
+                    style=''>
+</span>31 <span style=''>  def apply(s: NonEmptySegment) = </span><span style='background: #AEF1AE'>RootlessSingleSegmentPath(s)</span><span
+                    style=''>
+</span>32 <span style=''>  def apply(s: String): PathRootlessEmpty = </span><span
+                    style='background: #AEF1AE'>Segment(s)</span><span style=''> match {
+</span>33 <span style=''>    case EmptySegment       =&gt; </span><span
+                    style='background: #AEF1AE'>Path.empty</span><span style=''>
+</span>34 <span style=''>    case s: NonEmptySegment =&gt; </span><span style='background: #AEF1AE'>RootlessSingleSegmentPath(s)</span><span
+                    style=''>
+</span>35 <span style=''>  }
+</span>36 <span style=''>
+</span>37 <span style=''>  def absoluteOrEmpty(s: Segment*): PathAbEmpty = {
+</span>38 <span style=''>    s match {
+</span>39 <span style=''>      case Seq()     =&gt; </span><span style='background: #AEF1AE'>empty</span><span style=''>
+</span>40 <span style=''>      case h +: tail =&gt; </span><span
+                    style='background: #AEF1AE'>absolute(h, tail: _*)</span><span style=''>
+</span>41 <span style=''>    }
+</span>42 <span style=''>  }
+</span>43 <span style=''>  def absolute(segment: Segment, moreSegments: Segment*): AbsolutePath = </span><span
+                    style='background: #AEF1AE'>AbsolutePath(segment, moreSegments: _*)</span><span style=''>
+</span>44 <span style=''>  def rootless(segment: NonEmptySegment, moreSegments: Segment*): RootlessPath = </span><span
+                    style='background: #AEF1AE'>RootlessPath(segment, moreSegments: _*)</span><span style=''>
+</span>45 <span style=''>
+</span>46 <span style=''>  private val AbsolutePathRe = </span><span style='background: #AEF1AE'>&quot;(/[^?#]*)+&quot;.r</span><span
+                    style=''>
+</span>47 <span style=''>  private val RelativePathRe = </span><span style='background: #AEF1AE'>&quot;([^?#/]+)(/[^?#]*)*&quot;.r</span><span
+                    style=''>
+</span>48 <span style=''>
+</span>49 <span style=''>  private val SegmentRe = </span><span
+                    style='background: #AEF1AE'>&quot;/([^?#/]*)&quot;.r</span><span style=''>
+</span>50 <span style=''>
+</span>51 <span style=''>  def parse(s: String): Path = {
+</span>52 <span style=''>    s match {
+</span>53 <span style=''>      case &quot;&quot; =&gt; </span><span style='background: #AEF1AE'>Path.empty</span><span
+                    style=''>
+</span>54 <span style=''>      case AbsolutePathRe(_) =&gt;
+</span>55 <span style=''>        val res = </span><span style='background: #AEF1AE'>SegmentRe.findAllIn(s).matchData.foldLeft[PathAbEmpty](Path.empty) {
+</span>56 <span style=''></span><span style='background: #AEF1AE'>          case (acc, m) =&gt; acc / Encoder.decode(m.group(1))
+</span>57 <span style=''></span><span style='background: #AEF1AE'>        }</span><span style=''>
+</span>58 <span style=''>        res
+</span>59 <span style=''>      case RelativePathRe(headSegment, segmentsOrNull) =&gt;
+</span>60 <span style=''>        val segmentsString = </span><span style='background: #AEF1AE'>Option(segmentsOrNull).getOrElse(&quot;&quot;)</span><span
+                    style=''>
+</span>61 <span style=''>        val tailSegments = </span><span style='background: #AEF1AE'>SegmentRe.findAllIn(segmentsString).matchData.map(m =&gt; m.group(1))</span><span
+                    style=''>
+</span>62 <span style=''>        val h = </span><span style='background: #AEF1AE'>NonEmptySegment(Encoder.decode(headSegment))</span><span
+                    style=''>
+</span>63 <span style=''>        val t = </span><span style='background: #AEF1AE'>tailSegments.toList.map(s =&gt; Segment(Encoder.decode(s)))</span><span
+                    style=''>
+</span>64 <span style=''>        </span><span style='background: #AEF1AE'>Path.rootless(h, t: _*)</span><span style=''>
+</span>65 <span style=''>    }
+</span>66 <span style=''>  }
+</span>67 <span style=''>
+</span>68 <span style=''>}
+</span>69 <span style=''>
+</span>70 <span style=''>/**
+</span>71 <span style=''> * A path that begins with &quot;/&quot; or is empty
+</span>72 <span style=''> * @see &lt;a href=&quot;https://tools.ietf.org/html/rfc3986#section-3.3&quot;&gt;rfc3986#section-3.3&lt;/a&gt;
+</span>73 <span style=''> */
+</span>74 <span style=''>sealed trait PathAbEmpty extends Path {
+</span>75 <span style=''>  type PathWithSegmentsType &lt;: PathAbEmpty with PathWithSegments
+</span>76 <span style=''>}
+</span>77 <span style=''>
+</span>78 <span style=''>sealed trait PathRootlessEmpty extends Path
+</span>79 <span style=''>
+</span>80 <span style=''>trait PathWithSegments {
+</span>81 <span style=''>  self: Path =&gt;
+</span>82 <span style=''>}
+</span>83 <span style=''>
+</span>84 <span style=''>/**
+</span>85 <span style=''> * A path that begins with &quot;/&quot;
+</span>86 <span style=''> * &lt;p&gt;
+</span>87 <span style=''> * Note that it does NOT correspond to rfc3986's path-absolute, since it may begin with &quot;//&quot;
+</span>88 <span style=''> * @see &lt;a href=&quot;https://tools.ietf.org/html/rfc3986#section-3.3&quot;&gt;rfc3986#section-3.3&lt;/a&gt;
+</span>89 <span style=''> */
+</span>90 <span style=''>sealed trait AbsolutePath extends PathWithSegments with PathAbEmpty {
+</span>91 <span style=''>  type PathWithSegmentsType = NonEmptyAbsolutePath
+</span>92 <span style=''>  //  def /(s:String): NonEmptyAbsolutePath = this / Segment(s)
+</span>93 <span style=''>
+</span>94 <span style=''>  override def pathType: PathType = </span><span
+                    style='background: #AEF1AE'>PathType.Absolute</span><span style=''>
+</span>95 <span style=''>
+</span>96 <span style=''>  def /(s: Segment): NonEmptyAbsolutePath = </span><span style='background: #AEF1AE'>NonEmptyAbsolutePath(this, s)</span><span
+                    style=''>
+</span>97 <span style=''>  override def stringValue: String = </span><span style='background: #AEF1AE'>segments.map(s =&gt; &quot;/&quot; + Encoder.quoteSegment(s)).mkString(&quot;&quot;)</span><span
+                    style=''>
+</span>98 <span style=''>
+</span>99 <span style=''>  override def toString: String = </span><span style='background: #F0ADAD'>s&quot;&quot;&quot;AbsolutePath($stringValue)&quot;&quot;&quot;</span><span
+                    style=''>
+</span>100 <span style=''>}
+</span>101 <span style=''>
+</span>102 <span style=''>object AbsolutePath {
+</span>103 <span style=''>  def apply(head: Segment, tail: Segment*): AbsolutePath = {
+</span>104 <span style=''>    </span><span style='background: #AEF1AE'>tail.foldLeft[AbsolutePath](AbsoluteSingleSegmentPath(head))(_ / _)</span><span
+                    style=''>
+</span>105 <span style=''>  }
+</span>106 <span style=''>}
+</span>107 <span style=''>
+</span>108 <span style=''>final case class NonEmptyAbsolutePath(parent: AbsolutePath, segment: Segment) extends AbsolutePath with PathWithSegments {
+</span>109 <span style=''>  override def segments: Seq[Segment] = </span><span style='background: #AEF1AE'>parent.segments :+ segment</span><span
+                    style=''>
+</span>110 <span style=''>}
+</span>111 <span style=''>
+</span>112 <span style=''>/**
+</span>113 <span style=''> * A path that begins with a non empty segment
+</span>114 <span style=''> * @see &lt;a href=&quot;https://tools.ietf.org/html/rfc3986#section-3.3&quot;&gt;rfc3986#section-3.3&lt;/a&gt;
+</span>115 <span style=''> */
+</span>116 <span style=''>sealed trait RootlessPath extends PathRootlessEmpty {
+</span>117 <span style=''>
+</span>118 <span style=''>  type PathWithSegmentsType = ConsRootlessPath
+</span>119 <span style=''>
+</span>120 <span style=''>  override def pathType: PathType = </span><span
+                    style='background: #AEF1AE'>PathType.Rootless</span><span style=''>
+</span>121 <span style=''>
+</span>122 <span style=''>  val segment: Segment
+</span>123 <span style=''>
+</span>124 <span style=''>  override def stringValue: String = </span><span style='background: #AEF1AE'>segments.map(s =&gt; Encoder.quoteSegment(s)).mkString(&quot;/&quot;)</span><span
+                    style=''>
+</span>125 <span style=''>  override def toString: String = </span><span style='background: #F0ADAD'>s&quot;&quot;&quot;RootlessPath($stringValue)&quot;&quot;&quot;</span><span
+                    style=''>
+</span>126 <span style=''>
+</span>127 <span style=''>}
+</span>128 <span style=''>
+</span>129 <span style=''>object RootlessPath {
+</span>130 <span style=''>  private[uri] def apply(head: NonEmptySegment, tail: Segment*): RootlessPath =
+</span>131 <span style=''>    </span><span style='background: #AEF1AE'>tail.foldLeft[RootlessPath](RootlessSingleSegmentPath(head))(_ / _)</span><span
+                    style=''>
+</span>132 <span style=''>}
+</span>133 <span style=''>
+</span>134 <span style=''>/**
+</span>135 <span style=''> * @see &lt;a href=&quot;https://tools.ietf.org/html/rfc3986#section-3.3&quot;&gt;rfc3986#section-3.3&lt;/a&gt;
+</span>136 <span style=''> */
+</span>137 <span style=''>final case class ConsRootlessPath(parent: RootlessPath, segment: Segment) extends RootlessPath with PathWithSegments {
+</span>138 <span style=''>
+</span>139 <span style=''>  def /(s: Segment): ConsRootlessPath = </span><span style='background: #AEF1AE'>ConsRootlessPath(this, s)</span><span
+                    style=''>
+</span>140 <span style=''>
+</span>141 <span style=''>  override def segments: Seq[Segment] = </span><span style='background: #AEF1AE'>parent.segments :+ segment</span><span
+                    style=''>
+</span>142 <span style=''>
+</span>143 <span style=''>}
+</span>144 <span style=''>
+</span>145 <span style=''>final case class AbsoluteSingleSegmentPath(segment: Segment) extends AbsolutePath with PathWithSegments {
+</span>146 <span style=''>
+</span>147 <span style=''>  override def segments: Seq[Segment] = </span><span
+                    style='background: #AEF1AE'>Seq(segment)</span><span style=''>
+</span>148 <span style=''>}
+</span>149 <span style=''>
+</span>150 <span style=''>/**
+</span>151 <span style=''> * @see &lt;a href=&quot;https://tools.ietf.org/html/rfc3986#section-3.3&quot;&gt;rfc3986#section-3.3&lt;/a&gt;
+</span>152 <span style=''> */
+</span>153 <span style=''>final case class RootlessSingleSegmentPath private[uri] (segment: NonEmptySegment) extends RootlessPath with PathWithSegments {
+</span>154 <span style=''>
+</span>155 <span style=''>  override def segments: Seq[Segment] = </span><span
+                    style='background: #AEF1AE'>Seq(segment)</span><span style=''>
+</span>156 <span style=''>
+</span>157 <span style=''>  override def /(s: Segment): ConsRootlessPath = </span><span style='background: #AEF1AE'>ConsRootlessPath(this, s)</span><span
+                    style=''>
+</span>158 <span style=''>}
+</span>159 <span style=''>
+</span>160 <span style=''>/**
+</span>161 <span style=''> * The path with zero characters
+</span>162 <span style=''> * @see &lt;a href=&quot;https://tools.ietf.org/html/rfc3986#section-3.3&quot;&gt;rfc3986#section-3.3&lt;/a&gt;
+</span>163 <span style=''> */
+</span>164 <span style=''>case object EmptyPath extends PathAbEmpty with PathRootlessEmpty {
+</span>165 <span style=''>
+</span>166 <span style=''>  type PathWithSegmentsType = AbsoluteSingleSegmentPath
+</span>167 <span style=''>
+</span>168 <span style=''>  override def pathType: PathType = </span><span
+                    style='background: #AEF1AE'>PathType.Empty</span><span style=''>
+</span>169 <span style=''>
+</span>170 <span style=''>  override def segments: Seq[Segment] = </span><span
+                    style='background: #AEF1AE'>Seq.empty</span><span style=''>
+</span>171 <span style=''>
+</span>172 <span style=''>  override def stringValue: String = </span><span
+                    style='background: #AEF1AE'>&quot;&quot;</span><span style=''>
+</span>173 <span style=''>
+</span>174 <span style=''>  //  override def toString: String = segments.map(_.toString).mkString(&quot;/&quot;)
+</span>175 <span style=''>  override def /(s: Segment): AbsoluteSingleSegmentPath = </span><span
+                    style='background: #AEF1AE'>AbsoluteSingleSegmentPath(s)</span><span style=''>
+</span>176 <span style=''>}
+</span></pre>
+    </div>
+    <div class="tab-pane" id="statementlist">
+        <table cellspacing="0" cellpadding="0" class="table statementlist">
+            <tr>
+                <th>Line</th>
+                <th>Stmt Id</th>
+                <th>Pos</th>
+                <th>Tree</th>
+                <th>Symbol</th>
+                <th>Code</th>
+            </tr>
+            <tr>
+                <td>
+                    16
+                </td>
+                <td>
+                    171
+                </td>
+                <td>
+                    430
+                    -
+                    459
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    java.lang.Object.==
+                </td>
+                <td style="background: #AEF1AE">
+                    Path.this.pathType.==(PathType.Absolute)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    16
+                </td>
+                <td>
+                    170
+                </td>
+                <td>
+                    442
+                    -
+                    459
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.PathType.Absolute
+                </td>
+                <td style="background: #AEF1AE">
+                    PathType.Absolute
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    17
+                </td>
+                <td>
+                    173
+                </td>
+                <td>
+                    488
+                    -
+                    517
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    java.lang.Object.==
+                </td>
+                <td style="background: #AEF1AE">
+                    Path.this.pathType.==(PathType.Rootless)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    17
+                </td>
+                <td>
+                    172
+                </td>
+                <td>
+                    500
+                    -
+                    517
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.PathType.Rootless
+                </td>
+                <td style="background: #AEF1AE">
+                    PathType.Rootless
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    18
+                </td>
+                <td>
+                    175
+                </td>
+                <td>
+                    543
+                    -
+                    569
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    java.lang.Object.==
+                </td>
+                <td style="background: #AEF1AE">
+                    Path.this.pathType.==(PathType.Empty)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    18
+                </td>
+                <td>
+                    174
+                </td>
+                <td>
+                    555
+                    -
+                    569
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.PathType.Empty
+                </td>
+                <td style="background: #AEF1AE">
+                    PathType.Empty
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    23
+                </td>
+                <td>
+                    176
+                </td>
+                <td>
+                    794
+                    -
+                    804
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Segment.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    Segment.apply(s)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    23
+                </td>
+                <td>
+                    177
+                </td>
+                <td>
+                    787
+                    -
+                    804
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Path./
+                </td>
+                <td style="background: #AEF1AE">
+                    this./(Segment.apply(s))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    28
+                </td>
+                <td>
+                    178
+                </td>
+                <td>
+                    903
+                    -
+                    912
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Path./
+                </td>
+                <td style="background: #AEF1AE">
+                    Path./(&quot;&quot;)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    29
+                </td>
+                <td>
+                    179
+                </td>
+                <td>
+                    962
+                    -
+                    990
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.AbsoluteSingleSegmentPath.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    AbsoluteSingleSegmentPath.apply(s)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    30
+                </td>
+                <td>
+                    181
+                </td>
+                <td>
+                    1039
+                    -
+                    1056
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Path./
+                </td>
+                <td style="background: #AEF1AE">
+                    Path./(Segment.apply(s))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    30
+                </td>
+                <td>
+                    180
+                </td>
+                <td>
+                    1046
+                    -
+                    1056
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Segment.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    Segment.apply(s)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    31
+                </td>
+                <td>
+                    182
+                </td>
+                <td>
+                    1091
+                    -
+                    1119
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.RootlessSingleSegmentPath.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    RootlessSingleSegmentPath.apply(s)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    32
+                </td>
+                <td>
+                    183
+                </td>
+                <td>
+                    1164
+                    -
+                    1174
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Segment.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    Segment.apply(s)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    33
+                </td>
+                <td>
+                    184
+                </td>
+                <td>
+                    1214
+                    -
+                    1224
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.Path.empty
+                </td>
+                <td style="background: #AEF1AE">
+                    Path.empty
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    34
+                </td>
+                <td>
+                    185
+                </td>
+                <td>
+                    1256
+                    -
+                    1284
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.RootlessSingleSegmentPath.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    RootlessSingleSegmentPath.apply(s)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    39
+                </td>
+                <td>
+                    186
+                </td>
+                <td>
+                    1380
+                    -
+                    1385
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.Path.empty
+                </td>
+                <td style="background: #AEF1AE">
+                    Path.this.empty
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    40
+                </td>
+                <td>
+                    187
+                </td>
+                <td>
+                    1410
+                    -
+                    1431
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Path.absolute
+                </td>
+                <td style="background: #AEF1AE">
+                    Path.this.absolute(h, (tail: _*))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    43
+                </td>
+                <td>
+                    188
+                </td>
+                <td>
+                    1515
+                    -
+                    1554
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.AbsolutePath.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    AbsolutePath.apply(segment, (moreSegments: _*))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    44
+                </td>
+                <td>
+                    189
+                </td>
+                <td>
+                    1636
+                    -
+                    1675
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.RootlessPath.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    RootlessPath.apply(segment, (moreSegments: _*))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    46
+                </td>
+                <td>
+                    191
+                </td>
+                <td>
+                    1708
+                    -
+                    1722
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    scala.collection.immutable.StringLike.r
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Predef.augmentString(&quot;(/[^?#]*)+&quot;).r
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    46
+                </td>
+                <td>
+                    190
+                </td>
+                <td>
+                    1708
+                    -
+                    1720
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    &quot;(/[^?#]*)+&quot;
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    47
+                </td>
+                <td>
+                    193
+                </td>
+                <td>
+                    1754
+                    -
+                    1777
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    scala.collection.immutable.StringLike.r
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Predef.augmentString(&quot;([^?#/]+)(/[^?#]*)*&quot;).r
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    47
+                </td>
+                <td>
+                    192
+                </td>
+                <td>
+                    1754
+                    -
+                    1775
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    &quot;([^?#/]+)(/[^?#]*)*&quot;
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    49
+                </td>
+                <td>
+                    194
+                </td>
+                <td>
+                    1805
+                    -
+                    1817
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    &quot;/([^?#/]*)&quot;
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    49
+                </td>
+                <td>
+                    195
+                </td>
+                <td>
+                    1805
+                    -
+                    1819
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    scala.collection.immutable.StringLike.r
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Predef.augmentString(&quot;/([^?#/]*)&quot;).r
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    53
+                </td>
+                <td>
+                    196
+                </td>
+                <td>
+                    1885
+                    -
+                    1895
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.Path.empty
+                </td>
+                <td style="background: #AEF1AE">
+                    Path.empty
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    55
+                </td>
+                <td>
+                    201
+                </td>
+                <td>
+                    1946
+                    -
+                    2084
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.TraversableOnce.foldLeft
+                </td>
+                <td style="background: #AEF1AE">
+                    Path.this.SegmentRe.findAllIn(s).matchData.foldLeft[com.agilogy.uri.PathAbEmpty](Path.empty)(((x0$1:
+                    com.agilogy.uri.PathAbEmpty, x1$1: scala.util.matching.Regex.Match) =&gt;
+                    scala.Tuple2.apply[com.agilogy.uri.PathAbEmpty, scala.util.matching.Regex.Match](x0$1, x1$1) match {
+                    case (_1: com.agilogy.uri.PathAbEmpty, _2:
+                    scala.util.matching.Regex.Match)(com.agilogy.uri.PathAbEmpty, scala.util.matching.Regex.Match)((acc
+                    @ _), (m @ _)) =&gt; acc./(Encoder.decode(m.group(1)))
+                    }))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    55
+                </td>
+                <td>
+                    197
+                </td>
+                <td>
+                    2001
+                    -
+                    2011
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.Path.empty
+                </td>
+                <td style="background: #AEF1AE">
+                    Path.empty
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    56
+                </td>
+                <td>
+                    200
+                </td>
+                <td>
+                    2042
+                    -
+                    2074
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Path./
+                </td>
+                <td style="background: #AEF1AE">
+                    acc./(Encoder.decode(m.group(1)))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    56
+                </td>
+                <td>
+                    199
+                </td>
+                <td>
+                    2048
+                    -
+                    2074
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Encoder.decode
+                </td>
+                <td style="background: #AEF1AE">
+                    Encoder.decode(m.group(1))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    56
+                </td>
+                <td>
+                    198
+                </td>
+                <td>
+                    2063
+                    -
+                    2073
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.matching.Regex.MatchData.group
+                </td>
+                <td style="background: #AEF1AE">
+                    m.group(1)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    60
+                </td>
+                <td>
+                    202
+                </td>
+                <td>
+                    2184
+                    -
+                    2220
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Option.getOrElse
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Option.apply[String](segmentsOrNull).getOrElse[String](&quot;&quot;)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    61
+                </td>
+                <td>
+                    204
+                </td>
+                <td>
+                    2248
+                    -
+                    2314
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.Iterator.map
+                </td>
+                <td style="background: #AEF1AE">
+                    Path.this.SegmentRe.findAllIn(segmentsString).matchData.map[String](((m:
+                    scala.util.matching.Regex.Match) =&gt; m.group(1)))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    61
+                </td>
+                <td>
+                    203
+                </td>
+                <td>
+                    2303
+                    -
+                    2313
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.matching.Regex.MatchData.group
+                </td>
+                <td style="background: #AEF1AE">
+                    m.group(1)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    62
+                </td>
+                <td>
+                    205
+                </td>
+                <td>
+                    2347
+                    -
+                    2374
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Encoder.decode
+                </td>
+                <td style="background: #AEF1AE">
+                    Encoder.decode(headSegment)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    62
+                </td>
+                <td>
+                    206
+                </td>
+                <td>
+                    2331
+                    -
+                    2375
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NonEmptySegment.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    NonEmptySegment.apply(Encoder.decode(headSegment))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    63
+                </td>
+                <td>
+                    209
+                </td>
+                <td>
+                    2415
+                    -
+                    2415
+                </td>
+                <td>
+                    TypeApply
+                </td>
+                <td>
+                    scala.collection.immutable.List.canBuildFrom
+                </td>
+                <td style="background: #AEF1AE">
+                    immutable.this.List.canBuildFrom[com.agilogy.uri.Segment]
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    63
+                </td>
+                <td>
+                    208
+                </td>
+                <td>
+                    2421
+                    -
+                    2447
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Segment.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    Segment.apply(Encoder.decode(s))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    63
+                </td>
+                <td>
+                    207
+                </td>
+                <td>
+                    2429
+                    -
+                    2446
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Encoder.decode
+                </td>
+                <td style="background: #AEF1AE">
+                    Encoder.decode(s)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    63
+                </td>
+                <td>
+                    210
+                </td>
+                <td>
+                    2392
+                    -
+                    2448
+                </td>
+                <td>
+                    ApplyToImplicitArgs
+                </td>
+                <td>
+                    scala.collection.immutable.List.map
+                </td>
+                <td style="background: #AEF1AE">
+                    tailSegments.toList.map[com.agilogy.uri.Segment, List[com.agilogy.uri.Segment]](((s: String) =&gt;
+                    Segment.apply(Encoder.decode(s))))(immutable.this.List.canBuildFrom[com.agilogy.uri.Segment])
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    64
+                </td>
+                <td>
+                    211
+                </td>
+                <td>
+                    2457
+                    -
+                    2480
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Path.rootless
+                </td>
+                <td style="background: #AEF1AE">
+                    Path.rootless(h, (t: _*))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    94
+                </td>
+                <td>
+                    212
+                </td>
+                <td>
+                    3284
+                    -
+                    3301
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.PathType.Absolute
+                </td>
+                <td style="background: #AEF1AE">
+                    PathType.Absolute
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    96
+                </td>
+                <td>
+                    213
+                </td>
+                <td>
+                    3347
+                    -
+                    3376
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NonEmptyAbsolutePath.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    NonEmptyAbsolutePath.apply(this, s)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    97
+                </td>
+                <td>
+                    214
+                </td>
+                <td>
+                    3414
+                    -
+                    3475
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.TraversableOnce.mkString
+                </td>
+                <td style="background: #AEF1AE">
+                    AbsolutePath.this.segments.map[String, Seq[String]](((s: com.agilogy.uri.Segment) =&gt; &quot;/&quot;.+(Encoder.quoteSegment(s))))(collection.this.Seq.canBuildFrom[String]).mkString(&quot;&quot;)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    99
+                </td>
+                <td>
+                    218
+                </td>
+                <td>
+                    3511
+                    -
+                    3544
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.StringContext.s
+                </td>
+                <td style="background: #F0ADAD">
+                    scala.StringContext.apply(&quot;AbsolutePath(&quot;, &quot;)&quot;).s(AbsolutePath.this.stringValue)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    99
+                </td>
+                <td>
+                    217
+                </td>
+                <td>
+                    3529
+                    -
+                    3540
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.AbsolutePath.stringValue
+                </td>
+                <td style="background: #F0ADAD">
+                    AbsolutePath.this.stringValue
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    99
+                </td>
+                <td>
+                    216
+                </td>
+                <td>
+                    3540
+                    -
+                    3544
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #F0ADAD">
+                    &quot;)&quot;
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    99
+                </td>
+                <td>
+                    215
+                </td>
+                <td>
+                    3515
+                    -
+                    3529
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #F0ADAD">
+                    &quot;AbsolutePath(&quot;
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    104
+                </td>
+                <td>
+                    220
+                </td>
+                <td>
+                    3696
+                    -
+                    3701
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.AbsolutePath./
+                </td>
+                <td style="background: #AEF1AE">
+                    x$1./(x$2)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    104
+                </td>
+                <td>
+                    219
+                </td>
+                <td>
+                    3663
+                    -
+                    3694
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.AbsoluteSingleSegmentPath.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    AbsoluteSingleSegmentPath.apply(head)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    104
+                </td>
+                <td>
+                    221
+                </td>
+                <td>
+                    3635
+                    -
+                    3702
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.TraversableOnce.foldLeft
+                </td>
+                <td style="background: #AEF1AE">
+                    tail.foldLeft[com.agilogy.uri.AbsolutePath](AbsoluteSingleSegmentPath.apply(head))(((x$1:
+                    com.agilogy.uri.AbsolutePath, x$2: com.agilogy.uri.Segment) =&gt; x$1./(x$2)))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    109
+                </td>
+                <td>
+                    223
+                </td>
+                <td>
+                    3889
+                    -
+                    3889
+                </td>
+                <td>
+                    TypeApply
+                </td>
+                <td>
+                    scala.collection.Seq.canBuildFrom
+                </td>
+                <td style="background: #AEF1AE">
+                    collection.this.Seq.canBuildFrom[com.agilogy.uri.Segment]
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    109
+                </td>
+                <td>
+                    222
+                </td>
+                <td>
+                    3892
+                    -
+                    3899
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.NonEmptyAbsolutePath.segment
+                </td>
+                <td style="background: #AEF1AE">
+                    NonEmptyAbsolutePath.this.segment
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    109
+                </td>
+                <td>
+                    224
+                </td>
+                <td>
+                    3873
+                    -
+                    3899
+                </td>
+                <td>
+                    ApplyToImplicitArgs
+                </td>
+                <td>
+                    scala.collection.SeqLike.:+
+                </td>
+                <td style="background: #AEF1AE">
+                    NonEmptyAbsolutePath.this.parent.segments.:+[com.agilogy.uri.Segment,
+                    Seq[com.agilogy.uri.Segment]](NonEmptyAbsolutePath.this.segment)(collection.this.Seq.canBuildFrom[com.agilogy.uri.Segment])
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    120
+                </td>
+                <td>
+                    225
+                </td>
+                <td>
+                    4187
+                    -
+                    4204
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.PathType.Rootless
+                </td>
+                <td style="background: #AEF1AE">
+                    PathType.Rootless
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    124
+                </td>
+                <td>
+                    226
+                </td>
+                <td>
+                    4267
+                    -
+                    4323
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.TraversableOnce.mkString
+                </td>
+                <td style="background: #AEF1AE">
+                    RootlessPath.this.segments.map[String, Seq[String]](((s: com.agilogy.uri.Segment) =&gt;
+                    Encoder.quoteSegment(s)))(collection.this.Seq.canBuildFrom[String]).mkString(&quot;/&quot;)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    125
+                </td>
+                <td>
+                    227
+                </td>
+                <td>
+                    4362
+                    -
+                    4376
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #F0ADAD">
+                    &quot;RootlessPath(&quot;
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    125
+                </td>
+                <td>
+                    229
+                </td>
+                <td>
+                    4376
+                    -
+                    4387
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.RootlessPath.stringValue
+                </td>
+                <td style="background: #F0ADAD">
+                    RootlessPath.this.stringValue
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    125
+                </td>
+                <td>
+                    228
+                </td>
+                <td>
+                    4387
+                    -
+                    4391
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #F0ADAD">
+                    &quot;)&quot;
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    125
+                </td>
+                <td>
+                    230
+                </td>
+                <td>
+                    4358
+                    -
+                    4391
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.StringContext.s
+                </td>
+                <td style="background: #F0ADAD">
+                    scala.StringContext.apply(&quot;RootlessPath(&quot;, &quot;)&quot;).s(RootlessPath.this.stringValue)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    131
+                </td>
+                <td>
+                    232
+                </td>
+                <td>
+                    4563
+                    -
+                    4568
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Path./
+                </td>
+                <td style="background: #AEF1AE">
+                    x$3./(x$4)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    131
+                </td>
+                <td>
+                    231
+                </td>
+                <td>
+                    4530
+                    -
+                    4561
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.RootlessSingleSegmentPath.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    RootlessSingleSegmentPath.apply(head)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    131
+                </td>
+                <td>
+                    233
+                </td>
+                <td>
+                    4502
+                    -
+                    4569
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.TraversableOnce.foldLeft
+                </td>
+                <td style="background: #AEF1AE">
+                    tail.foldLeft[com.agilogy.uri.RootlessPath](RootlessSingleSegmentPath.apply(head))(((x$3:
+                    com.agilogy.uri.RootlessPath, x$4: com.agilogy.uri.Segment) =&gt; x$3./(x$4)))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    139
+                </td>
+                <td>
+                    234
+                </td>
+                <td>
+                    4831
+                    -
+                    4856
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.ConsRootlessPath.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    ConsRootlessPath.apply(this, s)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    141
+                </td>
+                <td>
+                    236
+                </td>
+                <td>
+                    4914
+                    -
+                    4914
+                </td>
+                <td>
+                    TypeApply
+                </td>
+                <td>
+                    scala.collection.Seq.canBuildFrom
+                </td>
+                <td style="background: #AEF1AE">
+                    collection.this.Seq.canBuildFrom[com.agilogy.uri.Segment]
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    141
+                </td>
+                <td>
+                    235
+                </td>
+                <td>
+                    4917
+                    -
+                    4924
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.ConsRootlessPath.segment
+                </td>
+                <td style="background: #AEF1AE">
+                    ConsRootlessPath.this.segment
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    141
+                </td>
+                <td>
+                    237
+                </td>
+                <td>
+                    4898
+                    -
+                    4924
+                </td>
+                <td>
+                    ApplyToImplicitArgs
+                </td>
+                <td>
+                    scala.collection.SeqLike.:+
+                </td>
+                <td style="background: #AEF1AE">
+                    ConsRootlessPath.this.parent.segments.:+[com.agilogy.uri.Segment,
+                    Seq[com.agilogy.uri.Segment]](ConsRootlessPath.this.segment)(collection.this.Seq.canBuildFrom[com.agilogy.uri.Segment])
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    147
+                </td>
+                <td>
+                    238
+                </td>
+                <td>
+                    5080
+                    -
+                    5087
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.AbsoluteSingleSegmentPath.segment
+                </td>
+                <td style="background: #AEF1AE">
+                    AbsoluteSingleSegmentPath.this.segment
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    147
+                </td>
+                <td>
+                    239
+                </td>
+                <td>
+                    5076
+                    -
+                    5088
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.generic.GenericCompanion.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.collection.Seq.apply[com.agilogy.uri.Segment](AbsoluteSingleSegmentPath.this.segment)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    155
+                </td>
+                <td>
+                    241
+                </td>
+                <td>
+                    5359
+                    -
+                    5371
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.generic.GenericCompanion.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.collection.Seq.apply[com.agilogy.uri.NonEmptySegment](RootlessSingleSegmentPath.this.segment)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    155
+                </td>
+                <td>
+                    240
+                </td>
+                <td>
+                    5363
+                    -
+                    5370
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.RootlessSingleSegmentPath.segment
+                </td>
+                <td style="background: #AEF1AE">
+                    RootlessSingleSegmentPath.this.segment
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    157
+                </td>
+                <td>
+                    242
+                </td>
+                <td>
+                    5422
+                    -
+                    5447
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.ConsRootlessPath.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    ConsRootlessPath.apply(this, s)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    168
+                </td>
+                <td>
+                    243
+                </td>
+                <td>
+                    5743
+                    -
+                    5757
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.PathType.Empty
+                </td>
+                <td style="background: #AEF1AE">
+                    PathType.Empty
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    170
+                </td>
+                <td>
+                    244
+                </td>
+                <td>
+                    5799
+                    -
+                    5808
+                </td>
+                <td>
+                    TypeApply
+                </td>
+                <td>
+                    scala.collection.generic.GenericCompanion.empty
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.collection.Seq.empty[Nothing]
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    172
+                </td>
+                <td>
+                    245
+                </td>
+                <td>
+                    5847
+                    -
+                    5849
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    &quot;&quot;
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    175
+                </td>
+                <td>
+                    246
+                </td>
+                <td>
+                    5986
+                    -
+                    6014
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.AbsoluteSingleSegmentPath.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    AbsoluteSingleSegmentPath.apply(s)
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>

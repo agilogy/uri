@@ -1,0 +1,2608 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title id="title">
+        com/agilogy/uri/Encoder.scala.html
+    </title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/css/theme.default.min.css"
+          type="text/css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/js/jquery.tablesorter.min.js"></script>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css"
+          type="text/css"/>
+    <script src="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {$(".tablesorter").tablesorter();});
+
+    </script>
+    <style>
+          table.codegrid { font-family: monospace; font-size: 12px; width: auto!important; }table.statementlist { width: auto!important; font-size: 13px; } table.codegrid td { padding: 0!important; border: 0!important } table td.linenumber { width: 40px!important; } 
+
+    </style>
+</head>
+<body style="font-family: monospace;">
+<ul class="nav nav-tabs">
+    <li>
+        <a href="#codegrid" data-toggle="tab">Codegrid</a>
+    </li>
+    <li>
+        <a href="#statementlist" data-toggle="tab">Statement List</a>
+    </li>
+</ul>
+<div class="tab-content">
+    <div class="tab-pane active" id="codegrid">
+            <pre style='font-size: 12pt; font-family: courier;'>1 <span style=''>package com.agilogy.uri
+</span>2 <span style=''>
+</span>3 <span style=''>import java.text.Normalizer
+</span>4 <span style=''>
+</span>5 <span style=''>import scala.util.{ Failure, Success, Try }
+</span>6 <span style=''>
+</span>7 <span style=''>object Encoder {
+</span>8 <span style=''>  //  private val genDelims = &quot;:/?#[]@&quot;.toSet
+</span>9 <span style=''>  private val subDelims = </span><span style='background: #AEF1AE'>&quot;!$&amp;'()*+,;=&quot;.toSet</span><span
+                    style=''>
+</span>10 <span style=''>  //  private val reserved = genDelims ++ subDelims
+</span>11 <span style=''>  private val unreserved = </span><span
+                    style='background: #AEF1AE'>&quot;-._~&quot;.toSet</span><span style=''>
+</span>12 <span style=''>  private val schemeChars = </span><span
+                    style='background: #AEF1AE'>&quot;+-.&quot;.toSet</span><span style=''>
+</span>13 <span style=''>  private val userInfoChars = </span><span style='background: #AEF1AE'>unreserved ++ subDelims ++ Set(':')</span><span
+                    style=''>
+</span>14 <span style=''>  private val registeredNameChars = </span><span style='background: #AEF1AE'>unreserved ++ subDelims</span><span
+                    style=''>
+</span>15 <span style=''>  private val pathSegmentChars = </span><span style='background: #AEF1AE'>unreserved ++ subDelims ++ &quot;:@&quot;.toSet</span><span
+                    style=''>
+</span>16 <span style=''>  private val queryChars = </span><span style='background: #AEF1AE'>pathSegmentChars ++ &quot;/?&quot;.toSet</span><span
+                    style=''>
+</span>17 <span style=''>  //  private val fragmentChars = queryChars
+</span>18 <span style=''>  //  val allChars = reserved ++ unreserved ++ schemeChars ++ &quot; %&quot;.toSet
+</span>19 <span style=''>
+</span>20 <span style=''>  private def pctEncode(c: Char): String = {
+</span>21 <span style=''>    if (</span><span style='background: #AEF1AE'>c &lt;= '\u000F'</span><span style=''>) {
+</span>22 <span style=''>      </span><span style='background: #F0ADAD'>&quot;%0&quot; + Integer.toHexString(c.toInt).toUpperCase</span><span
+                    style=''>
+</span>23 <span style=''>    } else </span><span style='background: #AEF1AE'>if (c &lt;= '\u0080') {
+</span>24 <span style=''></span><span style='background: #AEF1AE'>      &quot;%&quot; + Integer.toHexString(c.toInt).toUpperCase
+</span>25 <span style=''></span><span style='background: #AEF1AE'>    } else {
+</span>26 <span style=''></span><span style='background: #AEF1AE'>      Try(JavaNetCodec.encode(c.toString)) match {
+</span>27 <span style=''></span><span style='background: #AEF1AE'>        case Success(s) =&gt; s
+</span>28 <span style=''></span><span style='background: #AEF1AE'>        case Failure(t) =&gt;
+</span>29 <span style=''></span><span style='background: #AEF1AE'>          //          println(s&quot;ERROR encoding $c&quot;)
+</span>30 <span style=''></span><span style='background: #AEF1AE'>          //          throw new RuntimeException(t)
+</span>31 <span style=''></span><span style='background: #AEF1AE'>          </span><span style='background: #F0ADAD'>&quot;?&quot;</span><span
+                    style='background: #AEF1AE'>
+</span>32 <span style=''></span><span style='background: #AEF1AE'>
+</span>33 <span style=''></span><span style='background: #AEF1AE'>      }
+</span>34 <span style=''></span><span style='background: #AEF1AE'>    }</span><span style=''>
+</span>35 <span style=''>    //    &quot;%&quot; + Integer.toHexString(c.toInt).toUpperCase
+</span>36 <span style=''>  }
+</span>37 <span style=''>
+</span>38 <span style=''>  //  implicit class CharOps(c:Char){
+</span>39 <span style=''>  //    def encode:String = &quot;%&quot; + Integer.toHexString(c.toInt).toUpperCase
+</span>40 <span style=''>  //  }
+</span>41 <span style=''>
+</span>42 <span style=''>  @inline private def isAlpha(c: Char) = </span><span style='background: #AEF1AE'>(c &gt;= 'a' &amp;&amp; c &lt;= 'z') || (c &gt;= 'A' &amp;&amp; c &lt;= 'Z')</span><span
+                    style=''>
+</span>43 <span style=''>
+</span>44 <span style=''>  @inline private def isDigit(c: Char) = </span><span style='background: #AEF1AE'>c &gt;= '0' &amp;&amp; c &lt;= '9'</span><span
+                    style=''>
+</span>45 <span style=''>
+</span>46 <span style=''>  private def isAlphaNum(c: Char): Boolean = </span><span style='background: #AEF1AE'>isAlpha(c) || isDigit(c)</span><span
+                    style=''>
+</span>47 <span style=''>
+</span>48 <span style=''>  private def isValidSchemeChar(c: Char): Boolean = </span><span style='background: #AEF1AE'>isAlphaNum(c) || schemeChars.contains(c)</span><span
+                    style=''>
+</span>49 <span style=''>
+</span>50 <span style=''>  def isValidScheme(v: String): Boolean = {
+</span>51 <span style=''>    </span><span style='background: #AEF1AE'>v != null &amp;&amp; v.length &gt; 0 &amp;&amp; isAlpha(v.charAt(0)) &amp;&amp; v.forall(isValidSchemeChar)</span><span
+                    style=''>
+</span>52 <span style=''>  }
+</span>53 <span style=''>
+</span>54 <span style=''>  //  def isValidRegisteredNameChar(c:Char):Boolean = c.isLetterOrDigit || registeredNameChars.contains(c)
+</span>55 <span style=''>
+</span>56 <span style=''>  //  def isValidRegisteredName(v:String):Boolean = {
+</span>57 <span style=''>  //    v != null &amp;&amp; v.forall(isValidRegisteredNameChar)
+</span>58 <span style=''>  //  }
+</span>59 <span style=''>
+</span>60 <span style=''>  def asciiEncode(s: String): String = {
+</span>61 <span style=''>    </span><span style='background: #AEF1AE'>JavaNetCodec.encode(s)</span><span style=''>
+</span>62 <span style=''>  }
+</span>63 <span style=''>
+</span>64 <span style=''>  def quote(s: String, allowedChars: Set[Char]): String = {
+</span>65 <span style=''>    //    val forbiddenChars = allChars -- allowedChars
+</span>66 <span style=''>    val sb = </span><span style='background: #AEF1AE'>new StringBuilder</span><span style=''>
+</span>67 <span style=''>    //    var hs: Char = 0.toChar
+</span>68 <span style=''>    val i = </span><span style='background: #AEF1AE'>s.iterator</span><span style=''>
+</span>69 <span style=''>    while (</span><span style='background: #AEF1AE'>i.hasNext</span><span
+                    style=''>) </span><span style='background: #AEF1AE'>{
+</span>70 <span style=''></span><span style='background: #AEF1AE'>      val c = i.next()
+</span>71 <span style=''></span><span style='background: #AEF1AE'>      if (c.isHighSurrogate &amp;&amp; i.hasNext) {
+</span>72 <span style=''></span><span style='background: #AEF1AE'>        //      } else if (c.isHighSurrogate) {
+</span>73 <span style=''></span><span style='background: #AEF1AE'>        //          if (!i.hasNext) {
+</span>74 <span style=''></span><span style='background: #AEF1AE'>        //        sb.append(pctEncode(c))
+</span>75 <span style=''></span><span style='background: #AEF1AE'>        //          throw new RuntimeException(s&quot;Unexpected low surrogate ${Integer.toHexString(c.toInt)}&quot;)
+</span>76 <span style=''></span><span style='background: #AEF1AE'>        //          } else {
+</span>77 <span style=''></span><span style='background: #AEF1AE'>        val l = i.next()
+</span>78 <span style=''></span><span style='background: #AEF1AE'>        if (!l.isLowSurrogate) {
+</span>79 <span style=''></span><span style='background: #AEF1AE'>          //            throw new IllegalArgumentException(s&quot;Unexpected char $c (${Integer.toHexString(l.toInt)}) after high surrogate ${Integer.toHexString(c.toInt)}&quot;)
+</span>80 <span style=''></span><span style='background: #AEF1AE'>          </span><span style='background: #F0ADAD'>sb.append(pctEncode(l))</span><span
+                    style='background: #AEF1AE'>
+</span>81 <span style=''></span><span style='background: #AEF1AE'>        } else {
+</span>82 <span style=''></span><span style='background: #AEF1AE'>          // e.g. 𥳐 = '\uD857' + '\uDCD0'
+</span>83 <span style=''></span><span style='background: #AEF1AE'>          sb.append(JavaNetCodec.encode(&quot;&quot; + c + l))
+</span>84 <span style=''></span><span style='background: #AEF1AE'>        }
+</span>85 <span style=''></span><span style='background: #AEF1AE'>        //          }
+</span>86 <span style=''></span><span style='background: #AEF1AE'>      } else if (c.isLetterOrDigit || allowedChars.contains(c)) {
+</span>87 <span style=''></span><span style='background: #AEF1AE'>        // (isAlphaNum(c) || allowedChars.contains(c)) {
+</span>88 <span style=''></span><span style='background: #AEF1AE'>        sb.append(c)
+</span>89 <span style=''></span><span style='background: #AEF1AE'>        //      } else if (c.isLowSurrogate) {
+</span>90 <span style=''></span><span style='background: #AEF1AE'>        //        throw new RuntimeException(s&quot;Unexpected low surrogate ${Integer.toHexString(c.toInt)}&quot;)
+</span>91 <span style=''></span><span style='background: #AEF1AE'>      } else {
+</span>92 <span style=''></span><span style='background: #AEF1AE'>        sb.append(pctEncode(c))
+</span>93 <span style=''></span><span style='background: #AEF1AE'>      }
+</span>94 <span style=''></span><span style='background: #AEF1AE'>    }</span><span style=''>
+</span>95 <span style=''>    </span><span style='background: #AEF1AE'>sb.toString()</span><span style=''>
+</span>96 <span style=''>  }
+</span>97 <span style=''>
+</span>98 <span style=''>  //  private def pctDecodeChar(c:String):Char = {
+</span>99 <span style=''>  //    if (c.length == 1) {
+</span>100 <span style=''>  //      c.charAt(0)
+</span>101 <span style=''>  //    } else if (c.startsWith(&quot;%&quot;)) {
+</span>102 <span style=''>  //      Integer.parseInt(c.substring(1), 16).toChar
+</span>103 <span style=''>  //    } else {
+</span>104 <span style=''>  //      throw new IllegalArgumentException(s&quot;Can't decode $c&quot;)
+</span>105 <span style=''>  //    }
+</span>106 <span style=''>  //  }
+</span>107 <span style=''>
+</span>108 <span style=''>  def decode(s: String): String = {
+</span>109 <span style=''>    </span><span style='background: #AEF1AE'>JavaNetCodec.decode(s)</span><span style=''>
+</span>110 <span style=''>  }
+</span>111 <span style=''>
+</span>112 <span style=''>  //  private def chars(s:String):Iterator[String] = new Iterator[String]{
+</span>113 <span style=''>  //
+</span>114 <span style=''>  //    var nextPos = 0
+</span>115 <span style=''>  //
+</span>116 <span style=''>  //    val maxPos = s.length - 1
+</span>117 <span style=''>  //
+</span>118 <span style=''>  //    override def hasNext: Boolean = nextPos &lt;= maxPos
+</span>119 <span style=''>  //
+</span>120 <span style=''>  //    override def next(): String = {
+</span>121 <span style=''>  //      if(s.charAt(nextPos) == '%') {
+</span>122 <span style=''>  //        val res = s.substring(nextPos, nextPos + 3)
+</span>123 <span style=''>  //        nextPos += 3
+</span>124 <span style=''>  //        res
+</span>125 <span style=''>  //      }
+</span>126 <span style=''>  //      else {
+</span>127 <span style=''>  //        val res = s.substring(nextPos, nextPos + 1)
+</span>128 <span style=''>  //        nextPos += 1
+</span>129 <span style=''>  //        res
+</span>130 <span style=''>  //      }
+</span>131 <span style=''>  //    }
+</span>132 <span style=''>  //  }
+</span>133 <span style=''>
+</span>134 <span style=''>  def quoteAuthority(a: Authority): String = {
+</span>135 <span style=''>    </span><span style='background: #AEF1AE'>a.userInfo.fold(&quot;&quot;)(ui =&gt; Encoder.quote(ui.stringValue, Encoder.userInfoChars -- Set(':')) + &quot;@&quot;) +
+</span>136 <span style=''></span><span style='background: #AEF1AE'>      Encoder.quote(a.host.stringValue, Encoder.registeredNameChars) +
+</span>137 <span style=''></span><span style='background: #AEF1AE'>      a.port.fold(&quot;&quot;)(&quot;:&quot; + _.stringValue)</span><span
+                    style=''>
+</span>138 <span style=''>  }
+</span>139 <span style=''>
+</span>140 <span style=''>  def quoteSegment(s: Segment): String = {
+</span>141 <span style=''>    </span><span style='background: #AEF1AE'>Encoder.quote(s.stringValue, Encoder.pathSegmentChars)</span><span
+                    style=''>
+</span>142 <span style=''>  }
+</span>143 <span style=''>
+</span>144 <span style=''>  def quoteUri(uri: Uri): String = {
+</span>145 <span style=''>    val sScheme = </span><span style='background: #AEF1AE'>uri.scheme.stringValue</span><span
+                    style=''>
+</span>146 <span style=''>    val sAuthority = </span><span style='background: #AEF1AE'>uri.authority.map(a =&gt; &quot;//&quot; + a.stringValue).getOrElse(&quot;&quot;)</span><span
+                    style=''>
+</span>147 <span style=''>    val sPath = </span><span style='background: #AEF1AE'>uri.path.stringValue</span><span
+                    style=''>
+</span>148 <span style=''>    val sQuery = </span><span style='background: #AEF1AE'>uri.query.map(q =&gt; &quot;?&quot; + Encoder.quote(q.stringValue, Encoder.queryChars)).getOrElse(&quot;&quot;)</span><span
+                    style=''>
+</span>149 <span style=''>    val sFragment = </span><span style='background: #AEF1AE'>uri.fragment.map(f =&gt; &quot;#&quot; + f.stringValue).getOrElse(&quot;&quot;)</span><span
+                    style=''>
+</span>150 <span style=''>    </span><span style='background: #AEF1AE'>s&quot;$sScheme:$sAuthority$sPath$sQuery$sFragment&quot;</span><span
+                    style=''>
+</span>151 <span style=''>  }
+</span>152 <span style=''>
+</span>153 <span style=''>  def normalize(s: String): String = </span><span style='background: #AEF1AE'>Normalizer.normalize(s, Normalizer.Form.NFC)</span><span
+                    style=''>
+</span>154 <span style=''>
+</span>155 <span style=''>}
+</span></pre>
+    </div>
+    <div class="tab-pane" id="statementlist">
+        <table cellspacing="0" cellpadding="0" class="table statementlist">
+            <tr>
+                <th>Line</th>
+                <th>Stmt Id</th>
+                <th>Pos</th>
+                <th>Tree</th>
+                <th>Symbol</th>
+                <th>Code</th>
+            </tr>
+            <tr>
+                <td>
+                    9
+                </td>
+                <td>
+                    62
+                </td>
+                <td>
+                    188
+                    -
+                    201
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    &quot;!$&amp;\'()*+,;=&quot;
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    9
+                </td>
+                <td>
+                    63
+                </td>
+                <td>
+                    188
+                    -
+                    207
+                </td>
+                <td>
+                    TypeApply
+                </td>
+                <td>
+                    scala.collection.TraversableOnce.toSet
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Predef.augmentString(&quot;!$&amp;\'()*+,;=&quot;).toSet[Char]
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    11
+                </td>
+                <td>
+                    65
+                </td>
+                <td>
+                    287
+                    -
+                    299
+                </td>
+                <td>
+                    TypeApply
+                </td>
+                <td>
+                    scala.collection.TraversableOnce.toSet
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Predef.augmentString(&quot;-._~&quot;).toSet[Char]
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    11
+                </td>
+                <td>
+                    64
+                </td>
+                <td>
+                    287
+                    -
+                    293
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    &quot;-._~&quot;
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    12
+                </td>
+                <td>
+                    67
+                </td>
+                <td>
+                    328
+                    -
+                    339
+                </td>
+                <td>
+                    TypeApply
+                </td>
+                <td>
+                    scala.collection.TraversableOnce.toSet
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Predef.augmentString(&quot;+-.&quot;).toSet[Char]
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    12
+                </td>
+                <td>
+                    66
+                </td>
+                <td>
+                    328
+                    -
+                    333
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    &quot;+-.&quot;
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    13
+                </td>
+                <td>
+                    68
+                </td>
+                <td>
+                    384
+                    -
+                    393
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.Encoder.subDelims
+                </td>
+                <td style="background: #AEF1AE">
+                    Encoder.this.subDelims
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    13
+                </td>
+                <td>
+                    70
+                </td>
+                <td>
+                    370
+                    -
+                    405
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.SetLike.++
+                </td>
+                <td style="background: #AEF1AE">
+                    Encoder.this.unreserved.++(Encoder.this.subDelims).++(scala.Predef.Set.apply[Char](':'))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    13
+                </td>
+                <td>
+                    69
+                </td>
+                <td>
+                    397
+                    -
+                    405
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.generic.GenericCompanion.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Predef.Set.apply[Char](':')
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    14
+                </td>
+                <td>
+                    71
+                </td>
+                <td>
+                    456
+                    -
+                    465
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.Encoder.subDelims
+                </td>
+                <td style="background: #AEF1AE">
+                    Encoder.this.subDelims
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    14
+                </td>
+                <td>
+                    72
+                </td>
+                <td>
+                    442
+                    -
+                    465
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.SetLike.++
+                </td>
+                <td style="background: #AEF1AE">
+                    Encoder.this.unreserved.++(Encoder.this.subDelims)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    15
+                </td>
+                <td>
+                    74
+                </td>
+                <td>
+                    526
+                    -
+                    530
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    &quot;:@&quot;
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    15
+                </td>
+                <td>
+                    73
+                </td>
+                <td>
+                    513
+                    -
+                    522
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.Encoder.subDelims
+                </td>
+                <td style="background: #AEF1AE">
+                    Encoder.this.subDelims
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    15
+                </td>
+                <td>
+                    76
+                </td>
+                <td>
+                    499
+                    -
+                    536
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.SetLike.++
+                </td>
+                <td style="background: #AEF1AE">
+                    Encoder.this.unreserved.++(Encoder.this.subDelims).++(scala.Predef.augmentString(&quot;:@&quot;).toSet[Char])
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    15
+                </td>
+                <td>
+                    75
+                </td>
+                <td>
+                    526
+                    -
+                    536
+                </td>
+                <td>
+                    TypeApply
+                </td>
+                <td>
+                    scala.collection.TraversableOnce.toSet
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Predef.augmentString(&quot;:@&quot;).toSet[Char]
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    16
+                </td>
+                <td>
+                    77
+                </td>
+                <td>
+                    584
+                    -
+                    588
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    &quot;/?&quot;
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    16
+                </td>
+                <td>
+                    79
+                </td>
+                <td>
+                    564
+                    -
+                    594
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.SetLike.++
+                </td>
+                <td style="background: #AEF1AE">
+                    Encoder.this.pathSegmentChars.++(scala.Predef.augmentString(&quot;/?&quot;).toSet[Char])
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    16
+                </td>
+                <td>
+                    78
+                </td>
+                <td>
+                    584
+                    -
+                    594
+                </td>
+                <td>
+                    TypeApply
+                </td>
+                <td>
+                    scala.collection.TraversableOnce.toSet
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Predef.augmentString(&quot;/?&quot;).toSet[Char]
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    21
+                </td>
+                <td>
+                    80
+                </td>
+                <td>
+                    767
+                    -
+                    780
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Char.&lt;=
+                </td>
+                <td style="background: #AEF1AE">
+                    c.&lt;=('\u000F')
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    22
+                </td>
+                <td>
+                    83
+                </td>
+                <td>
+                    790
+                    -
+                    837
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    java.lang.String.+
+                </td>
+                <td style="background: #F0ADAD">
+                    &quot;%0&quot;.+(java.lang.Integer.toHexString(c.toInt).toUpperCase())
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    22
+                </td>
+                <td>
+                    82
+                </td>
+                <td>
+                    797
+                    -
+                    837
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    java.lang.String.toUpperCase
+                </td>
+                <td style="background: #F0ADAD">
+                    java.lang.Integer.toHexString(c.toInt).toUpperCase()
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    22
+                </td>
+                <td>
+                    81
+                </td>
+                <td>
+                    790
+                    -
+                    794
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #F0ADAD">
+                    &quot;%0&quot;
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    22
+                </td>
+                <td>
+                    84
+                </td>
+                <td>
+                    790
+                    -
+                    837
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    java.lang.String.+
+                </td>
+                <td style="background: #F0ADAD">
+                    &quot;%0&quot;.+(java.lang.Integer.toHexString(c.toInt).toUpperCase())
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    23
+                </td>
+                <td>
+                    95
+                </td>
+                <td>
+                    849
+                    -
+                    1175
+                </td>
+                <td>
+                    If
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    if (c.&lt;=('\u0080'))
+                    &quot;%&quot;.+(java.lang.Integer.toHexString(c.toInt).toUpperCase())
+                    else
+                    scala.util.Try.apply[String](JavaNetCodec.encode(c.toString())) match {
+                    case (value: String)scala.util.Success[String]((s @ _)) =&gt; s
+                    case (exception: Throwable)scala.util.Failure[String]((t @ _)) =&gt; &quot;?&quot;
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    23
+                </td>
+                <td>
+                    85
+                </td>
+                <td>
+                    853
+                    -
+                    866
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Char.&lt;=
+                </td>
+                <td style="background: #AEF1AE">
+                    c.&lt;=('\u0080')
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    24
+                </td>
+                <td>
+                    86
+                </td>
+                <td>
+                    876
+                    -
+                    879
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    &quot;%&quot;
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    24
+                </td>
+                <td>
+                    89
+                </td>
+                <td>
+                    876
+                    -
+                    922
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    java.lang.String.+
+                </td>
+                <td style="background: #AEF1AE">
+                    &quot;%&quot;.+(java.lang.Integer.toHexString(c.toInt).toUpperCase())
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    24
+                </td>
+                <td>
+                    88
+                </td>
+                <td>
+                    876
+                    -
+                    922
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    java.lang.String.+
+                </td>
+                <td style="background: #AEF1AE">
+                    &quot;%&quot;.+(java.lang.Integer.toHexString(c.toInt).toUpperCase())
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    24
+                </td>
+                <td>
+                    87
+                </td>
+                <td>
+                    882
+                    -
+                    922
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    java.lang.String.toUpperCase
+                </td>
+                <td style="background: #AEF1AE">
+                    java.lang.Integer.toHexString(c.toInt).toUpperCase()
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    26
+                </td>
+                <td>
+                    92
+                </td>
+                <td>
+                    942
+                    -
+                    978
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Try.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.util.Try.apply[String](JavaNetCodec.encode(c.toString()))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    26
+                </td>
+                <td>
+                    91
+                </td>
+                <td>
+                    946
+                    -
+                    977
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.JavaNetCodec.encode
+                </td>
+                <td style="background: #AEF1AE">
+                    JavaNetCodec.encode(c.toString())
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    26
+                </td>
+                <td>
+                    94
+                </td>
+                <td>
+                    942
+                    -
+                    1169
+                </td>
+                <td>
+                    Match
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.util.Try.apply[String](JavaNetCodec.encode(c.toString())) match {
+                    case (value: String)scala.util.Success[String]((s @ _)) =&gt; s
+                    case (exception: Throwable)scala.util.Failure[String]((t @ _)) =&gt; &quot;?&quot;
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    26
+                </td>
+                <td>
+                    90
+                </td>
+                <td>
+                    966
+                    -
+                    976
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Any.toString
+                </td>
+                <td style="background: #AEF1AE">
+                    c.toString()
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    31
+                </td>
+                <td>
+                    93
+                </td>
+                <td>
+                    1157
+                    -
+                    1160
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #F0ADAD">
+                    &quot;?&quot;
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    42
+                </td>
+                <td>
+                    101
+                </td>
+                <td>
+                    1401
+                    -
+                    1449
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Boolean.||
+                </td>
+                <td style="background: #AEF1AE">
+                    c.&gt;=('a').&amp;&amp;(c.&lt;=('z')).||(c.&gt;=('A').&amp;&amp;(c.&lt;=('Z')))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    42
+                </td>
+                <td>
+                    98
+                </td>
+                <td>
+                    1433
+                    -
+                    1436
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    'A'
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    42
+                </td>
+                <td>
+                    100
+                </td>
+                <td>
+                    1428
+                    -
+                    1448
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Boolean.&amp;&amp;
+                </td>
+                <td style="background: #AEF1AE">
+                    c.&gt;=('A').&amp;&amp;(c.&lt;=('Z'))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    42
+                </td>
+                <td>
+                    97
+                </td>
+                <td>
+                    1414
+                    -
+                    1422
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Char.&lt;=
+                </td>
+                <td style="background: #AEF1AE">
+                    c.&lt;=('z')
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    42
+                </td>
+                <td>
+                    96
+                </td>
+                <td>
+                    1407
+                    -
+                    1410
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    'a'
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    42
+                </td>
+                <td>
+                    99
+                </td>
+                <td>
+                    1440
+                    -
+                    1448
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Char.&lt;=
+                </td>
+                <td style="background: #AEF1AE">
+                    c.&lt;=('Z')
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    44
+                </td>
+                <td>
+                    104
+                </td>
+                <td>
+                    1492
+                    -
+                    1512
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Boolean.&amp;&amp;
+                </td>
+                <td style="background: #AEF1AE">
+                    c.&gt;=('0').&amp;&amp;(c.&lt;=('9'))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    44
+                </td>
+                <td>
+                    103
+                </td>
+                <td>
+                    1504
+                    -
+                    1512
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Char.&lt;=
+                </td>
+                <td style="background: #AEF1AE">
+                    c.&lt;=('9')
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    44
+                </td>
+                <td>
+                    102
+                </td>
+                <td>
+                    1497
+                    -
+                    1500
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    '0'
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    46
+                </td>
+                <td>
+                    106
+                </td>
+                <td>
+                    1559
+                    -
+                    1583
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Boolean.||
+                </td>
+                <td style="background: #AEF1AE">
+                    Encoder.this.isAlpha(c).||(Encoder.this.isDigit(c))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    46
+                </td>
+                <td>
+                    105
+                </td>
+                <td>
+                    1573
+                    -
+                    1583
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Encoder.isDigit
+                </td>
+                <td style="background: #AEF1AE">
+                    Encoder.this.isDigit(c)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    48
+                </td>
+                <td>
+                    107
+                </td>
+                <td>
+                    1654
+                    -
+                    1677
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.SetLike.contains
+                </td>
+                <td style="background: #AEF1AE">
+                    Encoder.this.schemeChars.contains(c)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    48
+                </td>
+                <td>
+                    108
+                </td>
+                <td>
+                    1637
+                    -
+                    1677
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Boolean.||
+                </td>
+                <td style="background: #AEF1AE">
+                    Encoder.this.isAlphaNum(c).||(Encoder.this.schemeChars.contains(c))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    51
+                </td>
+                <td>
+                    110
+                </td>
+                <td>
+                    1740
+                    -
+                    1752
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Int.&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    v.length().&gt;(0)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    51
+                </td>
+                <td>
+                    113
+                </td>
+                <td>
+                    1789
+                    -
+                    1806
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Encoder.isValidSchemeChar
+                </td>
+                <td style="background: #AEF1AE">
+                    Encoder.this.isValidSchemeChar(c)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    51
+                </td>
+                <td>
+                    115
+                </td>
+                <td>
+                    1727
+                    -
+                    1807
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Boolean.&amp;&amp;
+                </td>
+                <td style="background: #AEF1AE">
+                    v.!=(null).&amp;&amp;(v.length().&gt;(0)).&amp;&amp;(Encoder.this.isAlpha(v.charAt(0))).&amp;&amp;(scala.Predef.augmentString(v).forall({
+                    ((c: Char) =&gt; Encoder.this.isValidSchemeChar(c))
+                    }))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    51
+                </td>
+                <td>
+                    109
+                </td>
+                <td>
+                    1732
+                    -
+                    1736
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    null
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    51
+                </td>
+                <td>
+                    112
+                </td>
+                <td>
+                    1756
+                    -
+                    1776
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Encoder.isAlpha
+                </td>
+                <td style="background: #AEF1AE">
+                    Encoder.this.isAlpha(v.charAt(0))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    51
+                </td>
+                <td>
+                    114
+                </td>
+                <td>
+                    1780
+                    -
+                    1807
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.IndexedSeqOptimized.forall
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Predef.augmentString(v).forall({
+                    ((c: Char) =&gt; Encoder.this.isValidSchemeChar(c))
+                    })
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    51
+                </td>
+                <td>
+                    111
+                </td>
+                <td>
+                    1764
+                    -
+                    1775
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    java.lang.String.charAt
+                </td>
+                <td style="background: #AEF1AE">
+                    v.charAt(0)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    61
+                </td>
+                <td>
+                    116
+                </td>
+                <td>
+                    2086
+                    -
+                    2108
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.JavaNetCodec.encode
+                </td>
+                <td style="background: #AEF1AE">
+                    JavaNetCodec.encode(s)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    66
+                </td>
+                <td>
+                    117
+                </td>
+                <td>
+                    2243
+                    -
+                    2260
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.mutable.StringBuilder.&lt;init&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    new scala.`package`.StringBuilder()
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    68
+                </td>
+                <td>
+                    118
+                </td>
+                <td>
+                    2307
+                    -
+                    2317
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    scala.collection.IndexedSeqLike.iterator
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Predef.augmentString(s).iterator
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    69
+                </td>
+                <td>
+                    119
+                </td>
+                <td>
+                    2329
+                    -
+                    2338
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    scala.collection.Iterator.hasNext
+                </td>
+                <td style="background: #AEF1AE">
+                    i.hasNext
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    69
+                </td>
+                <td>
+                    142
+                </td>
+                <td>
+                    2340
+                    -
+                    3437
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    {
+                    {
+                    val c: Char = i.next();
+                    if (scala.Predef.charWrapper(c).isHighSurrogate.&amp;&amp;(i.hasNext))
+                    {
+                    val l: Char = i.next();
+                    if (scala.Predef.charWrapper(l).isLowSurrogate.unary_!)
+                    sb.append(Encoder.this.pctEncode(l))
+                    else
+                    sb.append(JavaNetCodec.encode(&quot;&quot;.+(c).+(l)))
+                    }
+                    else
+                    if (scala.Predef.charWrapper(c).isLetterOrDigit.||(allowedChars.contains(c)))
+                    sb.append(c)
+                    else
+                    sb.append(Encoder.this.pctEncode(c))
+                    };
+                    while$1()
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    69
+                </td>
+                <td>
+                    141
+                </td>
+                <td>
+                    2340
+                    -
+                    2340
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Encoder.while$1
+                </td>
+                <td style="background: #AEF1AE">
+                    while$1()
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    69
+                </td>
+                <td>
+                    144
+                </td>
+                <td>
+                    2322
+                    -
+                    2322
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    ()
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    69
+                </td>
+                <td>
+                    143
+                </td>
+                <td>
+                    2322
+                    -
+                    2322
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    ()
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    70
+                </td>
+                <td>
+                    120
+                </td>
+                <td>
+                    2356
+                    -
+                    2364
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.Iterator.next
+                </td>
+                <td style="background: #AEF1AE">
+                    i.next()
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    71
+                </td>
+                <td>
+                    122
+                </td>
+                <td>
+                    2375
+                    -
+                    2405
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Boolean.&amp;&amp;
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Predef.charWrapper(c).isHighSurrogate.&amp;&amp;(i.hasNext)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    71
+                </td>
+                <td>
+                    121
+                </td>
+                <td>
+                    2396
+                    -
+                    2405
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    scala.collection.Iterator.hasNext
+                </td>
+                <td style="background: #AEF1AE">
+                    i.hasNext
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    71
+                </td>
+                <td>
+                    132
+                </td>
+                <td>
+                    2407
+                    -
+                    3087
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    {
+                    val l: Char = i.next();
+                    if (scala.Predef.charWrapper(l).isLowSurrogate.unary_!)
+                    sb.append(Encoder.this.pctEncode(l))
+                    else
+                    sb.append(JavaNetCodec.encode(&quot;&quot;.+(c).+(l)))
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    77
+                </td>
+                <td>
+                    123
+                </td>
+                <td>
+                    2690
+                    -
+                    2698
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.Iterator.next
+                </td>
+                <td style="background: #AEF1AE">
+                    i.next()
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    78
+                </td>
+                <td>
+                    124
+                </td>
+                <td>
+                    2711
+                    -
+                    2728
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    scala.Boolean.unary_!
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Predef.charWrapper(l).isLowSurrogate.unary_!
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    80
+                </td>
+                <td>
+                    125
+                </td>
+                <td>
+                    2921
+                    -
+                    2933
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Encoder.pctEncode
+                </td>
+                <td style="background: #F0ADAD">
+                    Encoder.this.pctEncode(l)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    80
+                </td>
+                <td>
+                    127
+                </td>
+                <td>
+                    2911
+                    -
+                    2934
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    scala.collection.mutable.StringBuilder.append
+                </td>
+                <td style="background: #F0ADAD">
+                    sb.append(Encoder.this.pctEncode(l))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    80
+                </td>
+                <td>
+                    126
+                </td>
+                <td>
+                    2911
+                    -
+                    2934
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.mutable.StringBuilder.append
+                </td>
+                <td style="background: #F0ADAD">
+                    sb.append(Encoder.this.pctEncode(l))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    83
+                </td>
+                <td>
+                    128
+                </td>
+                <td>
+                    3035
+                    -
+                    3045
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    java.lang.String.+
+                </td>
+                <td style="background: #AEF1AE">
+                    &quot;&quot;.+(c).+(l)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    83
+                </td>
+                <td>
+                    131
+                </td>
+                <td>
+                    3005
+                    -
+                    3047
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    scala.collection.mutable.StringBuilder.append
+                </td>
+                <td style="background: #AEF1AE">
+                    sb.append(JavaNetCodec.encode(&quot;&quot;.+(c).+(l)))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    83
+                </td>
+                <td>
+                    130
+                </td>
+                <td>
+                    3005
+                    -
+                    3047
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.mutable.StringBuilder.append
+                </td>
+                <td style="background: #AEF1AE">
+                    sb.append(JavaNetCodec.encode(&quot;&quot;.+(c).+(l)))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    83
+                </td>
+                <td>
+                    129
+                </td>
+                <td>
+                    3015
+                    -
+                    3046
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.JavaNetCodec.encode
+                </td>
+                <td style="background: #AEF1AE">
+                    JavaNetCodec.encode(&quot;&quot;.+(c).+(l))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    86
+                </td>
+                <td>
+                    140
+                </td>
+                <td>
+                    3093
+                    -
+                    3431
+                </td>
+                <td>
+                    If
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    if (scala.Predef.charWrapper(c).isLetterOrDigit.||(allowedChars.contains(c)))
+                    sb.append(c)
+                    else
+                    sb.append(Encoder.this.pctEncode(c))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    86
+                </td>
+                <td>
+                    134
+                </td>
+                <td>
+                    3097
+                    -
+                    3142
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Boolean.||
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Predef.charWrapper(c).isLetterOrDigit.||(allowedChars.contains(c))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    86
+                </td>
+                <td>
+                    133
+                </td>
+                <td>
+                    3118
+                    -
+                    3142
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.SetLike.contains
+                </td>
+                <td style="background: #AEF1AE">
+                    allowedChars.contains(c)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    88
+                </td>
+                <td>
+                    136
+                </td>
+                <td>
+                    3211
+                    -
+                    3223
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    scala.collection.mutable.StringBuilder.append
+                </td>
+                <td style="background: #AEF1AE">
+                    sb.append(c)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    88
+                </td>
+                <td>
+                    135
+                </td>
+                <td>
+                    3211
+                    -
+                    3223
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.mutable.StringBuilder.append
+                </td>
+                <td style="background: #AEF1AE">
+                    sb.append(c)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    92
+                </td>
+                <td>
+                    137
+                </td>
+                <td>
+                    3410
+                    -
+                    3422
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Encoder.pctEncode
+                </td>
+                <td style="background: #AEF1AE">
+                    Encoder.this.pctEncode(c)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    92
+                </td>
+                <td>
+                    139
+                </td>
+                <td>
+                    3400
+                    -
+                    3423
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    scala.collection.mutable.StringBuilder.append
+                </td>
+                <td style="background: #AEF1AE">
+                    sb.append(Encoder.this.pctEncode(c))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    92
+                </td>
+                <td>
+                    138
+                </td>
+                <td>
+                    3400
+                    -
+                    3423
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.mutable.StringBuilder.append
+                </td>
+                <td style="background: #AEF1AE">
+                    sb.append(Encoder.this.pctEncode(c))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    95
+                </td>
+                <td>
+                    145
+                </td>
+                <td>
+                    3442
+                    -
+                    3455
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.mutable.StringBuilder.toString
+                </td>
+                <td style="background: #AEF1AE">
+                    sb.toString()
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    109
+                </td>
+                <td>
+                    146
+                </td>
+                <td>
+                    3798
+                    -
+                    3820
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.JavaNetCodec.decode
+                </td>
+                <td style="background: #AEF1AE">
+                    JavaNetCodec.decode(s)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    135
+                </td>
+                <td>
+                    148
+                </td>
+                <td>
+                    4449
+                    -
+                    4519
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    java.lang.String.+
+                </td>
+                <td style="background: #AEF1AE">
+                    Encoder.quote(ui.stringValue, Encoder.userInfoChars.--(scala.Predef.Set.apply[Char](':'))).+(&quot;@&quot;)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    135
+                </td>
+                <td>
+                    147
+                </td>
+                <td>
+                    4439
+                    -
+                    4441
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    &quot;&quot;
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    136
+                </td>
+                <td>
+                    149
+                </td>
+                <td>
+                    4543
+                    -
+                    4561
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.Host.stringValue
+                </td>
+                <td style="background: #AEF1AE">
+                    a.host.stringValue
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    136
+                </td>
+                <td>
+                    151
+                </td>
+                <td>
+                    4529
+                    -
+                    4591
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Encoder.quote
+                </td>
+                <td style="background: #AEF1AE">
+                    Encoder.quote(a.host.stringValue, Encoder.registeredNameChars)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    136
+                </td>
+                <td>
+                    157
+                </td>
+                <td>
+                    4423
+                    -
+                    4636
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    java.lang.String.+
+                </td>
+                <td style="background: #AEF1AE">
+                    a.userInfo.fold[String](&quot;&quot;)(((ui: com.agilogy.uri.UserInfo) =&gt;
+                    Encoder.quote(ui.stringValue, Encoder.userInfoChars.--(scala.Predef.Set.apply[Char](':'))).+(&quot;@&quot;))).+(Encoder.quote(a.host.stringValue,
+                    Encoder.registeredNameChars)).+(a.port.fold[String](&quot;&quot;)(((x$1: com.agilogy.uri.Port) =&gt;
+                    &quot;:&quot;.+(x$1.stringValue))))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    136
+                </td>
+                <td>
+                    150
+                </td>
+                <td>
+                    4563
+                    -
+                    4590
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.Encoder.registeredNameChars
+                </td>
+                <td style="background: #AEF1AE">
+                    Encoder.registeredNameChars
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    137
+                </td>
+                <td>
+                    155
+                </td>
+                <td>
+                    4616
+                    -
+                    4635
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    java.lang.String.+
+                </td>
+                <td style="background: #AEF1AE">
+                    &quot;:&quot;.+(x$1.stringValue)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    137
+                </td>
+                <td>
+                    154
+                </td>
+                <td>
+                    4622
+                    -
+                    4635
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.Port.stringValue
+                </td>
+                <td style="background: #AEF1AE">
+                    x$1.stringValue
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    137
+                </td>
+                <td>
+                    156
+                </td>
+                <td>
+                    4600
+                    -
+                    4636
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Option.fold
+                </td>
+                <td style="background: #AEF1AE">
+                    a.port.fold[String](&quot;&quot;)(((x$1: com.agilogy.uri.Port) =&gt; &quot;:&quot;.+(x$1.stringValue)))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    137
+                </td>
+                <td>
+                    153
+                </td>
+                <td>
+                    4616
+                    -
+                    4619
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    &quot;:&quot;
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    137
+                </td>
+                <td>
+                    152
+                </td>
+                <td>
+                    4612
+                    -
+                    4614
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    &quot;&quot;
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    141
+                </td>
+                <td>
+                    158
+                </td>
+                <td>
+                    4703
+                    -
+                    4716
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.Segment.stringValue
+                </td>
+                <td style="background: #AEF1AE">
+                    s.stringValue
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    141
+                </td>
+                <td>
+                    160
+                </td>
+                <td>
+                    4689
+                    -
+                    4743
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Encoder.quote
+                </td>
+                <td style="background: #AEF1AE">
+                    Encoder.quote(s.stringValue, Encoder.pathSegmentChars)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    141
+                </td>
+                <td>
+                    159
+                </td>
+                <td>
+                    4718
+                    -
+                    4742
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.Encoder.pathSegmentChars
+                </td>
+                <td style="background: #AEF1AE">
+                    Encoder.pathSegmentChars
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    145
+                </td>
+                <td>
+                    161
+                </td>
+                <td>
+                    4804
+                    -
+                    4826
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.Scheme.stringValue
+                </td>
+                <td style="background: #AEF1AE">
+                    uri.scheme.stringValue
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    146
+                </td>
+                <td>
+                    162
+                </td>
+                <td>
+                    4848
+                    -
+                    4906
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Option.getOrElse
+                </td>
+                <td style="background: #AEF1AE">
+                    uri.authority.map[String](((a: com.agilogy.uri.Authority) =&gt; &quot;//&quot;.+(a.stringValue))).getOrElse[String](&quot;&quot;)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    147
+                </td>
+                <td>
+                    163
+                </td>
+                <td>
+                    4923
+                    -
+                    4943
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.Path.stringValue
+                </td>
+                <td style="background: #AEF1AE">
+                    uri.path.stringValue
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    148
+                </td>
+                <td>
+                    164
+                </td>
+                <td>
+                    4961
+                    -
+                    5049
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Option.getOrElse
+                </td>
+                <td style="background: #AEF1AE">
+                    uri.query.map[String](((q: com.agilogy.uri.Query) =&gt; &quot;?&quot;.+(Encoder.quote(q.stringValue,
+                    Encoder.queryChars)))).getOrElse[String](&quot;&quot;)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    149
+                </td>
+                <td>
+                    165
+                </td>
+                <td>
+                    5070
+                    -
+                    5126
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Option.getOrElse
+                </td>
+                <td style="background: #AEF1AE">
+                    uri.fragment.map[String](((f: com.agilogy.uri.Fragment) =&gt; &quot;#&quot;.+(f.stringValue))).getOrElse[String](&quot;&quot;)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    150
+                </td>
+                <td>
+                    166
+                </td>
+                <td>
+                    5131
+                    -
+                    5177
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.StringContext.s
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.StringContext.apply(&quot;&quot;, &quot;:&quot;, &quot;&quot;, &quot;&quot;, &quot;&quot;,
+                    &quot;&quot;).s(sScheme, sAuthority, sPath, sQuery, sFragment)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    153
+                </td>
+                <td>
+                    167
+                </td>
+                <td>
+                    5220
+                    -
+                    5264
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    java.text.Normalizer.normalize
+                </td>
+                <td style="background: #AEF1AE">
+                    java.text.Normalizer.normalize(s, NFC)
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>

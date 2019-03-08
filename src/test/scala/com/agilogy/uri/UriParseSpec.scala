@@ -1,8 +1,8 @@
 package com.agilogy.uri
 
-import org.scalatest.{ EitherValues, FreeSpec, Matchers, TryValues }
+import com.agilogy.uri.UriGenerators._
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
-import UriGenerators._
+import org.scalatest.{EitherValues, FreeSpec, Matchers, TryValues}
 
 class UriParseSpec extends FreeSpec with GeneratorDrivenPropertyChecks with Matchers with TryValues with EitherValues {
 
@@ -31,7 +31,6 @@ class UriParseSpec extends FreeSpec with GeneratorDrivenPropertyChecks with Matc
   "Parse the string value of a uri" in {
     forAll(uris) {
       u =>
-        //        println(s"Testing ${u.stringValue}")
         Uri.parseTryRich(u.stringValue).success.value should equal(u)
         Uri.parseTryRich(u.asciiStringValue).success.value should equal(u)
     }
@@ -76,11 +75,6 @@ class UriParseSpec extends FreeSpec with GeneratorDrivenPropertyChecks with Matc
       assert(res.left.value === UriParseError(scheme = Some(IllegalSchemeName("&&")), authority = Some(AuthorityParseError("lo:a:b"))))
     }
 
-    //    "foo" in {
-    //      val res = Uri.parse("http://#")
-    //      println(res)
-    //      assert(res.isLeft)
-    //    }
 
   }
 

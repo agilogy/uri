@@ -1,6 +1,6 @@
 package com.agilogy.uri
 
-import org.scalatest.{ EitherValues, FreeSpec, Matchers, OptionValues }
+import org.scalatest.{EitherValues, FreeSpec, Matchers, OptionValues}
 import validation.Validation._
 
 class UriSpec extends FreeSpec with OptionValues with Matchers with EitherValues {
@@ -21,11 +21,9 @@ class UriSpec extends FreeSpec with OptionValues with Matchers with EitherValues
       val mailto = Scheme(sMailto).right.value
       val johnDoe = "john.doe@example.com"
 
-      //      val userInfo = "johnDoe"
       val host = "www.example.com"
       val iPort = 8080
       val port = Port(iPort).right.value
-      //      val path = Path / "posts" / "23"
 
       "minimal authority uri" in {
         val minimalAuthorityUri = RichUri(http, Authority(Host(host)))
@@ -54,7 +52,6 @@ class UriSpec extends FreeSpec with OptionValues with Matchers with EitherValues
         assert(portInfoUri.path.isEmpty)
         assert(portInfoUri.query === None)
         assert(portInfoUri.fragment === None)
-        //        assert(Uri(scheme, Authority(host, port)) === Uri(Scheme(scheme), RegisteredName(host), Port(port)))
       }
 
       "add a path to an authority uri" in {
@@ -217,13 +214,6 @@ class UriSpec extends FreeSpec with OptionValues with Matchers with EitherValues
         assert(res2.path.segments.size === 1)
         assert(res2.path.segments.head === Segment.Empty)
       }
-
-      //      "build an uri without authority nor path" in {
-      //        val minimalUri = Uri(Scheme("example"))
-      //        assert(minimalUri.scheme === Scheme("example"))
-      //        assert(minimalUri.path.isEmpty)
-      //        assert(Uri("example") === minimalUri)
-      //      }
 
       "build an uri without authority but with path" in {
         val mailto = Scheme("mailto").right.value

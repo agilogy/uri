@@ -7,7 +7,7 @@ name := "uris"
 
 scalaVersion := "2.12.6"
 
-crossScalaVersions := Seq("2.11.7","2.12.6")
+crossScalaVersions := Seq("2.11.7", "2.12.6")
 
 libraryDependencies += "org.scalactic" %% "scalactic" % "3.0.1"
 libraryDependencies += "org.scalatest" %% "scalatest" % "3.0.1" % "test"
@@ -21,7 +21,7 @@ libraryDependencies += "org.scalacheck" %% "scalacheck" % "1.13.4" % "test"
 // https://tpolecat.github.io/2014/04/11/scalac-flags.html
 scalacOptions ++= Seq(
   "-deprecation",
-  "-encoding", "UTF-8",       // yes, this is 2 args
+  "-encoding", "UTF-8", // yes, this is 2 args
   "-feature",
   "-language:existentials",
   "-language:higherKinds",
@@ -100,6 +100,6 @@ publishMavenStyle := isSnapshot.value
 
 publishTo := {
   val nexus = "http://188.166.95.201:8081/content/repositories/snapshots"
-  if (isSnapshot.value) Some("snapshots"  at nexus)
+  if (isSnapshot.value) Some("snapshots" at nexus)
   else publishTo.value
 }

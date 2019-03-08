@@ -1,0 +1,1876 @@
+<?xml version="1.0"?>
+<!DOCTYPE coverage SYSTEM "http://cobertura.sourceforge.net/xml/coverage-04.dtd">
+<coverage
+        line-rate="0.90" lines-valid="517" lines-covered="463" branches-valid="38" branches-covered="30"
+        branch-rate="0.79" complexity="0" version="1.0" timestamp="1529393014549">
+    <sources>
+        <source>--source</source>
+        <source>/Users/jordi/work/opensource/uri/src/main/scala</source>
+        <source>/Users/jordi/work/opensource/uri/src/main/java</source>
+    </sources>
+    <packages>
+        <package name="com.agilogy.uri" line-rate="0.89" branch-rate="0.79" complexity="0">
+            <classes>
+                <class
+                        name="com.agilogy.uri.NoQueryUri" filename="com/agilogy/uri/Uri.scala" line-rate="1.00"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method name="com.agilogy.uri/NoQueryUri/query" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="43" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="43" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.AuthorityPathUri" filename="com/agilogy/uri/Uri.scala" line-rate="1.00"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method name="com.agilogy.uri/AuthorityPathUri//" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="121" hits="1" branch="false"/>
+                                <line number="122" hits="1" branch="false"/>
+                                <line number="121" hits="1" branch="false"/>
+                                <line number="121" hits="1" branch="false"/>
+                                <line number="122" hits="1" branch="false"/>
+                                <line number="121" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/AuthorityPathUri/?" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="124" hits="1" branch="false"/>
+                                <line number="124" hits="1" branch="false"/>
+                                <line number="124" hits="1" branch="false"/>
+                                <line number="124" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/AuthorityPathUri/##" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="126" hits="1" branch="false"/>
+                                <line number="126" hits="1" branch="false"/>
+                                <line number="126" hits="1" branch="false"/>
+                                <line number="126" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="121" hits="1" branch="false"/>
+                        <line number="126" hits="1" branch="false"/>
+                        <line number="126" hits="1" branch="false"/>
+                        <line number="122" hits="1" branch="false"/>
+                        <line number="124" hits="1" branch="false"/>
+                        <line number="124" hits="1" branch="false"/>
+                        <line number="121" hits="1" branch="false"/>
+                        <line number="124" hits="1" branch="false"/>
+                        <line number="126" hits="1" branch="false"/>
+                        <line number="121" hits="1" branch="false"/>
+                        <line number="126" hits="1" branch="false"/>
+                        <line number="122" hits="1" branch="false"/>
+                        <line number="124" hits="1" branch="false"/>
+                        <line number="121" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.Port" filename="com/agilogy/uri/Authority.scala" line-rate="1.00"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method name="com.agilogy.uri/Port/&lt;none&gt;" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="14" hits="1" branch="false"/>
+                                <line number="15" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Port/apply" signature="()V" line-rate="1.00" branch-rate="1.00"
+                                complexity="0">
+                            <lines>
+                                <line number="21" hits="1" branch="false"/>
+                                <line number="20" hits="1" branch="false"/>
+                                <line number="20" hits="1" branch="false"/>
+                                <line number="20" hits="1" branch="false"/>
+                                <line number="21" hits="1" branch="false"/>
+                                <line number="21" hits="1" branch="false"/>
+                                <line number="20" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="21" hits="1" branch="false"/>
+                        <line number="14" hits="1" branch="false"/>
+                        <line number="20" hits="1" branch="false"/>
+                        <line number="20" hits="1" branch="false"/>
+                        <line number="20" hits="1" branch="false"/>
+                        <line number="21" hits="1" branch="false"/>
+                        <line number="21" hits="1" branch="false"/>
+                        <line number="15" hits="1" branch="false"/>
+                        <line number="20" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.NoAuthorityUri" filename="com/agilogy/uri/Uri.scala" line-rate="1.00"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method
+                                name="com.agilogy.uri/NoAuthorityUri/&lt;none&gt;" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="33" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="33" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.Scheme" filename="com/agilogy/uri/Scheme.scala" line-rate="0.88"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method
+                                name="com.agilogy.uri/Scheme/asciiStringValue" signature="()V" line-rate="0.00"
+                                branch-rate="0.00" complexity="0">
+                            <lines>
+                                <line number="4" hits="0" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Scheme/apply" signature="()V" line-rate="1.00" branch-rate="1.00"
+                                complexity="0">
+                            <lines>
+                                <line number="11" hits="1" branch="false"/>
+                                <line number="11" hits="1" branch="false"/>
+                                <line number="10" hits="1" branch="false"/>
+                                <line number="10" hits="1" branch="false"/>
+                                <line number="10" hits="1" branch="false"/>
+                                <line number="11" hits="1" branch="false"/>
+                                <line number="10" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="11" hits="1" branch="false"/>
+                        <line number="11" hits="1" branch="false"/>
+                        <line number="10" hits="1" branch="false"/>
+                        <line number="10" hits="1" branch="false"/>
+                        <line number="10" hits="1" branch="false"/>
+                        <line number="11" hits="1" branch="false"/>
+                        <line number="4" hits="0" branch="false"/>
+                        <line number="10" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.NonEmptySegment" filename="com/agilogy/uri/Segment.scala" line-rate="1.00"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method
+                                name="com.agilogy.uri/NonEmptySegment/apply" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="12" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="12" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.NoFragmentUri" filename="com/agilogy/uri/Uri.scala" line-rate="1.00"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method name="com.agilogy.uri/NoFragmentUri/f" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="59" hits="1" branch="false"/>
+                                <line number="59" hits="1" branch="false"/>
+                                <line number="58" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method
+                                name="com.agilogy.uri/NoFragmentUri/fragment" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="52" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/NoFragmentUri/##" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="57" hits="1" branch="false"/>
+                                <line number="57" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="59" hits="1" branch="false"/>
+                        <line number="57" hits="1" branch="false"/>
+                        <line number="57" hits="1" branch="false"/>
+                        <line number="59" hits="1" branch="false"/>
+                        <line number="52" hits="1" branch="false"/>
+                        <line number="58" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.FragmentUri" filename="com/agilogy/uri/Uri.scala" line-rate="1.00"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method name="com.agilogy.uri/FragmentUri/fragment" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="75" hits="1" branch="false"/>
+                                <line number="75" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="75" hits="1" branch="false"/>
+                        <line number="75" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.Authority" filename="com/agilogy/uri/Authority.scala" line-rate="1.00"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method
+                                name="com.agilogy.uri/Authority/stringValue" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="27" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Authority/apply" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="37" hits="1" branch="false"/>
+                                <line number="40" hits="1" branch="false"/>
+                                <line number="42" hits="1" branch="false"/>
+                                <line number="41" hits="1" branch="false"/>
+                                <line number="35" hits="1" branch="false"/>
+                                <line number="38" hits="1" branch="false"/>
+                                <line number="39" hits="1" branch="false"/>
+                                <line number="41" hits="1" branch="false"/>
+                                <line number="36" hits="1" branch="false"/>
+                                <line number="33" hits="1" branch="false"/>
+                                <line number="42" hits="1" branch="false"/>
+                                <line number="33" hits="1" branch="false"/>
+                                <line number="36" hits="1" branch="false"/>
+                                <line number="40" hits="1" branch="false"/>
+                                <line number="34" hits="1" branch="false"/>
+                                <line number="37" hits="1" branch="false"/>
+                                <line number="41" hits="1" branch="false"/>
+                                <line number="41" hits="1" branch="false"/>
+                                <line number="35" hits="1" branch="false"/>
+                                <line number="39" hits="1" branch="false"/>
+                                <line number="38" hits="1" branch="false"/>
+                                <line number="41" hits="1" branch="false"/>
+                                <line number="35" hits="1" branch="false"/>
+                                <line number="36" hits="1" branch="false"/>
+                                <line number="33" hits="1" branch="false"/>
+                                <line number="39" hits="1" branch="false"/>
+                                <line number="42" hits="1" branch="false"/>
+                                <line number="34" hits="1" branch="false"/>
+                                <line number="42" hits="1" branch="false"/>
+                                <line number="37" hits="1" branch="false"/>
+                                <line number="40" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Authority/parse" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="50" hits="1" branch="false"/>
+                                <line number="52" hits="1" branch="false"/>
+                                <line number="56" hits="1" branch="false"/>
+                                <line number="49" hits="1" branch="false"/>
+                                <line number="49" hits="1" branch="false"/>
+                                <line number="53" hits="1" branch="false"/>
+                                <line number="50" hits="1" branch="false"/>
+                                <line number="52" hits="1" branch="false"/>
+                                <line number="49" hits="1" branch="false"/>
+                                <line number="53" hits="1" branch="false"/>
+                                <line number="50" hits="1" branch="false"/>
+                                <line number="56" hits="1" branch="false"/>
+                                <line number="52" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method
+                                name="com.agilogy.uri/Authority/&lt;none&gt;" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="44" hits="1" branch="false"/>
+                                <line number="44" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Authority/parseTry" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="62" hits="1" branch="false"/>
+                                <line number="61" hits="1" branch="false"/>
+                                <line number="63" hits="1" branch="false"/>
+                                <line number="62" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="37" hits="1" branch="false"/>
+                        <line number="50" hits="1" branch="false"/>
+                        <line number="62" hits="1" branch="false"/>
+                        <line number="40" hits="1" branch="false"/>
+                        <line number="42" hits="1" branch="false"/>
+                        <line number="52" hits="1" branch="false"/>
+                        <line number="41" hits="1" branch="false"/>
+                        <line number="44" hits="1" branch="false"/>
+                        <line number="35" hits="1" branch="false"/>
+                        <line number="38" hits="1" branch="false"/>
+                        <line number="27" hits="1" branch="false"/>
+                        <line number="56" hits="1" branch="false"/>
+                        <line number="39" hits="1" branch="false"/>
+                        <line number="41" hits="1" branch="false"/>
+                        <line number="49" hits="1" branch="false"/>
+                        <line number="36" hits="1" branch="false"/>
+                        <line number="33" hits="1" branch="false"/>
+                        <line number="49" hits="1" branch="false"/>
+                        <line number="53" hits="1" branch="false"/>
+                        <line number="61" hits="1" branch="false"/>
+                        <line number="42" hits="1" branch="false"/>
+                        <line number="50" hits="1" branch="false"/>
+                        <line number="33" hits="1" branch="false"/>
+                        <line number="36" hits="1" branch="false"/>
+                        <line number="40" hits="1" branch="false"/>
+                        <line number="34" hits="1" branch="false"/>
+                        <line number="44" hits="1" branch="false"/>
+                        <line number="52" hits="1" branch="false"/>
+                        <line number="37" hits="1" branch="false"/>
+                        <line number="41" hits="1" branch="false"/>
+                        <line number="63" hits="1" branch="false"/>
+                        <line number="41" hits="1" branch="false"/>
+                        <line number="35" hits="1" branch="false"/>
+                        <line number="39" hits="1" branch="false"/>
+                        <line number="62" hits="1" branch="false"/>
+                        <line number="49" hits="1" branch="false"/>
+                        <line number="53" hits="1" branch="false"/>
+                        <line number="38" hits="1" branch="false"/>
+                        <line number="41" hits="1" branch="false"/>
+                        <line number="35" hits="1" branch="false"/>
+                        <line number="50" hits="1" branch="false"/>
+                        <line number="36" hits="1" branch="false"/>
+                        <line number="56" hits="1" branch="false"/>
+                        <line number="33" hits="1" branch="false"/>
+                        <line number="39" hits="1" branch="false"/>
+                        <line number="42" hits="1" branch="false"/>
+                        <line number="34" hits="1" branch="false"/>
+                        <line number="42" hits="1" branch="false"/>
+                        <line number="52" hits="1" branch="false"/>
+                        <line number="37" hits="1" branch="false"/>
+                        <line number="40" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.AbsolutePath" filename="com/agilogy/uri/Path.scala" line-rate="0.60"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method name="com.agilogy.uri/AbsolutePath/apply" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="104" hits="1" branch="false"/>
+                                <line number="104" hits="1" branch="false"/>
+                                <line number="104" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method
+                                name="com.agilogy.uri/AbsolutePath/toString" signature="()V" line-rate="0.00"
+                                branch-rate="0.00" complexity="0">
+                            <lines>
+                                <line number="99" hits="0" branch="false"/>
+                                <line number="99" hits="0" branch="false"/>
+                                <line number="99" hits="0" branch="false"/>
+                                <line number="99" hits="0" branch="false"/>
+                            </lines>
+                        </method>
+                        <method
+                                name="com.agilogy.uri/AbsolutePath/pathType" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="94" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/AbsolutePath//" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="96" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method
+                                name="com.agilogy.uri/AbsolutePath/stringValue" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="97" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="99" hits="0" branch="false"/>
+                        <line number="104" hits="1" branch="false"/>
+                        <line number="97" hits="1" branch="false"/>
+                        <line number="99" hits="0" branch="false"/>
+                        <line number="99" hits="0" branch="false"/>
+                        <line number="104" hits="1" branch="false"/>
+                        <line number="96" hits="1" branch="false"/>
+                        <line number="104" hits="1" branch="false"/>
+                        <line number="94" hits="1" branch="false"/>
+                        <line number="99" hits="0" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.NonEmptyAbsolutePath" filename="com/agilogy/uri/Path.scala"
+                        line-rate="1.00" branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method
+                                name="com.agilogy.uri/NonEmptyAbsolutePath/segments" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="109" hits="1" branch="false"/>
+                                <line number="109" hits="1" branch="false"/>
+                                <line number="109" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="109" hits="1" branch="false"/>
+                        <line number="109" hits="1" branch="false"/>
+                        <line number="109" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.UriParseError" filename="com/agilogy/uri/UriError.scala" line-rate="1.00"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method name="com.agilogy.uri/UriParseError/apply" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="7" hits="1" branch="false"/>
+                                <line number="7" hits="1" branch="false"/>
+                                <line number="8" hits="1" branch="false"/>
+                                <line number="7" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="7" hits="1" branch="false"/>
+                        <line number="7" hits="1" branch="false"/>
+                        <line number="8" hits="1" branch="false"/>
+                        <line number="7" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.NoQueryFragmentUri" filename="com/agilogy/uri/Uri.scala" line-rate="1.00"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method name="com.agilogy.uri/NoQueryFragmentUri/?" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="66" hits="1" branch="false"/>
+                                <line number="66" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/NoQueryFragmentUri/q" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="67" hits="1" branch="false"/>
+                                <line number="68" hits="1" branch="false"/>
+                                <line number="68" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="67" hits="1" branch="false"/>
+                        <line number="68" hits="1" branch="false"/>
+                        <line number="66" hits="1" branch="false"/>
+                        <line number="66" hits="1" branch="false"/>
+                        <line number="68" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.RootlessSingleSegmentPath" filename="com/agilogy/uri/Path.scala"
+                        line-rate="1.00" branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method
+                                name="com.agilogy.uri/RootlessSingleSegmentPath//" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="157" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method
+                                name="com.agilogy.uri/RootlessSingleSegmentPath/segments" signature="()V"
+                                line-rate="1.00" branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="155" hits="1" branch="false"/>
+                                <line number="155" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="155" hits="1" branch="false"/>
+                        <line number="155" hits="1" branch="false"/>
+                        <line number="157" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.UserInfo" filename="com/agilogy/uri/Authority.scala" line-rate="1.00"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method name="com.agilogy.uri/UserInfo/apply" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="10" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="10" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.AuthorityPathQUri" filename="com/agilogy/uri/Uri.scala" line-rate="1.00"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method name="com.agilogy.uri/AuthorityPathQUri/##" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="131" hits="1" branch="false"/>
+                                <line number="131" hits="1" branch="false"/>
+                                <line number="131" hits="1" branch="false"/>
+                                <line number="131" hits="1" branch="false"/>
+                                <line number="131" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="131" hits="1" branch="false"/>
+                        <line number="131" hits="1" branch="false"/>
+                        <line number="131" hits="1" branch="false"/>
+                        <line number="131" hits="1" branch="false"/>
+                        <line number="131" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.ConsRootlessPath" filename="com/agilogy/uri/Path.scala" line-rate="1.00"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method name="com.agilogy.uri/ConsRootlessPath//" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="139" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method
+                                name="com.agilogy.uri/ConsRootlessPath/segments" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="141" hits="1" branch="false"/>
+                                <line number="141" hits="1" branch="false"/>
+                                <line number="141" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="141" hits="1" branch="false"/>
+                        <line number="141" hits="1" branch="false"/>
+                        <line number="139" hits="1" branch="false"/>
+                        <line number="141" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.UriPart" filename="com/agilogy/uri/UriPart.scala" line-rate="1.00"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method
+                                name="com.agilogy.uri/UriPart/asciiStringValue" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="6" hits="1" branch="false"/>
+                                <line number="6" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="6" hits="1" branch="false"/>
+                        <line number="6" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.AuthorityUri" filename="com/agilogy/uri/Uri.scala" line-rate="1.00"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method
+                                name="com.agilogy.uri/AuthorityUri/authority" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="39" hits="1" branch="false"/>
+                                <line number="39" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="39" hits="1" branch="false"/>
+                        <line number="39" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.Uri" filename="com/agilogy/uri/Uri.scala" line-rate="0.75"
+                        branch-rate="0.67" complexity="0">
+                    <methods>
+                        <method name="com.agilogy.uri/Uri/matchParts" signature="()V" line-rate="0.91"
+                                branch-rate="0.90" complexity="0">
+                            <lines>
+                                <line number="239" hits="1" branch="false"/>
+                                <line number="246" hits="1" branch="false"/>
+                                <line number="236" hits="1" branch="false"/>
+                                <line number="256" hits="1" branch="false"/>
+                                <line number="222" hits="1" branch="false"/>
+                                <line number="229" hits="1" branch="false"/>
+                                <line number="243" hits="1" branch="false"/>
+                                <line number="250" hits="0" branch="false"/>
+                                <line number="236" hits="1" branch="false"/>
+                                <line number="225" hits="1" branch="false"/>
+                                <line number="231" hits="1" branch="false"/>
+                                <line number="221" hits="1" branch="false"/>
+                                <line number="237" hits="1" branch="false"/>
+                                <line number="233" hits="1" branch="false"/>
+                                <line number="249" hits="0" branch="false"/>
+                                <line number="229" hits="1" branch="false"/>
+                                <line number="244" hits="1" branch="false"/>
+                                <line number="193" hits="1" branch="false"/>
+                                <line number="244" hits="1" branch="false"/>
+                                <line number="251" hits="0" branch="false"/>
+                                <line number="229" hits="1" branch="false"/>
+                                <line number="237" hits="1" branch="false"/>
+                                <line number="246" hits="1" branch="false"/>
+                                <line number="239" hits="1" branch="false"/>
+                                <line number="229" hits="1" branch="false"/>
+                                <line number="253" hits="1" branch="false"/>
+                                <line number="236" hits="1" branch="false"/>
+                                <line number="222" hits="1" branch="false"/>
+                                <line number="236" hits="1" branch="false"/>
+                                <line number="223" hits="1" branch="false"/>
+                                <line number="195" hits="1" branch="false"/>
+                                <line number="242" hits="1" branch="false"/>
+                                <line number="249" hits="1" branch="false"/>
+                                <line number="231" hits="1" branch="false"/>
+                                <line number="221" hits="1" branch="false"/>
+                                <line number="224" hits="1" branch="false"/>
+                                <line number="249" hits="0" branch="false"/>
+                                <line number="244" hits="1" branch="false"/>
+                                <line number="251" hits="0" branch="false"/>
+                                <line number="231" hits="1" branch="false"/>
+                                <line number="237" hits="1" branch="false"/>
+                                <line number="226" hits="1" branch="false"/>
+                                <line number="221" hits="1" branch="false"/>
+                                <line number="237" hits="1" branch="false"/>
+                                <line number="233" hits="1" branch="false"/>
+                                <line number="229" hits="1" branch="false"/>
+                                <line number="242" hits="1" branch="false"/>
+                                <line number="253" hits="1" branch="false"/>
+                                <line number="236" hits="1" branch="false"/>
+                                <line number="242" hits="1" branch="false"/>
+                                <line number="230" hits="1" branch="false"/>
+                                <line number="194" hits="1" branch="false"/>
+                                <line number="223" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Uri/read" signature="()V" line-rate="0.00" branch-rate="0.00"
+                                complexity="0">
+                            <lines>
+                                <line number="210" hits="0" branch="false"/>
+                                <line number="217" hits="0" branch="false"/>
+                                <line number="214" hits="0" branch="false"/>
+                                <line number="213" hits="0" branch="false"/>
+                                <line number="213" hits="0" branch="false"/>
+                                <line number="213" hits="0" branch="false"/>
+                                <line number="210" hits="0" branch="false"/>
+                                <line number="213" hits="0" branch="false"/>
+                                <line number="212" hits="0" branch="false"/>
+                                <line number="211" hits="0" branch="false"/>
+                                <line number="215" hits="0" branch="false"/>
+                                <line number="210" hits="0" branch="false"/>
+                                <line number="213" hits="0" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Uri/of" signature="()V" line-rate="0.60" branch-rate="1.00"
+                                complexity="0">
+                            <lines>
+                                <line number="176" hits="1" branch="false"/>
+                                <line number="175" hits="0" branch="false"/>
+                                <line number="177" hits="1" branch="false"/>
+                                <line number="175" hits="0" branch="false"/>
+                                <line number="176" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Uri/apply" signature="()V" line-rate="0.67" branch-rate="1.00"
+                                complexity="0">
+                            <lines>
+                                <line number="151" hits="1" branch="false"/>
+                                <line number="140" hits="1" branch="false"/>
+                                <line number="145" hits="1" branch="false"/>
+                                <line number="146" hits="0" branch="false"/>
+                                <line number="143" hits="1" branch="false"/>
+                                <line number="144" hits="1" branch="false"/>
+                                <line number="144" hits="1" branch="false"/>
+                                <line number="150" hits="1" branch="false"/>
+                                <line number="153" hits="0" branch="false"/>
+                                <line number="145" hits="1" branch="false"/>
+                                <line number="143" hits="1" branch="false"/>
+                                <line number="146" hits="0" branch="false"/>
+                                <line number="141" hits="1" branch="false"/>
+                                <line number="146" hits="0" branch="false"/>
+                                <line number="146" hits="0" branch="false"/>
+                                <line number="144" hits="1" branch="false"/>
+                                <line number="145" hits="1" branch="false"/>
+                                <line number="152" hits="0" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Uri/parse" signature="()V" line-rate="0.88" branch-rate="1.00"
+                                complexity="0">
+                            <lines>
+                                <line number="272" hits="1" branch="false"/>
+                                <line number="265" hits="1" branch="false"/>
+                                <line number="274" hits="1" branch="false"/>
+                                <line number="269" hits="1" branch="false"/>
+                                <line number="263" hits="1" branch="false"/>
+                                <line number="264" hits="1" branch="false"/>
+                                <line number="274" hits="1" branch="false"/>
+                                <line number="264" hits="1" branch="false"/>
+                                <line number="269" hits="1" branch="false"/>
+                                <line number="265" hits="1" branch="false"/>
+                                <line number="270" hits="1" branch="false"/>
+                                <line number="274" hits="1" branch="false"/>
+                                <line number="263" hits="1" branch="false"/>
+                                <line number="268" hits="1" branch="false"/>
+                                <line number="268" hits="1" branch="false"/>
+                                <line number="272" hits="1" branch="false"/>
+                                <line number="261" hits="1" branch="false"/>
+                                <line number="269" hits="1" branch="false"/>
+                                <line number="274" hits="1" branch="false"/>
+                                <line number="264" hits="1" branch="false"/>
+                                <line number="270" hits="0" branch="false"/>
+                                <line number="265" hits="1" branch="false"/>
+                                <line number="278" hits="0" branch="false"/>
+                                <line number="270" hits="0" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Uri/noAuthority" signature="()V" line-rate="0.50"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="168" hits="0" branch="false"/>
+                                <line number="158" hits="1" branch="false"/>
+                                <line number="169" hits="0" branch="false"/>
+                                <line number="166" hits="1" branch="false"/>
+                                <line number="167" hits="1" branch="false"/>
+                                <line number="169" hits="0" branch="false"/>
+                                <line number="160" hits="1" branch="false"/>
+                                <line number="159" hits="0" branch="false"/>
+                                <line number="167" hits="1" branch="false"/>
+                                <line number="168" hits="0" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Uri/stringValue" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="20" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Uri/toJava" signature="()V" line-rate="1.00" branch-rate="1.00"
+                                complexity="0">
+                            <lines>
+                                <line number="23" hits="1" branch="false"/>
+                                <line number="23" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Uri/&lt;none&gt;" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="182" hits="1" branch="false"/>
+                                <line number="182" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Uri/parseTry" signature="()V" line-rate="1.00" branch-rate="1.00"
+                                complexity="0">
+                            <lines>
+                                <line number="187" hits="1" branch="false"/>
+                                <line number="188" hits="1" branch="false"/>
+                                <line number="186" hits="1" branch="false"/>
+                                <line number="187" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Uri/readUntil" signature="()V" line-rate="0.88" branch-rate="0.75"
+                                complexity="0">
+                            <lines>
+                                <line number="198" hits="1" branch="false"/>
+                                <line number="203" hits="1" branch="false"/>
+                                <line number="200" hits="1" branch="false"/>
+                                <line number="201" hits="1" branch="false"/>
+                                <line number="199" hits="1" branch="false"/>
+                                <line number="201" hits="1" branch="false"/>
+                                <line number="205" hits="1" branch="false"/>
+                                <line number="201" hits="1" branch="false"/>
+                                <line number="202" hits="1" branch="false"/>
+                                <line number="198" hits="0" branch="false"/>
+                                <line number="201" hits="1" branch="false"/>
+                                <line number="201" hits="1" branch="false"/>
+                                <line number="201" hits="1" branch="false"/>
+                                <line number="201" hits="1" branch="false"/>
+                                <line number="202" hits="1" branch="false"/>
+                                <line number="198" hits="0" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Uri/equals" signature="()V" line-rate="0.67" branch-rate="1.00"
+                                complexity="0">
+                            <lines>
+                                <line number="28" hits="0" branch="false"/>
+                                <line number="27" hits="1" branch="false"/>
+                                <line number="27" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="239" hits="1" branch="false"/>
+                        <line number="246" hits="1" branch="false"/>
+                        <line number="236" hits="1" branch="false"/>
+                        <line number="272" hits="1" branch="false"/>
+                        <line number="256" hits="1" branch="false"/>
+                        <line number="265" hits="1" branch="false"/>
+                        <line number="222" hits="1" branch="false"/>
+                        <line number="229" hits="1" branch="false"/>
+                        <line number="243" hits="1" branch="false"/>
+                        <line number="250" hits="0" branch="false"/>
+                        <line number="210" hits="0" branch="false"/>
+                        <line number="274" hits="1" branch="false"/>
+                        <line number="236" hits="1" branch="false"/>
+                        <line number="269" hits="1" branch="false"/>
+                        <line number="225" hits="1" branch="false"/>
+                        <line number="231" hits="1" branch="false"/>
+                        <line number="182" hits="1" branch="false"/>
+                        <line number="217" hits="0" branch="false"/>
+                        <line number="198" hits="1" branch="false"/>
+                        <line number="203" hits="1" branch="false"/>
+                        <line number="263" hits="1" branch="false"/>
+                        <line number="151" hits="1" branch="false"/>
+                        <line number="168" hits="0" branch="false"/>
+                        <line number="214" hits="0" branch="false"/>
+                        <line number="187" hits="1" branch="false"/>
+                        <line number="221" hits="1" branch="false"/>
+                        <line number="200" hits="1" branch="false"/>
+                        <line number="158" hits="1" branch="false"/>
+                        <line number="169" hits="0" branch="false"/>
+                        <line number="237" hits="1" branch="false"/>
+                        <line number="140" hits="1" branch="false"/>
+                        <line number="145" hits="1" branch="false"/>
+                        <line number="233" hits="1" branch="false"/>
+                        <line number="249" hits="0" branch="false"/>
+                        <line number="264" hits="1" branch="false"/>
+                        <line number="229" hits="1" branch="false"/>
+                        <line number="244" hits="1" branch="false"/>
+                        <line number="201" hits="1" branch="false"/>
+                        <line number="199" hits="1" branch="false"/>
+                        <line number="213" hits="0" branch="false"/>
+                        <line number="193" hits="1" branch="false"/>
+                        <line number="146" hits="0" branch="false"/>
+                        <line number="201" hits="1" branch="false"/>
+                        <line number="166" hits="1" branch="false"/>
+                        <line number="176" hits="1" branch="false"/>
+                        <line number="143" hits="1" branch="false"/>
+                        <line number="23" hits="1" branch="false"/>
+                        <line number="144" hits="1" branch="false"/>
+                        <line number="274" hits="1" branch="false"/>
+                        <line number="244" hits="1" branch="false"/>
+                        <line number="251" hits="0" branch="false"/>
+                        <line number="229" hits="1" branch="false"/>
+                        <line number="237" hits="1" branch="false"/>
+                        <line number="264" hits="1" branch="false"/>
+                        <line number="269" hits="1" branch="false"/>
+                        <line number="28" hits="0" branch="false"/>
+                        <line number="188" hits="1" branch="false"/>
+                        <line number="246" hits="1" branch="false"/>
+                        <line number="205" hits="1" branch="false"/>
+                        <line number="265" hits="1" branch="false"/>
+                        <line number="239" hits="1" branch="false"/>
+                        <line number="270" hits="1" branch="false"/>
+                        <line number="229" hits="1" branch="false"/>
+                        <line number="253" hits="1" branch="false"/>
+                        <line number="236" hits="1" branch="false"/>
+                        <line number="213" hits="0" branch="false"/>
+                        <line number="222" hits="1" branch="false"/>
+                        <line number="201" hits="1" branch="false"/>
+                        <line number="175" hits="0" branch="false"/>
+                        <line number="236" hits="1" branch="false"/>
+                        <line number="213" hits="0" branch="false"/>
+                        <line number="223" hits="1" branch="false"/>
+                        <line number="202" hits="1" branch="false"/>
+                        <line number="167" hits="1" branch="false"/>
+                        <line number="210" hits="0" branch="false"/>
+                        <line number="274" hits="1" branch="false"/>
+                        <line number="144" hits="1" branch="false"/>
+                        <line number="150" hits="1" branch="false"/>
+                        <line number="195" hits="1" branch="false"/>
+                        <line number="263" hits="1" branch="false"/>
+                        <line number="268" hits="1" branch="false"/>
+                        <line number="177" hits="1" branch="false"/>
+                        <line number="242" hits="1" branch="false"/>
+                        <line number="249" hits="1" branch="false"/>
+                        <line number="231" hits="1" branch="false"/>
+                        <line number="169" hits="0" branch="false"/>
+                        <line number="153" hits="0" branch="false"/>
+                        <line number="213" hits="0" branch="false"/>
+                        <line number="221" hits="1" branch="false"/>
+                        <line number="198" hits="0" branch="false"/>
+                        <line number="224" hits="1" branch="false"/>
+                        <line number="201" hits="1" branch="false"/>
+                        <line number="27" hits="1" branch="false"/>
+                        <line number="145" hits="1" branch="false"/>
+                        <line number="186" hits="1" branch="false"/>
+                        <line number="143" hits="1" branch="false"/>
+                        <line number="146" hits="0" branch="false"/>
+                        <line number="160" hits="1" branch="false"/>
+                        <line number="23" hits="1" branch="false"/>
+                        <line number="268" hits="1" branch="false"/>
+                        <line number="272" hits="1" branch="false"/>
+                        <line number="249" hits="0" branch="false"/>
+                        <line number="261" hits="1" branch="false"/>
+                        <line number="244" hits="1" branch="false"/>
+                        <line number="201" hits="1" branch="false"/>
+                        <line number="212" hits="0" branch="false"/>
+                        <line number="269" hits="1" branch="false"/>
+                        <line number="274" hits="1" branch="false"/>
+                        <line number="251" hits="0" branch="false"/>
+                        <line number="231" hits="1" branch="false"/>
+                        <line number="264" hits="1" branch="false"/>
+                        <line number="237" hits="1" branch="false"/>
+                        <line number="211" hits="0" branch="false"/>
+                        <line number="226" hits="1" branch="false"/>
+                        <line number="141" hits="1" branch="false"/>
+                        <line number="221" hits="1" branch="false"/>
+                        <line number="237" hits="1" branch="false"/>
+                        <line number="201" hits="1" branch="false"/>
+                        <line number="215" hits="0" branch="false"/>
+                        <line number="146" hits="0" branch="false"/>
+                        <line number="233" hits="1" branch="false"/>
+                        <line number="201" hits="1" branch="false"/>
+                        <line number="229" hits="1" branch="false"/>
+                        <line number="270" hits="0" branch="false"/>
+                        <line number="175" hits="0" branch="false"/>
+                        <line number="187" hits="1" branch="false"/>
+                        <line number="242" hits="1" branch="false"/>
+                        <line number="253" hits="1" branch="false"/>
+                        <line number="265" hits="1" branch="false"/>
+                        <line number="159" hits="0" branch="false"/>
+                        <line number="176" hits="1" branch="false"/>
+                        <line number="210" hits="0" branch="false"/>
+                        <line number="20" hits="1" branch="false"/>
+                        <line number="146" hits="0" branch="false"/>
+                        <line number="167" hits="1" branch="false"/>
+                        <line number="236" hits="1" branch="false"/>
+                        <line number="242" hits="1" branch="false"/>
+                        <line number="144" hits="1" branch="false"/>
+                        <line number="202" hits="1" branch="false"/>
+                        <line number="230" hits="1" branch="false"/>
+                        <line number="194" hits="1" branch="false"/>
+                        <line number="213" hits="0" branch="false"/>
+                        <line number="223" hits="1" branch="false"/>
+                        <line number="168" hits="0" branch="false"/>
+                        <line number="145" hits="1" branch="false"/>
+                        <line number="198" hits="0" branch="false"/>
+                        <line number="152" hits="0" branch="false"/>
+                        <line number="182" hits="1" branch="false"/>
+                        <line number="27" hits="1" branch="false"/>
+                        <line number="278" hits="0" branch="false"/>
+                        <line number="270" hits="0" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.Encoder" filename="com/agilogy/uri/Encoder.scala" line-rate="0.92"
+                        branch-rate="0.83" complexity="0">
+                    <methods>
+                        <method name="com.agilogy.uri/Encoder/isAlphaNum" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="46" hits="1" branch="false"/>
+                                <line number="46" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method
+                                name="com.agilogy.uri/Encoder/isValidSchemeChar" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="48" hits="1" branch="false"/>
+                                <line number="48" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Encoder/decode" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="109" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Encoder/quote" signature="()V" line-rate="0.90" branch-rate="0.88"
+                                complexity="0">
+                            <lines>
+                                <line number="92" hits="1" branch="false"/>
+                                <line number="69" hits="1" branch="false"/>
+                                <line number="83" hits="1" branch="false"/>
+                                <line number="83" hits="1" branch="false"/>
+                                <line number="71" hits="1" branch="false"/>
+                                <line number="86" hits="1" branch="false"/>
+                                <line number="86" hits="1" branch="false"/>
+                                <line number="80" hits="0" branch="false"/>
+                                <line number="69" hits="1" branch="false"/>
+                                <line number="78" hits="1" branch="false"/>
+                                <line number="86" hits="1" branch="false"/>
+                                <line number="68" hits="1" branch="false"/>
+                                <line number="80" hits="0" branch="false"/>
+                                <line number="88" hits="1" branch="false"/>
+                                <line number="95" hits="1" branch="false"/>
+                                <line number="92" hits="1" branch="false"/>
+                                <line number="83" hits="1" branch="false"/>
+                                <line number="71" hits="1" branch="false"/>
+                                <line number="83" hits="1" branch="false"/>
+                                <line number="92" hits="1" branch="false"/>
+                                <line number="70" hits="1" branch="false"/>
+                                <line number="71" hits="1" branch="false"/>
+                                <line number="69" hits="1" branch="false"/>
+                                <line number="77" hits="1" branch="false"/>
+                                <line number="69" hits="1" branch="false"/>
+                                <line number="80" hits="0" branch="false"/>
+                                <line number="88" hits="1" branch="false"/>
+                                <line number="66" hits="1" branch="false"/>
+                                <line number="69" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Encoder/&lt;none&gt;" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="16" hits="1" branch="false"/>
+                                <line number="13" hits="1" branch="false"/>
+                                <line number="9" hits="1" branch="false"/>
+                                <line number="14" hits="1" branch="false"/>
+                                <line number="15" hits="1" branch="false"/>
+                                <line number="11" hits="1" branch="false"/>
+                                <line number="11" hits="1" branch="false"/>
+                                <line number="15" hits="1" branch="false"/>
+                                <line number="12" hits="1" branch="false"/>
+                                <line number="15" hits="1" branch="false"/>
+                                <line number="16" hits="1" branch="false"/>
+                                <line number="13" hits="1" branch="false"/>
+                                <line number="13" hits="1" branch="false"/>
+                                <line number="16" hits="1" branch="false"/>
+                                <line number="9" hits="1" branch="false"/>
+                                <line number="14" hits="1" branch="false"/>
+                                <line number="15" hits="1" branch="false"/>
+                                <line number="12" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Encoder/isAlpha" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="42" hits="1" branch="false"/>
+                                <line number="42" hits="1" branch="false"/>
+                                <line number="42" hits="1" branch="false"/>
+                                <line number="42" hits="1" branch="false"/>
+                                <line number="42" hits="1" branch="false"/>
+                                <line number="42" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Encoder/asciiEncode" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="61" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Encoder/isDigit" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="44" hits="1" branch="false"/>
+                                <line number="44" hits="1" branch="false"/>
+                                <line number="44" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Encoder/quoteUri" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="148" hits="1" branch="false"/>
+                                <line number="150" hits="1" branch="false"/>
+                                <line number="147" hits="1" branch="false"/>
+                                <line number="149" hits="1" branch="false"/>
+                                <line number="146" hits="1" branch="false"/>
+                                <line number="145" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Encoder/normalize" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="153" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Encoder/pctEncode" signature="()V" line-rate="0.69"
+                                branch-rate="0.75" complexity="0">
+                            <lines>
+                                <line number="26" hits="1" branch="false"/>
+                                <line number="22" hits="0" branch="false"/>
+                                <line number="23" hits="1" branch="false"/>
+                                <line number="24" hits="1" branch="false"/>
+                                <line number="21" hits="1" branch="false"/>
+                                <line number="24" hits="1" branch="false"/>
+                                <line number="22" hits="0" branch="false"/>
+                                <line number="26" hits="1" branch="false"/>
+                                <line number="23" hits="1" branch="false"/>
+                                <line number="26" hits="1" branch="false"/>
+                                <line number="24" hits="1" branch="false"/>
+                                <line number="24" hits="1" branch="false"/>
+                                <line number="26" hits="1" branch="false"/>
+                                <line number="22" hits="0" branch="false"/>
+                                <line number="22" hits="0" branch="false"/>
+                                <line number="31" hits="0" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Encoder/quoteSegment" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="141" hits="1" branch="false"/>
+                                <line number="141" hits="1" branch="false"/>
+                                <line number="141" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method
+                                name="com.agilogy.uri/Encoder/quoteAuthority" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="137" hits="1" branch="false"/>
+                                <line number="136" hits="1" branch="false"/>
+                                <line number="136" hits="1" branch="false"/>
+                                <line number="137" hits="1" branch="false"/>
+                                <line number="135" hits="1" branch="false"/>
+                                <line number="136" hits="1" branch="false"/>
+                                <line number="135" hits="1" branch="false"/>
+                                <line number="137" hits="1" branch="false"/>
+                                <line number="136" hits="1" branch="false"/>
+                                <line number="137" hits="1" branch="false"/>
+                                <line number="137" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method
+                                name="com.agilogy.uri/Encoder/isValidScheme" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="51" hits="1" branch="false"/>
+                                <line number="51" hits="1" branch="false"/>
+                                <line number="51" hits="1" branch="false"/>
+                                <line number="51" hits="1" branch="false"/>
+                                <line number="51" hits="1" branch="false"/>
+                                <line number="51" hits="1" branch="false"/>
+                                <line number="51" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="92" hits="1" branch="false"/>
+                        <line number="109" hits="1" branch="false"/>
+                        <line number="26" hits="1" branch="false"/>
+                        <line number="42" hits="1" branch="false"/>
+                        <line number="22" hits="0" branch="false"/>
+                        <line number="137" hits="1" branch="false"/>
+                        <line number="148" hits="1" branch="false"/>
+                        <line number="51" hits="1" branch="false"/>
+                        <line number="69" hits="1" branch="false"/>
+                        <line number="83" hits="1" branch="false"/>
+                        <line number="23" hits="1" branch="false"/>
+                        <line number="44" hits="1" branch="false"/>
+                        <line number="83" hits="1" branch="false"/>
+                        <line number="71" hits="1" branch="false"/>
+                        <line number="16" hits="1" branch="false"/>
+                        <line number="24" hits="1" branch="false"/>
+                        <line number="141" hits="1" branch="false"/>
+                        <line number="153" hits="1" branch="false"/>
+                        <line number="13" hits="1" branch="false"/>
+                        <line number="86" hits="1" branch="false"/>
+                        <line number="51" hits="1" branch="false"/>
+                        <line number="136" hits="1" branch="false"/>
+                        <line number="9" hits="1" branch="false"/>
+                        <line number="86" hits="1" branch="false"/>
+                        <line number="80" hits="0" branch="false"/>
+                        <line number="21" hits="1" branch="false"/>
+                        <line number="24" hits="1" branch="false"/>
+                        <line number="61" hits="1" branch="false"/>
+                        <line number="14" hits="1" branch="false"/>
+                        <line number="42" hits="1" branch="false"/>
+                        <line number="48" hits="1" branch="false"/>
+                        <line number="15" hits="1" branch="false"/>
+                        <line number="11" hits="1" branch="false"/>
+                        <line number="150" hits="1" branch="false"/>
+                        <line number="69" hits="1" branch="false"/>
+                        <line number="136" hits="1" branch="false"/>
+                        <line number="78" hits="1" branch="false"/>
+                        <line number="46" hits="1" branch="false"/>
+                        <line number="86" hits="1" branch="false"/>
+                        <line number="141" hits="1" branch="false"/>
+                        <line number="51" hits="1" branch="false"/>
+                        <line number="147" hits="1" branch="false"/>
+                        <line number="68" hits="1" branch="false"/>
+                        <line number="80" hits="0" branch="false"/>
+                        <line number="88" hits="1" branch="false"/>
+                        <line number="42" hits="1" branch="false"/>
+                        <line number="51" hits="1" branch="false"/>
+                        <line number="22" hits="0" branch="false"/>
+                        <line number="26" hits="1" branch="false"/>
+                        <line number="11" hits="1" branch="false"/>
+                        <line number="15" hits="1" branch="false"/>
+                        <line number="95" hits="1" branch="false"/>
+                        <line number="137" hits="1" branch="false"/>
+                        <line number="23" hits="1" branch="false"/>
+                        <line number="12" hits="1" branch="false"/>
+                        <line number="26" hits="1" branch="false"/>
+                        <line number="92" hits="1" branch="false"/>
+                        <line number="83" hits="1" branch="false"/>
+                        <line number="135" hits="1" branch="false"/>
+                        <line number="71" hits="1" branch="false"/>
+                        <line number="136" hits="1" branch="false"/>
+                        <line number="44" hits="1" branch="false"/>
+                        <line number="15" hits="1" branch="false"/>
+                        <line number="51" hits="1" branch="false"/>
+                        <line number="42" hits="1" branch="false"/>
+                        <line number="16" hits="1" branch="false"/>
+                        <line number="24" hits="1" branch="false"/>
+                        <line number="13" hits="1" branch="false"/>
+                        <line number="135" hits="1" branch="false"/>
+                        <line number="137" hits="1" branch="false"/>
+                        <line number="83" hits="1" branch="false"/>
+                        <line number="92" hits="1" branch="false"/>
+                        <line number="70" hits="1" branch="false"/>
+                        <line number="149" hits="1" branch="false"/>
+                        <line number="24" hits="1" branch="false"/>
+                        <line number="42" hits="1" branch="false"/>
+                        <line number="136" hits="1" branch="false"/>
+                        <line number="141" hits="1" branch="false"/>
+                        <line number="71" hits="1" branch="false"/>
+                        <line number="69" hits="1" branch="false"/>
+                        <line number="46" hits="1" branch="false"/>
+                        <line number="51" hits="1" branch="false"/>
+                        <line number="77" hits="1" branch="false"/>
+                        <line number="13" hits="1" branch="false"/>
+                        <line number="16" hits="1" branch="false"/>
+                        <line number="26" hits="1" branch="false"/>
+                        <line number="9" hits="1" branch="false"/>
+                        <line number="42" hits="1" branch="false"/>
+                        <line number="14" hits="1" branch="false"/>
+                        <line number="22" hits="0" branch="false"/>
+                        <line number="69" hits="1" branch="false"/>
+                        <line number="80" hits="0" branch="false"/>
+                        <line number="137" hits="1" branch="false"/>
+                        <line number="146" hits="1" branch="false"/>
+                        <line number="48" hits="1" branch="false"/>
+                        <line number="88" hits="1" branch="false"/>
+                        <line number="66" hits="1" branch="false"/>
+                        <line number="22" hits="0" branch="false"/>
+                        <line number="31" hits="0" branch="false"/>
+                        <line number="44" hits="1" branch="false"/>
+                        <line number="15" hits="1" branch="false"/>
+                        <line number="51" hits="1" branch="false"/>
+                        <line number="12" hits="1" branch="false"/>
+                        <line number="137" hits="1" branch="false"/>
+                        <line number="69" hits="1" branch="false"/>
+                        <line number="145" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.Host" filename="com/agilogy/uri/Host.scala" line-rate="1.00"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method name="com.agilogy.uri/Host/apply" signature="()V" line-rate="1.00" branch-rate="1.00"
+                                complexity="0">
+                            <lines>
+                                <line number="11" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="11" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.RootlessPath" filename="com/agilogy/uri/Path.scala" line-rate="0.56"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method
+                                name="com.agilogy.uri/RootlessPath/toString" signature="()V" line-rate="0.00"
+                                branch-rate="0.00" complexity="0">
+                            <lines>
+                                <line number="125" hits="0" branch="false"/>
+                                <line number="125" hits="0" branch="false"/>
+                                <line number="125" hits="0" branch="false"/>
+                                <line number="125" hits="0" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/RootlessPath/apply" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="131" hits="1" branch="false"/>
+                                <line number="131" hits="1" branch="false"/>
+                                <line number="131" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method
+                                name="com.agilogy.uri/RootlessPath/stringValue" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="124" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method
+                                name="com.agilogy.uri/RootlessPath/pathType" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="120" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="125" hits="0" branch="false"/>
+                        <line number="124" hits="1" branch="false"/>
+                        <line number="125" hits="0" branch="false"/>
+                        <line number="131" hits="1" branch="false"/>
+                        <line number="120" hits="1" branch="false"/>
+                        <line number="125" hits="0" branch="false"/>
+                        <line number="131" hits="1" branch="false"/>
+                        <line number="125" hits="0" branch="false"/>
+                        <line number="131" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.NoAuthorityPathQUri" filename="com/agilogy/uri/Uri.scala" line-rate="1.00"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method
+                                name="com.agilogy.uri/NoAuthorityPathQUri/##" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="110" hits="1" branch="false"/>
+                                <line number="110" hits="1" branch="false"/>
+                                <line number="110" hits="1" branch="false"/>
+                                <line number="110" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="110" hits="1" branch="false"/>
+                        <line number="110" hits="1" branch="false"/>
+                        <line number="110" hits="1" branch="false"/>
+                        <line number="110" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.EmptyPath" filename="com/agilogy/uri/Path.scala" line-rate="1.00"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method
+                                name="com.agilogy.uri/EmptyPath/stringValue" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="172" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/EmptyPath/pathType" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="168" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/EmptyPath/segments" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="170" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/EmptyPath//" signature="()V" line-rate="1.00" branch-rate="1.00"
+                                complexity="0">
+                            <lines>
+                                <line number="175" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="172" hits="1" branch="false"/>
+                        <line number="170" hits="1" branch="false"/>
+                        <line number="168" hits="1" branch="false"/>
+                        <line number="175" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.AbsoluteSingleSegmentPath" filename="com/agilogy/uri/Path.scala"
+                        line-rate="1.00" branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method
+                                name="com.agilogy.uri/AbsoluteSingleSegmentPath/segments" signature="()V"
+                                line-rate="1.00" branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="147" hits="1" branch="false"/>
+                                <line number="147" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="147" hits="1" branch="false"/>
+                        <line number="147" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.Path" filename="com/agilogy/uri/Path.scala" line-rate="1.00"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method name="com.agilogy.uri/Path/apply" signature="()V" line-rate="1.00" branch-rate="1.00"
+                                complexity="0">
+                            <lines>
+                                <line number="31" hits="1" branch="false"/>
+                                <line number="34" hits="1" branch="false"/>
+                                <line number="33" hits="1" branch="false"/>
+                                <line number="32" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Path/isEmpty" signature="()V" line-rate="1.00" branch-rate="1.00"
+                                complexity="0">
+                            <lines>
+                                <line number="18" hits="1" branch="false"/>
+                                <line number="18" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Path/rootless" signature="()V" line-rate="1.00" branch-rate="1.00"
+                                complexity="0">
+                            <lines>
+                                <line number="44" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Path/isRootless" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="17" hits="1" branch="false"/>
+                                <line number="17" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Path/isAbsolute" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="16" hits="1" branch="false"/>
+                                <line number="16" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Path/absolute" signature="()V" line-rate="1.00" branch-rate="1.00"
+                                complexity="0">
+                            <lines>
+                                <line number="43" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Path/absoluteOrEmpty" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="40" hits="1" branch="false"/>
+                                <line number="39" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Path/parse" signature="()V" line-rate="1.00" branch-rate="1.00"
+                                complexity="0">
+                            <lines>
+                                <line number="56" hits="1" branch="false"/>
+                                <line number="63" hits="1" branch="false"/>
+                                <line number="64" hits="1" branch="false"/>
+                                <line number="60" hits="1" branch="false"/>
+                                <line number="62" hits="1" branch="false"/>
+                                <line number="53" hits="1" branch="false"/>
+                                <line number="56" hits="1" branch="false"/>
+                                <line number="63" hits="1" branch="false"/>
+                                <line number="63" hits="1" branch="false"/>
+                                <line number="56" hits="1" branch="false"/>
+                                <line number="63" hits="1" branch="false"/>
+                                <line number="55" hits="1" branch="false"/>
+                                <line number="61" hits="1" branch="false"/>
+                                <line number="61" hits="1" branch="false"/>
+                                <line number="55" hits="1" branch="false"/>
+                                <line number="62" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Path//" signature="()V" line-rate="1.00" branch-rate="1.00"
+                                complexity="0">
+                            <lines>
+                                <line number="23" hits="1" branch="false"/>
+                                <line number="30" hits="1" branch="false"/>
+                                <line number="30" hits="1" branch="false"/>
+                                <line number="23" hits="1" branch="false"/>
+                                <line number="29" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/Path/&lt;none&gt;" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="46" hits="1" branch="false"/>
+                                <line number="49" hits="1" branch="false"/>
+                                <line number="47" hits="1" branch="false"/>
+                                <line number="28" hits="1" branch="false"/>
+                                <line number="46" hits="1" branch="false"/>
+                                <line number="47" hits="1" branch="false"/>
+                                <line number="49" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="56" hits="1" branch="false"/>
+                        <line number="17" hits="1" branch="false"/>
+                        <line number="63" hits="1" branch="false"/>
+                        <line number="31" hits="1" branch="false"/>
+                        <line number="46" hits="1" branch="false"/>
+                        <line number="49" hits="1" branch="false"/>
+                        <line number="23" hits="1" branch="false"/>
+                        <line number="34" hits="1" branch="false"/>
+                        <line number="33" hits="1" branch="false"/>
+                        <line number="47" hits="1" branch="false"/>
+                        <line number="18" hits="1" branch="false"/>
+                        <line number="64" hits="1" branch="false"/>
+                        <line number="60" hits="1" branch="false"/>
+                        <line number="62" hits="1" branch="false"/>
+                        <line number="28" hits="1" branch="false"/>
+                        <line number="40" hits="1" branch="false"/>
+                        <line number="53" hits="1" branch="false"/>
+                        <line number="30" hits="1" branch="false"/>
+                        <line number="17" hits="1" branch="false"/>
+                        <line number="56" hits="1" branch="false"/>
+                        <line number="63" hits="1" branch="false"/>
+                        <line number="46" hits="1" branch="false"/>
+                        <line number="44" hits="1" branch="false"/>
+                        <line number="30" hits="1" branch="false"/>
+                        <line number="63" hits="1" branch="false"/>
+                        <line number="56" hits="1" branch="false"/>
+                        <line number="18" hits="1" branch="false"/>
+                        <line number="32" hits="1" branch="false"/>
+                        <line number="63" hits="1" branch="false"/>
+                        <line number="47" hits="1" branch="false"/>
+                        <line number="55" hits="1" branch="false"/>
+                        <line number="39" hits="1" branch="false"/>
+                        <line number="23" hits="1" branch="false"/>
+                        <line number="49" hits="1" branch="false"/>
+                        <line number="61" hits="1" branch="false"/>
+                        <line number="16" hits="1" branch="false"/>
+                        <line number="61" hits="1" branch="false"/>
+                        <line number="29" hits="1" branch="false"/>
+                        <line number="43" hits="1" branch="false"/>
+                        <line number="16" hits="1" branch="false"/>
+                        <line number="55" hits="1" branch="false"/>
+                        <line number="62" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.NoAuthorityPathUri" filename="com/agilogy/uri/Uri.scala" line-rate="1.00"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method name="com.agilogy.uri/NoAuthorityPathUri/?" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="86" hits="1" branch="false"/>
+                                <line number="86" hits="1" branch="false"/>
+                                <line number="86" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="com.agilogy.uri/NoAuthorityPathUri//" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="83" hits="1" branch="false"/>
+                                <line number="84" hits="1" branch="false"/>
+                                <line number="83" hits="1" branch="false"/>
+                                <line number="84" hits="1" branch="false"/>
+                                <line number="83" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method
+                                name="com.agilogy.uri/NoAuthorityPathUri/##" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="88" hits="1" branch="false"/>
+                                <line number="88" hits="1" branch="false"/>
+                                <line number="88" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method
+                                name="com.agilogy.uri/NoAuthorityPathUri/apply" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="99" hits="1" branch="false"/>
+                                <line number="102" hits="1" branch="false"/>
+                                <line number="98" hits="1" branch="false"/>
+                                <line number="93" hits="1" branch="false"/>
+                                <line number="99" hits="1" branch="false"/>
+                                <line number="102" hits="1" branch="false"/>
+                                <line number="92" hits="1" branch="false"/>
+                                <line number="99" hits="1" branch="false"/>
+                                <line number="102" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="99" hits="1" branch="false"/>
+                        <line number="86" hits="1" branch="false"/>
+                        <line number="102" hits="1" branch="false"/>
+                        <line number="88" hits="1" branch="false"/>
+                        <line number="83" hits="1" branch="false"/>
+                        <line number="98" hits="1" branch="false"/>
+                        <line number="84" hits="1" branch="false"/>
+                        <line number="93" hits="1" branch="false"/>
+                        <line number="86" hits="1" branch="false"/>
+                        <line number="99" hits="1" branch="false"/>
+                        <line number="102" hits="1" branch="false"/>
+                        <line number="83" hits="1" branch="false"/>
+                        <line number="88" hits="1" branch="false"/>
+                        <line number="84" hits="1" branch="false"/>
+                        <line number="92" hits="1" branch="false"/>
+                        <line number="83" hits="1" branch="false"/>
+                        <line number="99" hits="1" branch="false"/>
+                        <line number="86" hits="1" branch="false"/>
+                        <line number="88" hits="1" branch="false"/>
+                        <line number="102" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.Query" filename="com/agilogy/uri/Query.scala" line-rate="1.00"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method name="com.agilogy.uri/Query/apply" signature="()V" line-rate="1.00" branch-rate="1.00"
+                                complexity="0">
+                            <lines>
+                                <line number="8" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="8" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.Fragment" filename="com/agilogy/uri/Fragment.scala" line-rate="1.00"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method name="com.agilogy.uri/Fragment/apply" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="6" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="6" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.EmptySegment" filename="com/agilogy/uri/Segment.scala" line-rate="1.00"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method
+                                name="com.agilogy.uri/EmptySegment/stringValue" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="16" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="16" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.Segment" filename="com/agilogy/uri/Segment.scala" line-rate="1.00"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method name="com.agilogy.uri/Segment/apply" signature="()V" line-rate="1.00" branch-rate="1.00"
+                                complexity="0">
+                            <lines>
+                                <line number="22" hits="1" branch="false"/>
+                                <line number="22" hits="1" branch="false"/>
+                                <line number="22" hits="1" branch="false"/>
+                                <line number="22" hits="1" branch="false"/>
+                                <line number="22" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="22" hits="1" branch="false"/>
+                        <line number="22" hits="1" branch="false"/>
+                        <line number="22" hits="1" branch="false"/>
+                        <line number="22" hits="1" branch="false"/>
+                        <line number="22" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="com.agilogy.uri.QueryUri" filename="com/agilogy/uri/Uri.scala" line-rate="1.00"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method name="com.agilogy.uri/QueryUri/query" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="48" hits="1" branch="false"/>
+                                <line number="48" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="48" hits="1" branch="false"/>
+                        <line number="48" hits="1" branch="false"/>
+                    </lines>
+                </class>
+            </classes>
+        </package>
+        <package name="validation" line-rate="1.00" branch-rate="1.00" complexity="0">
+            <classes>
+                <class
+                        name="validation.Validation" filename="validation/Validation.scala" line-rate="1.00"
+                        branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method name="validation/Validation/notNull" signature="()V" line-rate="1.00" branch-rate="1.00"
+                                complexity="0">
+                            <lines>
+                                <line number="67" hits="1" branch="false"/>
+                                <line number="67" hits="1" branch="false"/>
+                                <line number="67" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="validation/Validation/sequence" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="10" hits="1" branch="false"/>
+                                <line number="10" hits="1" branch="false"/>
+                                <line number="10" hits="1" branch="false"/>
+                                <line number="10" hits="1" branch="false"/>
+                                <line number="10" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="67" hits="1" branch="false"/>
+                        <line number="67" hits="1" branch="false"/>
+                        <line number="10" hits="1" branch="false"/>
+                        <line number="10" hits="1" branch="false"/>
+                        <line number="67" hits="1" branch="false"/>
+                        <line number="10" hits="1" branch="false"/>
+                        <line number="10" hits="1" branch="false"/>
+                        <line number="10" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="validation.Validation.NoAuthorityPathQUriVOps" filename="validation/Validation.scala"
+                        line-rate="1.00" branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method name="validation/NoAuthorityPathQUriVOps/f" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="37" hits="1" branch="false"/>
+                                <line number="37" hits="1" branch="false"/>
+                                <line number="36" hits="1" branch="false"/>
+                                <line number="36" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method
+                                name="validation/NoAuthorityPathQUriVOps/##" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="34" hits="1" branch="false"/>
+                                <line number="34" hits="1" branch="false"/>
+                                <line number="35" hits="1" branch="false"/>
+                                <line number="35" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="37" hits="1" branch="false"/>
+                        <line number="34" hits="1" branch="false"/>
+                        <line number="34" hits="1" branch="false"/>
+                        <line number="35" hits="1" branch="false"/>
+                        <line number="37" hits="1" branch="false"/>
+                        <line number="36" hits="1" branch="false"/>
+                        <line number="35" hits="1" branch="false"/>
+                        <line number="36" hits="1" branch="false"/>
+                    </lines>
+                </class>
+                <class
+                        name="validation.Validation.NoAuthorityPathUriVOps" filename="validation/Validation.scala"
+                        line-rate="1.00" branch-rate="1.00" complexity="0">
+                    <methods>
+                        <method name="validation/NoAuthorityPathUriVOps//" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="19" hits="1" branch="false"/>
+                                <line number="20" hits="1" branch="false"/>
+                                <line number="20" hits="1" branch="false"/>
+                                <line number="19" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="validation/NoAuthorityPathUriVOps/?" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="22" hits="1" branch="false"/>
+                                <line number="22" hits="1" branch="false"/>
+                                <line number="23" hits="1" branch="false"/>
+                                <line number="23" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="validation/NoAuthorityPathUriVOps/##" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="27" hits="1" branch="false"/>
+                                <line number="28" hits="1" branch="false"/>
+                                <line number="27" hits="1" branch="false"/>
+                                <line number="28" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="validation/NoAuthorityPathUriVOps/f" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="30" hits="1" branch="false"/>
+                                <line number="29" hits="1" branch="false"/>
+                                <line number="29" hits="1" branch="false"/>
+                                <line number="30" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                        <method name="validation/NoAuthorityPathUriVOps/q" signature="()V" line-rate="1.00"
+                                branch-rate="1.00" complexity="0">
+                            <lines>
+                                <line number="24" hits="1" branch="false"/>
+                                <line number="25" hits="1" branch="false"/>
+                                <line number="24" hits="1" branch="false"/>
+                                <line number="25" hits="1" branch="false"/>
+                            </lines>
+                        </method>
+                    </methods>
+                    <lines>
+                        <line number="24" hits="1" branch="false"/>
+                        <line number="30" hits="1" branch="false"/>
+                        <line number="19" hits="1" branch="false"/>
+                        <line number="20" hits="1" branch="false"/>
+                        <line number="27" hits="1" branch="false"/>
+                        <line number="25" hits="1" branch="false"/>
+                        <line number="20" hits="1" branch="false"/>
+                        <line number="22" hits="1" branch="false"/>
+                        <line number="28" hits="1" branch="false"/>
+                        <line number="24" hits="1" branch="false"/>
+                        <line number="29" hits="1" branch="false"/>
+                        <line number="29" hits="1" branch="false"/>
+                        <line number="19" hits="1" branch="false"/>
+                        <line number="25" hits="1" branch="false"/>
+                        <line number="30" hits="1" branch="false"/>
+                        <line number="27" hits="1" branch="false"/>
+                        <line number="22" hits="1" branch="false"/>
+                        <line number="23" hits="1" branch="false"/>
+                        <line number="23" hits="1" branch="false"/>
+                        <line number="28" hits="1" branch="false"/>
+                    </lines>
+                </class>
+            </classes>
+        </package>
+    </packages>
+</coverage>

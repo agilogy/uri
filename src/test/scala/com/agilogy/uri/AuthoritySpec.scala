@@ -1,6 +1,6 @@
 package com.agilogy.uri
 
-import org.scalatest.{ EitherValues, FreeSpec, TryValues }
+import org.scalatest.{EitherValues, FreeSpec, TryValues}
 
 class AuthoritySpec extends FreeSpec with EitherValues with TryValues {
 

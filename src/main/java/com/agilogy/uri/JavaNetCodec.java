@@ -12,7 +12,7 @@ import java.text.Normalizer;
 
 public final class JavaNetCodec {
 
-    private JavaNetCodec(){}
+    private JavaNetCodec() {}
 
     private final static char[] hexDigits = {
             '0', '1', '2', '3', '4', '5', '6', '7',
@@ -30,14 +30,13 @@ public final class JavaNetCodec {
      */
     // Encodes all characters >= \u0080 into escaped, normalized UTF-8 octets,
     // assuming that s is otherwise legal
-    //
     public static String encode(String s) {
         int n = s.length();
         if (n == 0)
             return s;
 
         // First check whether we actually need to encode
-        for (int i = 0;;) {
+        for (int i = 0; ; ) {
             if (s.charAt(i) >= '\u0080')
                 break;
             if (++i >= n)
@@ -57,9 +56,9 @@ public final class JavaNetCodec {
         while (bb.hasRemaining()) {
             int b = bb.get() & 0xff;
             if (b >= 0x80)
-                appendEscape(sb, (byte)b);
+                appendEscape(sb, (byte) b);
             else
-                sb.append((char)b);
+                sb.append((char) b);
         }
         return sb.toString();
     }
@@ -82,7 +81,7 @@ public final class JavaNetCodec {
      * @see java.net.URI#decode(char, char)
      */
     private static byte decode(char c1, char c2) {
-        return (byte)(  ((decode(c1) & 0xf) << 4)
+        return (byte) (((decode(c1) & 0xf) << 4)
                 | ((decode(c2) & 0xf) << 0));
     }
 
@@ -95,7 +94,6 @@ public final class JavaNetCodec {
     // are replaced with '\uFFFD'.
     // Exception: any "%" found between "[]" is left alone. It is an IPv6 literal
     //            with a scope_id
-    //
     static String decode(String s) {
         if (s == null)
             return s;
@@ -105,7 +103,7 @@ public final class JavaNetCodec {
         if (s.indexOf('%') < 0)
             return s;
 
-        StringBuffer sb = new StringBuffer(n);
+        StringBuilder sb = new StringBuilder(n);
         ByteBuffer bb = ByteBuffer.allocate(n);
         CharBuffer cb = CharBuffer.allocate(n);
         CharsetDecoder dec = ThreadLocalCoders.decoderFor("UTF-8")
@@ -116,7 +114,7 @@ public final class JavaNetCodec {
         char c = s.charAt(0);
         boolean betweenBrackets = false;
 
-        for (int i = 0; i < n;) {
+        for (int i = 0; i < n; ) {
             assert c == s.charAt(i);    // Loop invariant
             if (c == '[') {
                 betweenBrackets = true;
@@ -132,7 +130,7 @@ public final class JavaNetCodec {
             }
             bb.clear();
             int ui = i;
-            for (;;) {
+            for (; ; ) {
                 assert (n - i >= 2);
                 bb.put(decode(s.charAt(++i), s.charAt(++i)));
                 if (++i >= n)

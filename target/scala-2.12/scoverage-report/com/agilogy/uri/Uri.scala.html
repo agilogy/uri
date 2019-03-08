@@ -1,0 +1,5192 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title id="title">
+        com/agilogy/uri/Uri.scala.html
+    </title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/css/theme.default.min.css"
+          type="text/css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/js/jquery.tablesorter.min.js"></script>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css"
+          type="text/css"/>
+    <script src="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {$(".tablesorter").tablesorter();});
+
+    </script>
+    <style>
+          table.codegrid { font-family: monospace; font-size: 12px; width: auto!important; }table.statementlist { width: auto!important; font-size: 13px; } table.codegrid td { padding: 0!important; border: 0!important } table td.linenumber { width: 40px!important; }
+
+    </style>
+</head>
+<body style="font-family: monospace;">
+<ul class="nav nav-tabs">
+    <li>
+        <a href="#codegrid" data-toggle="tab">Codegrid</a>
+    </li>
+    <li>
+        <a href="#statementlist" data-toggle="tab">Statement List</a>
+    </li>
+</ul>
+<div class="tab-content">
+    <div class="tab-pane active" id="codegrid">
+            <pre style='font-size: 12pt; font-family: courier;'>1 <span style=''>package com.agilogy.uri
+</span>2 <span style=''>
+</span>3 <span style=''>import scala.util.{ Failure, Success, Try }
+</span>4 <span style=''>
+</span>5 <span style=''>//TODO: Implement other subclasses of UriReference
+</span>6 <span style=''>sealed trait UriReference
+</span>7 <span style=''>
+</span>8 <span style=''>trait Uri extends UriReference with UriPart {
+</span>9 <span style=''>
+</span>10 <span style=''>  def scheme: Scheme
+</span>11 <span style=''>
+</span>12 <span style=''>  def authority: Option[Authority]
+</span>13 <span style=''>
+</span>14 <span style=''>  def path: Path
+</span>15 <span style=''>
+</span>16 <span style=''>  def query: Option[Query]
+</span>17 <span style=''>
+</span>18 <span style=''>  def fragment: Option[Fragment]
+</span>19 <span style=''>
+</span>20 <span style=''>  def stringValue: String = </span><span
+                    style='background: #AEF1AE'>Encoder.quoteUri(this)</span><span style=''>
+</span>21 <span style=''>
+</span>22 <span style=''>  def toJava: java.net.URI = {
+</span>23 <span style=''>    </span><span style='background: #AEF1AE'>new java.net.URI(stringValue)</span><span
+                    style=''>
+</span>24 <span style=''>  }
+</span>25 <span style=''>
+</span>26 <span style=''>  override def equals(obj: Any): Boolean = obj match {
+</span>27 <span style=''>    case u: Uri =&gt; </span><span style='background: #AEF1AE'>this.stringValue == u.stringValue</span><span
+                    style=''>
+</span>28 <span style=''>    case _      =&gt; </span><span style='background: #F0ADAD'>false</span><span style=''>
+</span>29 <span style=''>  }
+</span>30 <span style=''>}
+</span>31 <span style=''>
+</span>32 <span style=''>trait NoAuthorityUri extends Uri {
+</span>33 <span style=''>  override val authority: None.type = </span><span style='background: #AEF1AE'>None</span><span
+                    style=''>
+</span>34 <span style=''>}
+</span>35 <span style=''>
+</span>36 <span style=''>trait AuthorityUri extends Uri {
+</span>37 <span style=''>  def theAuthority: Authority
+</span>38 <span style=''>
+</span>39 <span style=''>  override def authority: Some[Authority] = </span><span style='background: #AEF1AE'>Some(theAuthority)</span><span
+                    style=''>
+</span>40 <span style=''>}
+</span>41 <span style=''>
+</span>42 <span style=''>trait NoQueryUri extends Uri {
+</span>43 <span style=''>  override def query: None.type = </span><span style='background: #AEF1AE'>None</span><span
+                    style=''>
+</span>44 <span style=''>}
+</span>45 <span style=''>
+</span>46 <span style=''>trait QueryUri extends Uri {
+</span>47 <span style=''>  def theQuery: Query
+</span>48 <span style=''>  override def query: Some[Query] = </span><span
+                    style='background: #AEF1AE'>Some(theQuery)</span><span style=''>
+</span>49 <span style=''>}
+</span>50 <span style=''>
+</span>51 <span style=''>trait NoFragmentUri[U &lt;: Uri] extends Uri {
+</span>52 <span style=''>  override def fragment: None.type = </span><span style='background: #AEF1AE'>None</span><span
+                    style=''>
+</span>53 <span style=''>
+</span>54 <span style=''>  type UF &lt;: U with FragmentUri
+</span>55 <span style=''>
+</span>56 <span style=''>  def ##(f: Fragment): UF
+</span>57 <span style=''>  def ##(f: String): UF = </span><span
+                    style='background: #AEF1AE'>this ## Fragment(f)</span><span style=''>
+</span>58 <span style=''>  def f(f: Fragment): UF = </span><span style='background: #AEF1AE'>this ## f</span><span
+                    style=''>
+</span>59 <span style=''>  def f(f: String): UF = </span><span
+                    style='background: #AEF1AE'>this ## Fragment(f)</span><span style=''>
+</span>60 <span style=''>}
+</span>61 <span style=''>
+</span>62 <span style=''>trait NoQueryFragmentUri[U &lt;: Uri] extends NoQueryUri with NoFragmentUri[U] {
+</span>63 <span style=''>  type UQ &lt;: U with QueryUri with NoFragmentUri[U]
+</span>64 <span style=''>
+</span>65 <span style=''>  def ?(query: Query): UQ
+</span>66 <span style=''>  def ?(query: String): UQ = </span><span
+                    style='background: #AEF1AE'>this ? Query(query)</span><span style=''>
+</span>67 <span style=''>  def q(query: Query): UQ = </span><span style='background: #AEF1AE'>this ? query</span><span
+                    style=''>
+</span>68 <span style=''>  def q(query: String): UQ = </span><span
+                    style='background: #AEF1AE'>this ? Query(query)</span><span style=''>
+</span>69 <span style=''>
+</span>70 <span style=''>}
+</span>71 <span style=''>
+</span>72 <span style=''>trait FragmentUri extends Uri {
+</span>73 <span style=''>  def theFragment: Fragment
+</span>74 <span style=''>
+</span>75 <span style=''>  override def fragment: Some[Fragment] = </span><span style='background: #AEF1AE'>Some(theFragment)</span><span
+                    style=''>
+</span>76 <span style=''>}
+</span>77 <span style=''>
+</span>78 <span style=''>abstract case class NoAuthorityPathUri private (scheme: Scheme, path: Path) extends NoAuthorityUri with NoQueryFragmentUri[NoAuthorityUri] {
+</span>79 <span style=''>
+</span>80 <span style=''>  override type UQ = NoAuthorityPathQUri
+</span>81 <span style=''>  override type UF = NoAuthorityPathFUri
+</span>82 <span style=''>
+</span>83 <span style=''>  def /(s: Segment): Either[PathStartsWithDoubleSlashInNoAuhtorityUri, NoAuthorityPathUri] = </span><span
+                    style='background: #AEF1AE'>NoAuthorityPathUri(scheme, path / s)</span><span style=''>
+</span>84 <span style=''>  def /(s: String): Either[PathStartsWithDoubleSlashInNoAuhtorityUri, NoAuthorityPathUri] = </span><span
+                    style='background: #AEF1AE'>this / Segment(s)</span><span style=''>
+</span>85 <span style=''>
+</span>86 <span style=''>  override def ?(q: Query): NoAuthorityPathQUri = </span><span style='background: #AEF1AE'>NoAuthorityPathQUri(scheme, path, q)</span><span
+                    style=''>
+</span>87 <span style=''>
+</span>88 <span style=''>  override def ##(f: Fragment): NoAuthorityPathFUri = </span><span style='background: #AEF1AE'>NoAuthorityPathFUri(scheme, path, f)</span><span
+                    style=''>
+</span>89 <span style=''>}
+</span>90 <span style=''>
+</span>91 <span style=''>object NoAuthorityPathUri {
+</span>92 <span style=''>  def apply(scheme: Scheme): NoAuthorityPathUri = </span><span
+                    style='background: #AEF1AE'>new</span><span style=''> NoAuthorityPathUri(scheme, Path.empty) {}
+</span>93 <span style=''>  def apply(scheme: Scheme, path: RootlessPath): NoAuthorityPathUri = </span><span
+                    style='background: #AEF1AE'>new</span><span style=''> NoAuthorityPathUri(scheme, path) {}
+</span>94 <span style=''>  def apply(scheme: Scheme, path: Path): Either[PathStartsWithDoubleSlashInNoAuhtorityUri, NoAuthorityPathUri] = {
+</span>95 <span style=''>
+</span>96 <span style=''>    // See https://tools.ietf.org/html/rfc3986#section-3.3
+</span>97 <span style=''>    // If a URI does not contain an authority component, then the path cannot begin with two slash characters (&quot;//&quot;).
+</span>98 <span style=''>    if (</span><span
+                    style='background: #AEF1AE'>path.stringValue.startsWith(&quot;//&quot;)</span><span style=''>) {
+</span>99 <span style=''>      </span><span style='background: #AEF1AE'>Left(PathStartsWithDoubleSlashInNoAuhtorityUri(scheme, path))</span><span
+                    style=''>
+</span>100 <span style=''>    } //else if(path.isEmpty &amp;&amp; !query.isDefined) throw new RuntimeException(s&quot;Expected scheme-specific part with scheme ${scheme.stringValue}&quot;)
+</span>101 <span style=''>    else {
+</span>102 <span style=''>      </span><span
+                    style='background: #AEF1AE'>Right(new NoAuthorityPathUri(scheme, path) {})</span><span style=''>
+</span>103 <span style=''>    }
+</span>104 <span style=''>
+</span>105 <span style=''>  }
+</span>106 <span style=''>}
+</span>107 <span style=''>
+</span>108 <span style=''>case class NoAuthorityPathQUri(scheme: Scheme, path: Path, theQuery: Query) extends NoAuthorityUri with QueryUri with NoFragmentUri[NoAuthorityUri] {
+</span>109 <span style=''>  override type UF = NoAuthorityPathQFUri
+</span>110 <span style=''>  override def ##(f: Fragment): NoAuthorityPathQFUri = </span><span
+                    style='background: #AEF1AE'>NoAuthorityPathQFUri(scheme, path, theQuery, f)</span><span style=''>
+</span>111 <span style=''>}
+</span>112 <span style=''>case class NoAuthorityPathFUri(scheme: Scheme, path: Path, theFragment: Fragment) extends NoAuthorityUri with NoQueryUri with FragmentUri
+</span>113 <span style=''>case class NoAuthorityPathQFUri(scheme: Scheme, path: Path, theQuery: Query, theFragment: Fragment) extends NoAuthorityUri with QueryUri with FragmentUri
+</span>114 <span style=''>
+</span>115 <span style=''>case class AuthorityPathUri(scheme: Scheme, theAuthority: Authority, path: PathAbEmpty = Path.empty) extends AuthorityUri with NoQueryFragmentUri[AuthorityUri] {
+</span>116 <span style=''>  self =&gt;
+</span>117 <span style=''>
+</span>118 <span style=''>  override type UQ = AuthorityPathQUri
+</span>119 <span style=''>  override type UF = AuthorityPathFUri
+</span>120 <span style=''>
+</span>121 <span style=''>  def /(s: Segment): AuthorityPathUri = </span><span style='background: #AEF1AE'>this.copy(path = path / s)</span><span
+                    style=''>
+</span>122 <span style=''>  def /(s: String): AuthorityPathUri = </span><span style='background: #AEF1AE'>this / Segment(s)</span><span
+                    style=''>
+</span>123 <span style=''>
+</span>124 <span style=''>  override def ?(q: Query): AuthorityPathQUri = </span><span style='background: #AEF1AE'>AuthorityPathQUri(scheme, theAuthority, path, q)</span><span
+                    style=''>
+</span>125 <span style=''>
+</span>126 <span style=''>  override def ##(f: Fragment): AuthorityPathFUri = </span><span style='background: #AEF1AE'>AuthorityPathFUri(scheme, theAuthority, path, f)</span><span
+                    style=''>
+</span>127 <span style=''>}
+</span>128 <span style=''>
+</span>129 <span style=''>case class AuthorityPathQUri(scheme: Scheme, theAuthority: Authority, path: PathAbEmpty = Path.empty, theQuery: Query) extends AuthorityUri with QueryUri with NoFragmentUri[AuthorityUri] {
+</span>130 <span style=''>  override type UF = AuthorityPathQFUri
+</span>131 <span style=''>  override def ##(f: Fragment): AuthorityPathQFUri = </span><span style='background: #AEF1AE'>AuthorityPathQFUri(scheme, theAuthority, path, theQuery, f)</span><span
+                    style=''>
+</span>132 <span style=''>}
+</span>133 <span style=''>
+</span>134 <span style=''>case class AuthorityPathFUri(scheme: Scheme, theAuthority: Authority, path: PathAbEmpty = Path.empty, theFragment: Fragment) extends AuthorityUri with NoQueryUri with FragmentUri
+</span>135 <span style=''>
+</span>136 <span style=''>case class AuthorityPathQFUri(scheme: Scheme, theAuthority: Authority, path: PathAbEmpty = Path.empty, theQuery: Query, theFragment: Fragment) extends AuthorityUri with QueryUri with FragmentUri
+</span>137 <span style=''>
+</span>138 <span style=''>object Uri {
+</span>139 <span style=''>
+</span>140 <span style=''>  def apply(s: Scheme): NoAuthorityPathUri = </span><span style='background: #AEF1AE'>NoAuthorityPathUri(s)</span><span
+                    style=''>
+</span>141 <span style=''>  def apply(s: Scheme, p: Path): Either[PathStartsWithDoubleSlashInNoAuhtorityUri, NoAuthorityPathUri] = </span><span
+                    style='background: #AEF1AE'>NoAuthorityPathUri(s, p)</span><span style=''>
+</span>142 <span style=''>
+</span>143 <span style=''>  def apply(s: Scheme, authority: Authority): AuthorityPathUri = </span><span
+                    style='background: #AEF1AE'>AuthorityPathUri(s, authority, Path.empty)</span><span style=''>
+</span>144 <span style=''>  def apply(scheme: Scheme, host: String): AuthorityPathUri = </span><span
+                    style='background: #AEF1AE'>Uri(scheme, Authority(Host(host)))</span><span style=''>
+</span>145 <span style=''>  def apply(scheme: Scheme, host: String, port: Port): AuthorityPathUri = </span><span
+                    style='background: #AEF1AE'>Uri(scheme, Authority(Host(host), port))</span><span style=''>
+</span>146 <span style=''>  def apply(scheme: Scheme, host: String, port: Int): Either[NegativePort, AuthorityPathUri] = </span><span
+                    style='background: #F0ADAD'>Port(port).map(p =&gt; Uri(scheme, Authority(Host(host), p)))</span><span
+                    style=''>
+</span>147 <span style=''>
+</span>148 <span style=''>  def apply(scheme: Scheme, authority: Authority, path: PathAbEmpty = Path.empty, query: Option[Query] = None, fragment: Option[Fragment] = None): AuthorityUri = {
+</span>149 <span style=''>    (path, query, fragment) match {
+</span>150 <span style=''>      case (p: PathAbEmpty, None, None)       =&gt; </span><span style='background: #AEF1AE'>AuthorityPathUri(scheme, authority, p)</span><span
+                    style=''>
+</span>151 <span style=''>      case (p: PathAbEmpty, Some(q), None)    =&gt; </span><span style='background: #AEF1AE'>AuthorityPathQUri(scheme, authority, p, q)</span><span
+                    style=''>
+</span>152 <span style=''>      case (p: PathAbEmpty, None, Some(f))    =&gt; </span><span style='background: #F0ADAD'>AuthorityPathFUri(scheme, authority, p, f)</span><span
+                    style=''>
+</span>153 <span style=''>      case (p: PathAbEmpty, Some(q), Some(f)) =&gt; </span><span style='background: #F0ADAD'>AuthorityPathQFUri(scheme, authority, p, q, f)</span><span
+                    style=''>
+</span>154 <span style=''>    }
+</span>155 <span style=''>  }
+</span>156 <span style=''>
+</span>157 <span style=''>  def noAuthority(scheme: Scheme, segment: String): NoAuthorityPathUri = {
+</span>158 <span style=''>    </span><span style='background: #AEF1AE'>Path(segment)</span><span style=''> match {
+</span>159 <span style=''>      case Path.empty      =&gt; </span><span style='background: #F0ADAD'>NoAuthorityPathUri(scheme)</span><span
+                    style=''>
+</span>160 <span style=''>      case p: RootlessPath =&gt; </span><span style='background: #AEF1AE'>NoAuthorityPathUri(scheme, p)</span><span
+                    style=''>
+</span>161 <span style=''>    }
+</span>162 <span style=''>  }
+</span>163 <span style=''>
+</span>164 <span style=''>  def noAuthority(scheme: Scheme, path: Path, query: Option[Query] = None, fragment: Option[Fragment] = None): Either[PathStartsWithDoubleSlashInNoAuhtorityUri, NoAuthorityUri] = {
+</span>165 <span style=''>    (path, query, fragment) match {
+</span>166 <span style=''>      case (_, None, None)       =&gt; </span><span style='background: #AEF1AE'>NoAuthorityPathUri(scheme, path)</span><span
+                    style=''>
+</span>167 <span style=''>      case (_, Some(q), None)    =&gt; </span><span style='background: #AEF1AE'>Right(NoAuthorityPathQUri(scheme, path, q))</span><span
+                    style=''>
+</span>168 <span style=''>      case (_, None, Some(f))    =&gt; </span><span style='background: #F0ADAD'>Right(NoAuthorityPathFUri(scheme, path, f))</span><span
+                    style=''>
+</span>169 <span style=''>      case (_, Some(q), Some(f)) =&gt; </span><span style='background: #F0ADAD'>Right(NoAuthorityPathQFUri(scheme, path, q, f))</span><span
+                    style=''>
+</span>170 <span style=''>    }
+</span>171 <span style=''>  }
+</span>172 <span style=''>
+</span>173 <span style=''>  def of(scheme: Scheme, authority: Option[Authority], path: Path, query: Option[Query] = None, fragment: Option[Fragment] = None): Either[PathError, Uri] = {
+</span>174 <span style=''>    (authority, path) match {
+</span>175 <span style=''>      case (Some(a), p: RootlessPath) =&gt; </span><span style='background: #F0ADAD'>Left(RootlessPathInAuthorityUri(scheme, a, p))</span><span
+                    style=''>
+</span>176 <span style=''>      case (Some(a), p: PathAbEmpty)  =&gt; </span><span style='background: #AEF1AE'>Right(Uri(scheme, a, p, query, fragment))</span><span
+                    style=''>
+</span>177 <span style=''>      case (None, _)                  =&gt; </span><span style='background: #AEF1AE'>Uri.noAuthority(scheme, path, query, fragment)</span><span
+                    style=''>
+</span>178 <span style=''>    }
+</span>179 <span style=''>  }
+</span>180 <span style=''>  // This is in fact the regexp for URI-Reference, not for URI
+</span>181 <span style=''>  // See https://tools.ietf.org/html/rfc3986#appendix-B
+</span>182 <span style=''>  private val UriRe = </span><span style='background: #AEF1AE'>&quot;^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?&quot;.r</span><span
+                    style=''>
+</span>183 <span style=''>
+</span>184 <span style=''>  import validation.Validation._
+</span>185 <span style=''>
+</span>186 <span style=''>  def parseTry(s: String): Try[Uri] = </span><span style='background: #AEF1AE'>parse(s)</span><span
+                    style=''> match {
+</span>187 <span style=''>    case Left(e)  =&gt; </span><span
+                    style='background: #AEF1AE'>Failure(UriParseException(e))</span><span style=''>
+</span>188 <span style=''>    case Right(r) =&gt; </span><span style='background: #AEF1AE'>Success(r)</span><span
+                    style=''>
+</span>189 <span style=''>  }
+</span>190 <span style=''>
+</span>191 <span style=''>  private def matchParts(uri: String): (Option[String], Option[String], Option[String], Option[String], Option[String]) = {
+</span>192 <span style=''>
+</span>193 <span style=''>    val chars = </span><span style='background: #AEF1AE'>uri.toCharArray</span><span style=''>
+</span>194 <span style=''>    val length = </span><span style='background: #AEF1AE'>chars.length</span><span style=''>
+</span>195 <span style=''>    var i = </span><span style='background: #AEF1AE'>0</span><span style=''>
+</span>196 <span style=''>
+</span>197 <span style=''>    def readUntil(delimiters: Set[Char]): String = {
+</span>198 <span style=''>      if (</span><span style='background: #AEF1AE'>i &gt;= length</span><span
+                    style=''>) </span><span style='background: #F0ADAD'>&quot;&quot;</span><span style=''>
+</span>199 <span style=''>      else </span><span style='background: #AEF1AE'>{
+</span>200 <span style=''></span><span style='background: #AEF1AE'>        val res = StringBuilder.newBuilder
+</span>201 <span style=''></span><span style='background: #AEF1AE'>        while (i &lt; length &amp;&amp; !delimiters.contains(chars(i))) {
+</span>202 <span style=''></span><span style='background: #AEF1AE'>          res.append(chars(i))
+</span>203 <span style=''></span><span style='background: #AEF1AE'>          i += 1
+</span>204 <span style=''></span><span style='background: #AEF1AE'>        }
+</span>205 <span style=''></span><span style='background: #AEF1AE'>        res.toString()
+</span>206 <span style=''></span><span style='background: #AEF1AE'>      }</span><span style=''>
+</span>207 <span style=''>    }
+</span>208 <span style=''>
+</span>209 <span style=''>    def read(): String = {
+</span>210 <span style=''>      if (</span><span style='background: #F0ADAD'>i &gt;= length</span><span
+                    style=''>) </span><span style='background: #F0ADAD'>&quot;&quot;</span><span style=''>
+</span>211 <span style=''>      else </span><span style='background: #F0ADAD'>{
+</span>212 <span style=''></span><span style='background: #F0ADAD'>        val res = StringBuilder.newBuilder
+</span>213 <span style=''></span><span style='background: #F0ADAD'>        while (i &lt; length) {
+</span>214 <span style=''></span><span style='background: #F0ADAD'>          res.append(i)
+</span>215 <span style=''></span><span style='background: #F0ADAD'>          i += 1
+</span>216 <span style=''></span><span style='background: #F0ADAD'>        }
+</span>217 <span style=''></span><span style='background: #F0ADAD'>        res.toString()
+</span>218 <span style=''></span><span style='background: #F0ADAD'>      }</span><span style=''>
+</span>219 <span style=''>    }
+</span>220 <span style=''>
+</span>221 <span style=''>    var scheme: Option[String] = </span><span style='background: #AEF1AE'>Some(readUntil(Set(':', '/', '?', '#')))</span><span
+                    style=''>
+</span>222 <span style=''>    if (</span><span
+                    style='background: #AEF1AE'>i &lt; length &amp;&amp; chars(i) == ':'</span><span style=''>) {
+</span>223 <span style=''>      </span><span style='background: #AEF1AE'>i += 1</span><span style=''>
+</span>224 <span style=''>    } else </span><span style='background: #AEF1AE'>{
+</span>225 <span style=''></span><span style='background: #AEF1AE'>      scheme = None
+</span>226 <span style=''></span><span style='background: #AEF1AE'>      i = 0
+</span>227 <span style=''></span><span style='background: #AEF1AE'>    }</span><span style=''>
+</span>228 <span style=''>    val authority = {
+</span>229 <span style=''>      if (</span><span style='background: #AEF1AE'>i + 1 &lt; length &amp;&amp; chars(i) == '/' &amp;&amp; chars(i + 1) == '/'</span><span
+                    style=''>) </span><span style='background: #AEF1AE'>{
+</span>230 <span style=''></span><span style='background: #AEF1AE'>        i = i + 2
+</span>231 <span style=''></span><span style='background: #AEF1AE'>        Some(readUntil(Set('/', '?', '#')))
+</span>232 <span style=''></span><span style='background: #AEF1AE'>      }</span><span style=''> else {
+</span>233 <span style=''>        </span><span style='background: #AEF1AE'>None</span><span style=''>
+</span>234 <span style=''>      }
+</span>235 <span style=''>    }
+</span>236 <span style=''>    val path = if (</span><span style='background: #AEF1AE'>i &lt; length &amp;&amp; !Set('?', '#').contains(chars(i))</span><span
+                    style=''>) {
+</span>237 <span style=''>      </span><span style='background: #AEF1AE'>Some(readUntil(Set('?', '#')))</span><span
+                    style=''>
+</span>238 <span style=''>    } else {
+</span>239 <span style=''>      </span><span style='background: #AEF1AE'>None</span><span style=''>
+</span>240 <span style=''>    }
+</span>241 <span style=''>
+</span>242 <span style=''>    val query = if (</span><span style='background: #AEF1AE'>i &lt; length &amp;&amp; chars(i) == '?'</span><span
+                    style=''>) </span><span style='background: #AEF1AE'>{
+</span>243 <span style=''></span><span style='background: #AEF1AE'>      i += 1
+</span>244 <span style=''></span><span style='background: #AEF1AE'>      Some(readUntil(Set('#')))
+</span>245 <span style=''></span><span style='background: #AEF1AE'>    }</span><span style=''> else {
+</span>246 <span style=''>      </span><span style='background: #AEF1AE'>None</span><span style=''>
+</span>247 <span style=''>    }
+</span>248 <span style=''>
+</span>249 <span style=''>    val fragment = if (</span><span
+                    style='background: #AEF1AE'>i &lt; length &amp;&amp; </span><span style='background: #F0ADAD'>chars(i) == '#'</span><span
+                    style=''>) </span><span style='background: #F0ADAD'>{
+</span>250 <span style=''></span><span style='background: #F0ADAD'>      i += 1
+</span>251 <span style=''></span><span style='background: #F0ADAD'>      Some(read())
+</span>252 <span style=''></span><span style='background: #F0ADAD'>    }</span><span style=''> else {
+</span>253 <span style=''>      </span><span style='background: #AEF1AE'>None</span><span style=''>
+</span>254 <span style=''>    }
+</span>255 <span style=''>
+</span>256 <span style=''>    </span><span style='background: #AEF1AE'>(scheme, authority, path, query, fragment)</span><span
+                    style=''>
+</span>257 <span style=''>  }
+</span>258 <span style=''>
+</span>259 <span style=''>  def parse(value: String): Either[UriParseError, Uri] = {
+</span>260 <span style=''>
+</span>261 <span style=''>    </span><span style='background: #AEF1AE'>matchParts(value)</span><span style=''> match {
+</span>262 <span style=''>      case (s, a, p, q, f) =&gt;
+</span>263 <span style=''>        </span><span style='background: #AEF1AE'>println(s&quot;s = '$s', a = '$a', p = '$p', q = '$q', f = '$f'&quot;)</span><span
+                    style=''>
+</span>264 <span style=''>        val scheme: Either[SchemeError, Scheme] = </span><span style='background: #AEF1AE'>notNull(MissingScheme(value), s).flatMap(Scheme.apply)</span><span
+                    style=''>
+</span>265 <span style=''>        val authority: Either[AuthorityParseError, Option[Authority]] = </span><span
+                    style='background: #AEF1AE'>sequence(a.map(Authority.parse))</span><span style=''>
+</span>266 <span style=''>        (scheme, authority) match {
+</span>267 <span style=''>          case (Right(s), Right(a)) =&gt;
+</span>268 <span style=''>            val path = </span><span style='background: #AEF1AE'>Path.parse(p.getOrElse(&quot;&quot;))</span><span
+                    style=''>
+</span>269 <span style=''>            val query = </span><span style='background: #AEF1AE'>q.map(q =&gt; Query(Encoder.decode(q)))</span><span
+                    style=''>
+</span>270 <span style=''>            val fragment = </span><span style='background: #AEF1AE'>f.map(f =&gt; </span><span
+                    style='background: #F0ADAD'>Fragment(Encoder.decode(f))</span><span
+                    style='background: #AEF1AE'>)</span><span style=''>
+</span>271 <span style=''>            // The regular expression makes it impossible for a PathError to occur
+</span>272 <span style=''>            </span><span style='background: #AEF1AE'>Right(Uri.of(s, a, path, query, fragment).right.get)</span><span
+                    style=''>
+</span>273 <span style=''>          case _ =&gt;
+</span>274 <span style=''>            </span><span style='background: #AEF1AE'>Left(UriParseError(scheme.left.toOption, authority.left.toOption))</span><span
+                    style=''>
+</span>275 <span style=''>        }
+</span>276 <span style=''>      case _ =&gt;
+</span>277 <span style=''>        // It actually never happens. Every possible string matches de url regexp, afaik
+</span>278 <span style=''>        </span><span style='background: #F0ADAD'>throw new IllegalStateException(&quot;Unreachable code&quot;)</span><span
+                    style=''>
+</span>279 <span style=''>    }
+</span>280 <span style=''>
+</span>281 <span style=''>  }
+</span>282 <span style=''>
+</span>283 <span style=''>}
+</span></pre>
+    </div>
+    <div class="tab-pane" id="statementlist">
+        <table cellspacing="0" cellpadding="0" class="table statementlist">
+            <tr>
+                <th>Line</th>
+                <th>Stmt Id</th>
+                <th>Pos</th>
+                <th>Tree</th>
+                <th>Symbol</th>
+                <th>Code</th>
+            </tr>
+            <tr>
+                <td>
+                    20
+                </td>
+                <td>
+                    263
+                </td>
+                <td>
+                    361
+                    -
+                    383
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Encoder.quoteUri
+                </td>
+                <td style="background: #AEF1AE">
+                    Encoder.quoteUri(this)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    23
+                </td>
+                <td>
+                    265
+                </td>
+                <td>
+                    420
+                    -
+                    449
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    java.net.URI.&lt;init&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    new java.net.URI(Uri.this.stringValue)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    23
+                </td>
+                <td>
+                    264
+                </td>
+                <td>
+                    437
+                    -
+                    448
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.Uri.stringValue
+                </td>
+                <td style="background: #AEF1AE">
+                    Uri.this.stringValue
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    27
+                </td>
+                <td>
+                    267
+                </td>
+                <td>
+                    529
+                    -
+                    562
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    java.lang.Object.==
+                </td>
+                <td style="background: #AEF1AE">
+                    this.stringValue.==(u.stringValue)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    27
+                </td>
+                <td>
+                    266
+                </td>
+                <td>
+                    549
+                    -
+                    562
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.Uri.stringValue
+                </td>
+                <td style="background: #AEF1AE">
+                    u.stringValue
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    28
+                </td>
+                <td>
+                    268
+                </td>
+                <td>
+                    582
+                    -
+                    587
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #F0ADAD">
+                    false
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    33
+                </td>
+                <td>
+                    269
+                </td>
+                <td>
+                    668
+                    -
+                    672
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    scala.None
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.None
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    39
+                </td>
+                <td>
+                    271
+                </td>
+                <td>
+                    784
+                    -
+                    802
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Some.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Some.apply[com.agilogy.uri.Authority](AuthorityUri.this.theAuthority)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    39
+                </td>
+                <td>
+                    270
+                </td>
+                <td>
+                    789
+                    -
+                    801
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.AuthorityUri.theAuthority
+                </td>
+                <td style="background: #AEF1AE">
+                    AuthorityUri.this.theAuthority
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    43
+                </td>
+                <td>
+                    272
+                </td>
+                <td>
+                    871
+                    -
+                    875
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    scala.None
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.None
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    48
+                </td>
+                <td>
+                    274
+                </td>
+                <td>
+                    966
+                    -
+                    980
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Some.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Some.apply[com.agilogy.uri.Query](QueryUri.this.theQuery)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    48
+                </td>
+                <td>
+                    273
+                </td>
+                <td>
+                    971
+                    -
+                    979
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.QueryUri.theQuery
+                </td>
+                <td style="background: #AEF1AE">
+                    QueryUri.this.theQuery
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    52
+                </td>
+                <td>
+                    275
+                </td>
+                <td>
+                    1065
+                    -
+                    1069
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    scala.None
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.None
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    57
+                </td>
+                <td>
+                    277
+                </td>
+                <td>
+                    1156
+                    -
+                    1175
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoFragmentUri.##
+                </td>
+                <td style="background: #AEF1AE">
+                    this.##(Fragment.apply(f))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    57
+                </td>
+                <td>
+                    276
+                </td>
+                <td>
+                    1164
+                    -
+                    1175
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Fragment.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    Fragment.apply(f)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    58
+                </td>
+                <td>
+                    278
+                </td>
+                <td>
+                    1203
+                    -
+                    1212
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoFragmentUri.##
+                </td>
+                <td style="background: #AEF1AE">
+                    this.##(f)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    59
+                </td>
+                <td>
+                    280
+                </td>
+                <td>
+                    1238
+                    -
+                    1257
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoFragmentUri.##
+                </td>
+                <td style="background: #AEF1AE">
+                    this.##(Fragment.apply(f))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    59
+                </td>
+                <td>
+                    279
+                </td>
+                <td>
+                    1246
+                    -
+                    1257
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Fragment.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    Fragment.apply(f)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    66
+                </td>
+                <td>
+                    282
+                </td>
+                <td>
+                    1446
+                    -
+                    1465
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoQueryFragmentUri.?
+                </td>
+                <td style="background: #AEF1AE">
+                    this.?(Query.apply(query))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    66
+                </td>
+                <td>
+                    281
+                </td>
+                <td>
+                    1453
+                    -
+                    1465
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Query.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    Query.apply(query)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    67
+                </td>
+                <td>
+                    283
+                </td>
+                <td>
+                    1494
+                    -
+                    1506
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoQueryFragmentUri.?
+                </td>
+                <td style="background: #AEF1AE">
+                    this.?(query)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    68
+                </td>
+                <td>
+                    285
+                </td>
+                <td>
+                    1536
+                    -
+                    1555
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoQueryFragmentUri.?
+                </td>
+                <td style="background: #AEF1AE">
+                    this.?(Query.apply(query))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    68
+                </td>
+                <td>
+                    284
+                </td>
+                <td>
+                    1543
+                    -
+                    1555
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Query.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    Query.apply(query)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    75
+                </td>
+                <td>
+                    286
+                </td>
+                <td>
+                    1668
+                    -
+                    1679
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.FragmentUri.theFragment
+                </td>
+                <td style="background: #AEF1AE">
+                    FragmentUri.this.theFragment
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    75
+                </td>
+                <td>
+                    287
+                </td>
+                <td>
+                    1663
+                    -
+                    1680
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Some.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Some.apply[com.agilogy.uri.Fragment](FragmentUri.this.theFragment)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    83
+                </td>
+                <td>
+                    289
+                </td>
+                <td>
+                    2029
+                    -
+                    2037
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Path./
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathUri.this.path./(s)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    83
+                </td>
+                <td>
+                    288
+                </td>
+                <td>
+                    2021
+                    -
+                    2027
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.NoAuthorityPathUri.scheme
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathUri.this.scheme
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    83
+                </td>
+                <td>
+                    290
+                </td>
+                <td>
+                    2002
+                    -
+                    2038
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoAuthorityPathUri.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathUri.apply(NoAuthorityPathUri.this.scheme, NoAuthorityPathUri.this.path./(s))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    84
+                </td>
+                <td>
+                    292
+                </td>
+                <td>
+                    2131
+                    -
+                    2148
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoAuthorityPathUri./
+                </td>
+                <td style="background: #AEF1AE">
+                    this./(Segment.apply(s))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    84
+                </td>
+                <td>
+                    291
+                </td>
+                <td>
+                    2138
+                    -
+                    2148
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Segment.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    Segment.apply(s)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    86
+                </td>
+                <td>
+                    295
+                </td>
+                <td>
+                    2200
+                    -
+                    2236
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoAuthorityPathQUri.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathQUri.apply(NoAuthorityPathUri.this.scheme, NoAuthorityPathUri.this.path, q)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    86
+                </td>
+                <td>
+                    294
+                </td>
+                <td>
+                    2228
+                    -
+                    2232
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.NoAuthorityPathUri.path
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathUri.this.path
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    86
+                </td>
+                <td>
+                    293
+                </td>
+                <td>
+                    2220
+                    -
+                    2226
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.NoAuthorityPathUri.scheme
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathUri.this.scheme
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    88
+                </td>
+                <td>
+                    298
+                </td>
+                <td>
+                    2292
+                    -
+                    2328
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoAuthorityPathFUri.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathFUri.apply(NoAuthorityPathUri.this.scheme, NoAuthorityPathUri.this.path, f)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    88
+                </td>
+                <td>
+                    297
+                </td>
+                <td>
+                    2320
+                    -
+                    2324
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.NoAuthorityPathUri.path
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathUri.this.path
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    88
+                </td>
+                <td>
+                    296
+                </td>
+                <td>
+                    2312
+                    -
+                    2318
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.NoAuthorityPathUri.scheme
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathUri.this.scheme
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    92
+                </td>
+                <td>
+                    299
+                </td>
+                <td>
+                    2410
+                    -
+                    2413
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoAuthorityPathUri.$anon.&lt;init&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    new $anon()
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    93
+                </td>
+                <td>
+                    300
+                </td>
+                <td>
+                    2526
+                    -
+                    2529
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoAuthorityPathUri.$anon.&lt;init&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    new $anon()
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    98
+                </td>
+                <td>
+                    301
+                </td>
+                <td>
+                    2867
+                    -
+                    2900
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    java.lang.String.startsWith
+                </td>
+                <td style="background: #AEF1AE">
+                    path.stringValue.startsWith(&quot;//&quot;)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    99
+                </td>
+                <td>
+                    304
+                </td>
+                <td>
+                    2910
+                    -
+                    2971
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    scala.util.Left.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.`package`.Left.apply[com.agilogy.uri.PathStartsWithDoubleSlashInNoAuhtorityUri,
+                    Nothing](PathStartsWithDoubleSlashInNoAuhtorityUri.apply(scheme, path))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    99
+                </td>
+                <td>
+                    303
+                </td>
+                <td>
+                    2910
+                    -
+                    2971
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Left.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.`package`.Left.apply[com.agilogy.uri.PathStartsWithDoubleSlashInNoAuhtorityUri,
+                    Nothing](PathStartsWithDoubleSlashInNoAuhtorityUri.apply(scheme, path))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    99
+                </td>
+                <td>
+                    302
+                </td>
+                <td>
+                    2915
+                    -
+                    2970
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.PathStartsWithDoubleSlashInNoAuhtorityUri.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    PathStartsWithDoubleSlashInNoAuhtorityUri.apply(scheme, path)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    102
+                </td>
+                <td>
+                    307
+                </td>
+                <td>
+                    3134
+                    -
+                    3180
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    scala.util.Right.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.`package`.Right.apply[Nothing, com.agilogy.uri.NoAuthorityPathUri]({
+                    final class $anon extends NoAuthorityPathUri {
+                    def &lt;init&gt;(): &lt;$anon: com.agilogy.uri.NoAuthorityPathUri&gt; = {
+                    $anon.super.&lt;init&gt;(scheme, path);
+                    ()
+                    };
+                    &lt;empty&gt;
+                    };
+                    new $anon()
+                    })
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    102
+                </td>
+                <td>
+                    306
+                </td>
+                <td>
+                    3134
+                    -
+                    3180
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Right.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.`package`.Right.apply[Nothing, com.agilogy.uri.NoAuthorityPathUri]({
+                    final class $anon extends NoAuthorityPathUri {
+                    def &lt;init&gt;(): &lt;$anon: com.agilogy.uri.NoAuthorityPathUri&gt; = {
+                    $anon.super.&lt;init&gt;(scheme, path);
+                    ()
+                    };
+                    &lt;empty&gt;
+                    };
+                    new $anon()
+                    })
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    102
+                </td>
+                <td>
+                    305
+                </td>
+                <td>
+                    3140
+                    -
+                    3143
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoAuthorityPathUri.$anon.&lt;init&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    new $anon()
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    110
+                </td>
+                <td>
+                    310
+                </td>
+                <td>
+                    3477
+                    -
+                    3485
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.NoAuthorityPathQUri.theQuery
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathQUri.this.theQuery
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    110
+                </td>
+                <td>
+                    309
+                </td>
+                <td>
+                    3471
+                    -
+                    3475
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.NoAuthorityPathQUri.path
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathQUri.this.path
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    110
+                </td>
+                <td>
+                    308
+                </td>
+                <td>
+                    3463
+                    -
+                    3469
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.NoAuthorityPathQUri.scheme
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathQUri.this.scheme
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    110
+                </td>
+                <td>
+                    311
+                </td>
+                <td>
+                    3442
+                    -
+                    3489
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoAuthorityPathQFUri.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathQFUri.apply(NoAuthorityPathQUri.this.scheme, NoAuthorityPathQUri.this.path,
+                    NoAuthorityPathQUri.this.theQuery, f)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    121
+                </td>
+                <td>
+                    313
+                </td>
+                <td>
+                    4082
+                    -
+                    4082
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.AuthorityPathUri.copy$default$1
+                </td>
+                <td style="background: #AEF1AE">
+                    this.copy$default$1
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    121
+                </td>
+                <td>
+                    312
+                </td>
+                <td>
+                    4094
+                    -
+                    4102
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Path./
+                </td>
+                <td style="background: #AEF1AE">
+                    AuthorityPathUri.this.path./(s)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    121
+                </td>
+                <td>
+                    315
+                </td>
+                <td>
+                    4077
+                    -
+                    4103
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.AuthorityPathUri.copy
+                </td>
+                <td style="background: #AEF1AE">
+                    this.copy(x$2, x$3, x$1)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    121
+                </td>
+                <td>
+                    314
+                </td>
+                <td>
+                    4082
+                    -
+                    4082
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.AuthorityPathUri.copy$default$2
+                </td>
+                <td style="background: #AEF1AE">
+                    this.copy$default$2
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    122
+                </td>
+                <td>
+                    316
+                </td>
+                <td>
+                    4150
+                    -
+                    4160
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Segment.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    Segment.apply(s)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    122
+                </td>
+                <td>
+                    317
+                </td>
+                <td>
+                    4143
+                    -
+                    4160
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.AuthorityPathUri./
+                </td>
+                <td style="background: #AEF1AE">
+                    this./(Segment.apply(s))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    124
+                </td>
+                <td>
+                    319
+                </td>
+                <td>
+                    4236
+                    -
+                    4248
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.AuthorityPathUri.theAuthority
+                </td>
+                <td style="background: #AEF1AE">
+                    AuthorityPathUri.this.theAuthority
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    124
+                </td>
+                <td>
+                    318
+                </td>
+                <td>
+                    4228
+                    -
+                    4234
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.AuthorityPathUri.scheme
+                </td>
+                <td style="background: #AEF1AE">
+                    AuthorityPathUri.this.scheme
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    124
+                </td>
+                <td>
+                    321
+                </td>
+                <td>
+                    4210
+                    -
+                    4258
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.AuthorityPathQUri.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    AuthorityPathQUri.apply(AuthorityPathUri.this.scheme, AuthorityPathUri.this.theAuthority,
+                    AuthorityPathUri.this.path, q)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    124
+                </td>
+                <td>
+                    320
+                </td>
+                <td>
+                    4250
+                    -
+                    4254
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.AuthorityPathUri.path
+                </td>
+                <td style="background: #AEF1AE">
+                    AuthorityPathUri.this.path
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    126
+                </td>
+                <td>
+                    322
+                </td>
+                <td>
+                    4330
+                    -
+                    4336
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.AuthorityPathUri.scheme
+                </td>
+                <td style="background: #AEF1AE">
+                    AuthorityPathUri.this.scheme
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    126
+                </td>
+                <td>
+                    325
+                </td>
+                <td>
+                    4312
+                    -
+                    4360
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.AuthorityPathFUri.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    AuthorityPathFUri.apply(AuthorityPathUri.this.scheme, AuthorityPathUri.this.theAuthority,
+                    AuthorityPathUri.this.path, f)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    126
+                </td>
+                <td>
+                    324
+                </td>
+                <td>
+                    4352
+                    -
+                    4356
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.AuthorityPathUri.path
+                </td>
+                <td style="background: #AEF1AE">
+                    AuthorityPathUri.this.path
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    126
+                </td>
+                <td>
+                    323
+                </td>
+                <td>
+                    4338
+                    -
+                    4350
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.AuthorityPathUri.theAuthority
+                </td>
+                <td style="background: #AEF1AE">
+                    AuthorityPathUri.this.theAuthority
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    131
+                </td>
+                <td>
+                    328
+                </td>
+                <td>
+                    4687
+                    -
+                    4691
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.AuthorityPathQUri.path
+                </td>
+                <td style="background: #AEF1AE">
+                    AuthorityPathQUri.this.path
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    131
+                </td>
+                <td>
+                    327
+                </td>
+                <td>
+                    4673
+                    -
+                    4685
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.AuthorityPathQUri.theAuthority
+                </td>
+                <td style="background: #AEF1AE">
+                    AuthorityPathQUri.this.theAuthority
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    131
+                </td>
+                <td>
+                    330
+                </td>
+                <td>
+                    4646
+                    -
+                    4705
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.AuthorityPathQFUri.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    AuthorityPathQFUri.apply(AuthorityPathQUri.this.scheme, AuthorityPathQUri.this.theAuthority,
+                    AuthorityPathQUri.this.path, AuthorityPathQUri.this.theQuery, f)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    131
+                </td>
+                <td>
+                    326
+                </td>
+                <td>
+                    4665
+                    -
+                    4671
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.AuthorityPathQUri.scheme
+                </td>
+                <td style="background: #AEF1AE">
+                    AuthorityPathQUri.this.scheme
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    131
+                </td>
+                <td>
+                    329
+                </td>
+                <td>
+                    4693
+                    -
+                    4701
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.AuthorityPathQUri.theQuery
+                </td>
+                <td style="background: #AEF1AE">
+                    AuthorityPathQUri.this.theQuery
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    140
+                </td>
+                <td>
+                    331
+                </td>
+                <td>
+                    5144
+                    -
+                    5165
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoAuthorityPathUri.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathUri.apply(s)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    141
+                </td>
+                <td>
+                    332
+                </td>
+                <td>
+                    5271
+                    -
+                    5295
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoAuthorityPathUri.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathUri.apply(s, p)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    143
+                </td>
+                <td>
+                    334
+                </td>
+                <td>
+                    5362
+                    -
+                    5404
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.AuthorityPathUri.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    AuthorityPathUri.apply(s, authority, Path.empty)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    143
+                </td>
+                <td>
+                    333
+                </td>
+                <td>
+                    5393
+                    -
+                    5403
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.Path.empty
+                </td>
+                <td style="background: #AEF1AE">
+                    Path.empty
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    144
+                </td>
+                <td>
+                    337
+                </td>
+                <td>
+                    5467
+                    -
+                    5501
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Uri.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    Uri.apply(scheme, Authority.apply(Host.apply(host)))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    144
+                </td>
+                <td>
+                    336
+                </td>
+                <td>
+                    5479
+                    -
+                    5500
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Authority.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    Authority.apply(Host.apply(host))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    144
+                </td>
+                <td>
+                    335
+                </td>
+                <td>
+                    5489
+                    -
+                    5499
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Host.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    Host.apply(host)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    145
+                </td>
+                <td>
+                    340
+                </td>
+                <td>
+                    5576
+                    -
+                    5616
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Uri.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    Uri.apply(scheme, Authority.apply(Host.apply(host), port))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    145
+                </td>
+                <td>
+                    339
+                </td>
+                <td>
+                    5588
+                    -
+                    5615
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Authority.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    Authority.apply(Host.apply(host), port)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    145
+                </td>
+                <td>
+                    338
+                </td>
+                <td>
+                    5598
+                    -
+                    5608
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Host.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    Host.apply(host)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    146
+                </td>
+                <td>
+                    343
+                </td>
+                <td>
+                    5732
+                    -
+                    5769
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Uri.apply
+                </td>
+                <td style="background: #F0ADAD">
+                    Uri.apply(scheme, Authority.apply(Host.apply(host), p))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    146
+                </td>
+                <td>
+                    342
+                </td>
+                <td>
+                    5744
+                    -
+                    5768
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Authority.apply
+                </td>
+                <td style="background: #F0ADAD">
+                    Authority.apply(Host.apply(host), p)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    146
+                </td>
+                <td>
+                    341
+                </td>
+                <td>
+                    5754
+                    -
+                    5764
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Host.apply
+                </td>
+                <td style="background: #F0ADAD">
+                    Host.apply(host)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    146
+                </td>
+                <td>
+                    344
+                </td>
+                <td>
+                    5712
+                    -
+                    5770
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Either.map
+                </td>
+                <td style="background: #F0ADAD">
+                    Port.apply(port).map[com.agilogy.uri.AuthorityPathUri](((p: com.agilogy.uri.Port) =&gt;
+                    Uri.apply(scheme, Authority.apply(Host.apply(host), p))))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    150
+                </td>
+                <td>
+                    345
+                </td>
+                <td>
+                    6021
+                    -
+                    6059
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.AuthorityPathUri.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    AuthorityPathUri.apply(scheme, authority, p)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    151
+                </td>
+                <td>
+                    346
+                </td>
+                <td>
+                    6109
+                    -
+                    6151
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.AuthorityPathQUri.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    AuthorityPathQUri.apply(scheme, authority, p, q)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    152
+                </td>
+                <td>
+                    347
+                </td>
+                <td>
+                    6201
+                    -
+                    6243
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.AuthorityPathFUri.apply
+                </td>
+                <td style="background: #F0ADAD">
+                    AuthorityPathFUri.apply(scheme, authority, p, f)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    153
+                </td>
+                <td>
+                    348
+                </td>
+                <td>
+                    6293
+                    -
+                    6339
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.AuthorityPathQFUri.apply
+                </td>
+                <td style="background: #F0ADAD">
+                    AuthorityPathQFUri.apply(scheme, authority, p, q, f)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    158
+                </td>
+                <td>
+                    349
+                </td>
+                <td>
+                    6430
+                    -
+                    6443
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Path.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    Path.apply(segment)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    159
+                </td>
+                <td>
+                    350
+                </td>
+                <td>
+                    6482
+                    -
+                    6508
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoAuthorityPathUri.apply
+                </td>
+                <td style="background: #F0ADAD">
+                    NoAuthorityPathUri.apply(scheme)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    160
+                </td>
+                <td>
+                    351
+                </td>
+                <td>
+                    6539
+                    -
+                    6568
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoAuthorityPathUri.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathUri.apply(scheme, p)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    166
+                </td>
+                <td>
+                    352
+                </td>
+                <td>
+                    6833
+                    -
+                    6865
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoAuthorityPathUri.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathUri.apply(scheme, path)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    167
+                </td>
+                <td>
+                    354
+                </td>
+                <td>
+                    6902
+                    -
+                    6945
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Right.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.`package`.Right.apply[Nothing,
+                    com.agilogy.uri.NoAuthorityPathQUri](NoAuthorityPathQUri.apply(scheme, path, q))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    167
+                </td>
+                <td>
+                    353
+                </td>
+                <td>
+                    6908
+                    -
+                    6944
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoAuthorityPathQUri.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    NoAuthorityPathQUri.apply(scheme, path, q)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    168
+                </td>
+                <td>
+                    355
+                </td>
+                <td>
+                    6988
+                    -
+                    7024
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoAuthorityPathFUri.apply
+                </td>
+                <td style="background: #F0ADAD">
+                    NoAuthorityPathFUri.apply(scheme, path, f)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    168
+                </td>
+                <td>
+                    356
+                </td>
+                <td>
+                    6982
+                    -
+                    7025
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Right.apply
+                </td>
+                <td style="background: #F0ADAD">
+                    scala.`package`.Right.apply[Nothing,
+                    com.agilogy.uri.NoAuthorityPathFUri](NoAuthorityPathFUri.apply(scheme, path, f))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    169
+                </td>
+                <td>
+                    358
+                </td>
+                <td>
+                    7062
+                    -
+                    7109
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Right.apply
+                </td>
+                <td style="background: #F0ADAD">
+                    scala.`package`.Right.apply[Nothing,
+                    com.agilogy.uri.NoAuthorityPathQFUri](NoAuthorityPathQFUri.apply(scheme, path, q, f))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    169
+                </td>
+                <td>
+                    357
+                </td>
+                <td>
+                    7068
+                    -
+                    7108
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.NoAuthorityPathQFUri.apply
+                </td>
+                <td style="background: #F0ADAD">
+                    NoAuthorityPathQFUri.apply(scheme, path, q, f)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    175
+                </td>
+                <td>
+                    360
+                </td>
+                <td>
+                    7351
+                    -
+                    7397
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Left.apply
+                </td>
+                <td style="background: #F0ADAD">
+                    scala.`package`.Left.apply[com.agilogy.uri.RootlessPathInAuthorityUri,
+                    Nothing](RootlessPathInAuthorityUri.apply(scheme, a, p))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    175
+                </td>
+                <td>
+                    359
+                </td>
+                <td>
+                    7356
+                    -
+                    7396
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.RootlessPathInAuthorityUri.apply
+                </td>
+                <td style="background: #F0ADAD">
+                    RootlessPathInAuthorityUri.apply(scheme, a, p)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    176
+                </td>
+                <td>
+                    361
+                </td>
+                <td>
+                    7445
+                    -
+                    7479
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Uri.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    Uri.apply(scheme, a, p, query, fragment)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    176
+                </td>
+                <td>
+                    362
+                </td>
+                <td>
+                    7439
+                    -
+                    7480
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Right.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.`package`.Right.apply[Nothing, com.agilogy.uri.AuthorityUri](Uri.apply(scheme, a, p, query,
+                    fragment))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    177
+                </td>
+                <td>
+                    363
+                </td>
+                <td>
+                    7522
+                    -
+                    7568
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Uri.noAuthority
+                </td>
+                <td style="background: #AEF1AE">
+                    Uri.noAuthority(scheme, path, query, fragment)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    182
+                </td>
+                <td>
+                    364
+                </td>
+                <td>
+                    7720
+                    -
+                    7780
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    &quot;^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?&quot;
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    182
+                </td>
+                <td>
+                    365
+                </td>
+                <td>
+                    7720
+                    -
+                    7782
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    scala.collection.immutable.StringLike.r
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Predef.augmentString(&quot;^(([^:/?#]+):)?(//([^/?#]*))?([^?#]*)(\\?([^#]*))?(#(.*))?&quot;).r
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    186
+                </td>
+                <td>
+                    366
+                </td>
+                <td>
+                    7856
+                    -
+                    7864
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Uri.parse
+                </td>
+                <td style="background: #AEF1AE">
+                    Uri.this.parse(s)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    187
+                </td>
+                <td>
+                    367
+                </td>
+                <td>
+                    7902
+                    -
+                    7922
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.UriParseException.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    UriParseException.apply(e)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    187
+                </td>
+                <td>
+                    368
+                </td>
+                <td>
+                    7894
+                    -
+                    7923
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Failure.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.util.Failure.apply[Nothing](UriParseException.apply(e))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    188
+                </td>
+                <td>
+                    369
+                </td>
+                <td>
+                    7945
+                    -
+                    7955
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Success.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.util.Success.apply[com.agilogy.uri.Uri](r)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    193
+                </td>
+                <td>
+                    370
+                </td>
+                <td>
+                    8102
+                    -
+                    8117
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    java.lang.String.toCharArray
+                </td>
+                <td style="background: #AEF1AE">
+                    uri.toCharArray()
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    194
+                </td>
+                <td>
+                    371
+                </td>
+                <td>
+                    8135
+                    -
+                    8147
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    scala.Array.length
+                </td>
+                <td style="background: #AEF1AE">
+                    chars.length
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    195
+                </td>
+                <td>
+                    372
+                </td>
+                <td>
+                    8160
+                    -
+                    8161
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    0
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    198
+                </td>
+                <td>
+                    373
+                </td>
+                <td>
+                    8226
+                    -
+                    8237
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Int.&gt;=
+                </td>
+                <td style="background: #AEF1AE">
+                    i.&gt;=(length)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    198
+                </td>
+                <td>
+                    375
+                </td>
+                <td>
+                    8239
+                    -
+                    8241
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #F0ADAD">
+                    &quot;&quot;
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    198
+                </td>
+                <td>
+                    374
+                </td>
+                <td>
+                    8239
+                    -
+                    8241
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #F0ADAD">
+                    &quot;&quot;
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    199
+                </td>
+                <td>
+                    388
+                </td>
+                <td>
+                    8253
+                    -
+                    8449
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    {
+                    val res: StringBuilder = scala.`package`.StringBuilder.newBuilder;
+                    while$1(){
+                    if (i.&lt;(length).&amp;&amp;(delimiters.contains(chars.apply(i)).unary_!))
+                    {
+                    {
+                    res.append(chars.apply(i));
+                    i = i.+(1)
+                    };
+                    while$1()
+                    }
+                    else
+                    ()
+                    };
+                    res.toString()
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    200
+                </td>
+                <td>
+                    376
+                </td>
+                <td>
+                    8273
+                    -
+                    8297
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    scala.collection.mutable.StringBuilder.newBuilder
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.`package`.StringBuilder.newBuilder
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    201
+                </td>
+                <td>
+                    385
+                </td>
+                <td>
+                    8306
+                    -
+                    8306
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    ()
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    201
+                </td>
+                <td>
+                    379
+                </td>
+                <td>
+                    8313
+                    -
+                    8357
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Boolean.&amp;&amp;
+                </td>
+                <td style="background: #AEF1AE">
+                    i.&lt;(length).&amp;&amp;(delimiters.contains(chars.apply(i)).unary_!)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    201
+                </td>
+                <td>
+                    378
+                </td>
+                <td>
+                    8327
+                    -
+                    8357
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    scala.Boolean.unary_!
+                </td>
+                <td style="background: #AEF1AE">
+                    delimiters.contains(chars.apply(i)).unary_!
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    201
+                </td>
+                <td>
+                    384
+                </td>
+                <td>
+                    8359
+                    -
+                    8418
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    {
+                    {
+                    res.append(chars.apply(i));
+                    i = i.+(1)
+                    };
+                    while$1()
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    201
+                </td>
+                <td>
+                    383
+                </td>
+                <td>
+                    8359
+                    -
+                    8359
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Uri.while$1
+                </td>
+                <td style="background: #AEF1AE">
+                    while$1()
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    201
+                </td>
+                <td>
+                    386
+                </td>
+                <td>
+                    8306
+                    -
+                    8306
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    ()
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    201
+                </td>
+                <td>
+                    377
+                </td>
+                <td>
+                    8348
+                    -
+                    8356
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Array.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    chars.apply(i)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    202
+                </td>
+                <td>
+                    381
+                </td>
+                <td>
+                    8371
+                    -
+                    8391
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.mutable.StringBuilder.append
+                </td>
+                <td style="background: #AEF1AE">
+                    res.append(chars.apply(i))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    202
+                </td>
+                <td>
+                    380
+                </td>
+                <td>
+                    8382
+                    -
+                    8390
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Array.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    chars.apply(i)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    203
+                </td>
+                <td>
+                    382
+                </td>
+                <td>
+                    8402
+                    -
+                    8408
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Int.+
+                </td>
+                <td style="background: #AEF1AE">
+                    i.+(1)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    205
+                </td>
+                <td>
+                    387
+                </td>
+                <td>
+                    8427
+                    -
+                    8441
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.mutable.StringBuilder.toString
+                </td>
+                <td style="background: #AEF1AE">
+                    res.toString()
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    210
+                </td>
+                <td>
+                    391
+                </td>
+                <td>
+                    8507
+                    -
+                    8509
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #F0ADAD">
+                    &quot;&quot;
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    210
+                </td>
+                <td>
+                    390
+                </td>
+                <td>
+                    8507
+                    -
+                    8509
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #F0ADAD">
+                    &quot;&quot;
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    210
+                </td>
+                <td>
+                    389
+                </td>
+                <td>
+                    8494
+                    -
+                    8505
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Int.&gt;=
+                </td>
+                <td style="background: #F0ADAD">
+                    i.&gt;=(length)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    211
+                </td>
+                <td>
+                    401
+                </td>
+                <td>
+                    8521
+                    -
+                    8676
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #F0ADAD">
+                    {
+                    val res: StringBuilder = scala.`package`.StringBuilder.newBuilder;
+                    while$2(){
+                    if (i.&lt;(length))
+                    {
+                    {
+                    res.append(i);
+                    i = i.+(1)
+                    };
+                    while$2()
+                    }
+                    else
+                    ()
+                    };
+                    res.toString()
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    212
+                </td>
+                <td>
+                    392
+                </td>
+                <td>
+                    8541
+                    -
+                    8565
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    scala.collection.mutable.StringBuilder.newBuilder
+                </td>
+                <td style="background: #F0ADAD">
+                    scala.`package`.StringBuilder.newBuilder
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    213
+                </td>
+                <td>
+                    397
+                </td>
+                <td>
+                    8593
+                    -
+                    8645
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #F0ADAD">
+                    {
+                    {
+                    res.append(i);
+                    i = i.+(1)
+                    };
+                    while$2()
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    213
+                </td>
+                <td>
+                    396
+                </td>
+                <td>
+                    8593
+                    -
+                    8593
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Uri.while$2
+                </td>
+                <td style="background: #F0ADAD">
+                    while$2()
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    213
+                </td>
+                <td>
+                    399
+                </td>
+                <td>
+                    8574
+                    -
+                    8574
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #F0ADAD">
+                    ()
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    213
+                </td>
+                <td>
+                    393
+                </td>
+                <td>
+                    8581
+                    -
+                    8591
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Int.&lt;
+                </td>
+                <td style="background: #F0ADAD">
+                    i.&lt;(length)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    213
+                </td>
+                <td>
+                    398
+                </td>
+                <td>
+                    8574
+                    -
+                    8574
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #F0ADAD">
+                    ()
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    214
+                </td>
+                <td>
+                    394
+                </td>
+                <td>
+                    8605
+                    -
+                    8618
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.mutable.StringBuilder.append
+                </td>
+                <td style="background: #F0ADAD">
+                    res.append(i)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    215
+                </td>
+                <td>
+                    395
+                </td>
+                <td>
+                    8629
+                    -
+                    8635
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Int.+
+                </td>
+                <td style="background: #F0ADAD">
+                    i.+(1)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    217
+                </td>
+                <td>
+                    400
+                </td>
+                <td>
+                    8654
+                    -
+                    8668
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.mutable.StringBuilder.toString
+                </td>
+                <td style="background: #F0ADAD">
+                    res.toString()
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    221
+                </td>
+                <td>
+                    403
+                </td>
+                <td>
+                    8722
+                    -
+                    8756
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Uri.readUntil
+                </td>
+                <td style="background: #AEF1AE">
+                    readUntil(scala.Predef.Set.apply[Char](':', '/', '?', '#'))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    221
+                </td>
+                <td>
+                    402
+                </td>
+                <td>
+                    8732
+                    -
+                    8755
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.generic.GenericCompanion.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Predef.Set.apply[Char](':', '/', '?', '#')
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    221
+                </td>
+                <td>
+                    404
+                </td>
+                <td>
+                    8717
+                    -
+                    8757
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Some.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Some.apply[String](readUntil(scala.Predef.Set.apply[Char](':', '/', '?', '#')))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    222
+                </td>
+                <td>
+                    406
+                </td>
+                <td>
+                    8766
+                    -
+                    8795
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Boolean.&amp;&amp;
+                </td>
+                <td style="background: #AEF1AE">
+                    i.&lt;(length).&amp;&amp;(chars.apply(i).==(':'))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    222
+                </td>
+                <td>
+                    405
+                </td>
+                <td>
+                    8780
+                    -
+                    8795
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Char.==
+                </td>
+                <td style="background: #AEF1AE">
+                    chars.apply(i).==(':')
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    223
+                </td>
+                <td>
+                    408
+                </td>
+                <td>
+                    8805
+                    -
+                    8811
+                </td>
+                <td>
+                    Assign
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    i = i.+(1)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    223
+                </td>
+                <td>
+                    407
+                </td>
+                <td>
+                    8805
+                    -
+                    8811
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Int.+
+                </td>
+                <td style="background: #AEF1AE">
+                    i.+(1)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    224
+                </td>
+                <td>
+                    411
+                </td>
+                <td>
+                    8823
+                    -
+                    8862
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    {
+                    scheme = scala.None;
+                    i = 0
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    225
+                </td>
+                <td>
+                    409
+                </td>
+                <td>
+                    8840
+                    -
+                    8844
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    scala.None
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.None
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    226
+                </td>
+                <td>
+                    410
+                </td>
+                <td>
+                    8855
+                    -
+                    8856
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    0
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    229
+                </td>
+                <td>
+                    415
+                </td>
+                <td>
+                    8895
+                    -
+                    8951
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Boolean.&amp;&amp;
+                </td>
+                <td style="background: #AEF1AE">
+                    i.+(1).&lt;(length).&amp;&amp;(chars.apply(i).==('/')).&amp;&amp;(chars.apply(i.+(1)).==('/'))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    229
+                </td>
+                <td>
+                    412
+                </td>
+                <td>
+                    8899
+                    -
+                    8900
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    1
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    229
+                </td>
+                <td>
+                    420
+                </td>
+                <td>
+                    8953
+                    -
+                    9024
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    {
+                    i = i.+(2);
+                    scala.Some.apply[String](readUntil(scala.Predef.Set.apply[Char]('/', '?', '#')))
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    229
+                </td>
+                <td>
+                    414
+                </td>
+                <td>
+                    8932
+                    -
+                    8951
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Char.==
+                </td>
+                <td style="background: #AEF1AE">
+                    chars.apply(i.+(1)).==('/')
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    229
+                </td>
+                <td>
+                    413
+                </td>
+                <td>
+                    8913
+                    -
+                    8928
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Char.==
+                </td>
+                <td style="background: #AEF1AE">
+                    chars.apply(i).==('/')
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    230
+                </td>
+                <td>
+                    416
+                </td>
+                <td>
+                    8967
+                    -
+                    8972
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Int.+
+                </td>
+                <td style="background: #AEF1AE">
+                    i.+(2)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    231
+                </td>
+                <td>
+                    418
+                </td>
+                <td>
+                    8986
+                    -
+                    9015
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Uri.readUntil
+                </td>
+                <td style="background: #AEF1AE">
+                    readUntil(scala.Predef.Set.apply[Char]('/', '?', '#'))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    231
+                </td>
+                <td>
+                    417
+                </td>
+                <td>
+                    8996
+                    -
+                    9014
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.generic.GenericCompanion.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Predef.Set.apply[Char]('/', '?', '#')
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    231
+                </td>
+                <td>
+                    419
+                </td>
+                <td>
+                    8981
+                    -
+                    9016
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Some.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Some.apply[String](readUntil(scala.Predef.Set.apply[Char]('/', '?', '#')))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    233
+                </td>
+                <td>
+                    421
+                </td>
+                <td>
+                    9040
+                    -
+                    9044
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    scala.None
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.None
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    233
+                </td>
+                <td>
+                    422
+                </td>
+                <td>
+                    9040
+                    -
+                    9044
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    scala.None
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.None
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    236
+                </td>
+                <td>
+                    424
+                </td>
+                <td>
+                    9102
+                    -
+                    9105
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    '#'
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    236
+                </td>
+                <td>
+                    427
+                </td>
+                <td>
+                    9078
+                    -
+                    9125
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Boolean.&amp;&amp;
+                </td>
+                <td style="background: #AEF1AE">
+                    i.&lt;(length).&amp;&amp;(scala.Predef.Set.apply[Char]('?', '#').contains(chars.apply(i)).unary_!)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    236
+                </td>
+                <td>
+                    423
+                </td>
+                <td>
+                    9097
+                    -
+                    9100
+                </td>
+                <td>
+                    Literal
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    '?'
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    236
+                </td>
+                <td>
+                    426
+                </td>
+                <td>
+                    9092
+                    -
+                    9125
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    scala.Boolean.unary_!
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Predef.Set.apply[Char]('?', '#').contains(chars.apply(i)).unary_!
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    236
+                </td>
+                <td>
+                    425
+                </td>
+                <td>
+                    9116
+                    -
+                    9124
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Array.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    chars.apply(i)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    237
+                </td>
+                <td>
+                    430
+                </td>
+                <td>
+                    9135
+                    -
+                    9165
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Some.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Some.apply[String](readUntil(scala.Predef.Set.apply[Char]('?', '#')))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    237
+                </td>
+                <td>
+                    429
+                </td>
+                <td>
+                    9140
+                    -
+                    9164
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Uri.readUntil
+                </td>
+                <td style="background: #AEF1AE">
+                    readUntil(scala.Predef.Set.apply[Char]('?', '#'))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    237
+                </td>
+                <td>
+                    428
+                </td>
+                <td>
+                    9150
+                    -
+                    9163
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.generic.GenericCompanion.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Predef.Set.apply[Char]('?', '#')
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    237
+                </td>
+                <td>
+                    431
+                </td>
+                <td>
+                    9135
+                    -
+                    9165
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    scala.Some.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Some.apply[String](readUntil(scala.Predef.Set.apply[Char]('?', '#')))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    239
+                </td>
+                <td>
+                    433
+                </td>
+                <td>
+                    9185
+                    -
+                    9189
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    scala.None
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.None
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    239
+                </td>
+                <td>
+                    432
+                </td>
+                <td>
+                    9185
+                    -
+                    9189
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    scala.None
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.None
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    242
+                </td>
+                <td>
+                    435
+                </td>
+                <td>
+                    9217
+                    -
+                    9246
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Boolean.&amp;&amp;
+                </td>
+                <td style="background: #AEF1AE">
+                    i.&lt;(length).&amp;&amp;(chars.apply(i).==('?'))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    242
+                </td>
+                <td>
+                    440
+                </td>
+                <td>
+                    9248
+                    -
+                    9300
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    {
+                    i = i.+(1);
+                    scala.Some.apply[String](readUntil(scala.Predef.Set.apply[Char]('#')))
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    242
+                </td>
+                <td>
+                    434
+                </td>
+                <td>
+                    9231
+                    -
+                    9246
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Char.==
+                </td>
+                <td style="background: #AEF1AE">
+                    chars.apply(i).==('?')
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    243
+                </td>
+                <td>
+                    436
+                </td>
+                <td>
+                    9256
+                    -
+                    9262
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Int.+
+                </td>
+                <td style="background: #AEF1AE">
+                    i.+(1)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    244
+                </td>
+                <td>
+                    439
+                </td>
+                <td>
+                    9269
+                    -
+                    9294
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Some.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Some.apply[String](readUntil(scala.Predef.Set.apply[Char]('#')))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    244
+                </td>
+                <td>
+                    438
+                </td>
+                <td>
+                    9274
+                    -
+                    9293
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Uri.readUntil
+                </td>
+                <td style="background: #AEF1AE">
+                    readUntil(scala.Predef.Set.apply[Char]('#'))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    244
+                </td>
+                <td>
+                    437
+                </td>
+                <td>
+                    9284
+                    -
+                    9292
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.collection.generic.GenericCompanion.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Predef.Set.apply[Char]('#')
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    246
+                </td>
+                <td>
+                    442
+                </td>
+                <td>
+                    9314
+                    -
+                    9318
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    scala.None
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.None
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    246
+                </td>
+                <td>
+                    441
+                </td>
+                <td>
+                    9314
+                    -
+                    9318
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    scala.None
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.None
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    249
+                </td>
+                <td>
+                    448
+                </td>
+                <td>
+                    9380
+                    -
+                    9419
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #F0ADAD">
+                    {
+                    i = i.+(1);
+                    scala.Some.apply[String](read())
+                    }
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    249
+                </td>
+                <td>
+                    444
+                </td>
+                <td>
+                    9349
+                    -
+                    9378
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Boolean.&amp;&amp;
+                </td>
+                <td style="background: #AEF1AE">
+                    i.&lt;(length).&amp;&amp;(chars.apply(i).==('#'))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    249
+                </td>
+                <td>
+                    443
+                </td>
+                <td>
+                    9363
+                    -
+                    9378
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Char.==
+                </td>
+                <td style="background: #F0ADAD">
+                    chars.apply(i).==('#')
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    250
+                </td>
+                <td>
+                    445
+                </td>
+                <td>
+                    9388
+                    -
+                    9394
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Int.+
+                </td>
+                <td style="background: #F0ADAD">
+                    i.+(1)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    251
+                </td>
+                <td>
+                    447
+                </td>
+                <td>
+                    9401
+                    -
+                    9413
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Some.apply
+                </td>
+                <td style="background: #F0ADAD">
+                    scala.Some.apply[String](read())
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    251
+                </td>
+                <td>
+                    446
+                </td>
+                <td>
+                    9406
+                    -
+                    9412
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Uri.read
+                </td>
+                <td style="background: #F0ADAD">
+                    read()
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    253
+                </td>
+                <td>
+                    450
+                </td>
+                <td>
+                    9433
+                    -
+                    9437
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    scala.None
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.None
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    253
+                </td>
+                <td>
+                    449
+                </td>
+                <td>
+                    9433
+                    -
+                    9437
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    scala.None
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.None
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    256
+                </td>
+                <td>
+                    451
+                </td>
+                <td>
+                    9449
+                    -
+                    9491
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Tuple5.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Tuple5.apply[Option[String], Option[String], Option[String], Option[String],
+                    Option[String]](scheme, authority, path, query, fragment)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    261
+                </td>
+                <td>
+                    452
+                </td>
+                <td>
+                    9561
+                    -
+                    9578
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Uri.matchParts
+                </td>
+                <td style="background: #AEF1AE">
+                    Uri.this.matchParts(value)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    263
+                </td>
+                <td>
+                    454
+                </td>
+                <td>
+                    9625
+                    -
+                    9685
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Predef.println
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.Predef.println(scala.StringContext.apply(&quot;s = \'&quot;, &quot;\', a = \'&quot;, &quot;\',
+                    p = \'&quot;, &quot;\', q = \'&quot;, &quot;\', f = \'&quot;, &quot;\'&quot;).s(s, a, p, q, f))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    263
+                </td>
+                <td>
+                    453
+                </td>
+                <td>
+                    9633
+                    -
+                    9684
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.StringContext.s
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.StringContext.apply(&quot;s = \'&quot;, &quot;\', a = \'&quot;, &quot;\', p = \'&quot;, &quot;\',
+                    q = \'&quot;, &quot;\', f = \'&quot;, &quot;\'&quot;).s(s, a, p, q, f)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    264
+                </td>
+                <td>
+                    457
+                </td>
+                <td>
+                    9736
+                    -
+                    9790
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Either.flatMap
+                </td>
+                <td style="background: #AEF1AE">
+                    validation.Validation.notNull[com.agilogy.uri.MissingScheme, String](MissingScheme.apply(value),
+                    s).flatMap[Product with Serializable with com.agilogy.uri.SchemeError, com.agilogy.uri.Scheme]({
+                    ((v: String) =&gt; Scheme.apply(v))
+                    })
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    264
+                </td>
+                <td>
+                    456
+                </td>
+                <td>
+                    9777
+                    -
+                    9789
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Scheme.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    Scheme.apply(v)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    264
+                </td>
+                <td>
+                    455
+                </td>
+                <td>
+                    9744
+                    -
+                    9764
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.MissingScheme.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    MissingScheme.apply(value)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    265
+                </td>
+                <td>
+                    460
+                </td>
+                <td>
+                    9863
+                    -
+                    9895
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    validation.Validation.sequence
+                </td>
+                <td style="background: #AEF1AE">
+                    validation.Validation.sequence[com.agilogy.uri.AuthorityParseError,
+                    com.agilogy.uri.Authority](a.map[Either[com.agilogy.uri.AuthorityParseError,com.agilogy.uri.Authority]]({
+                    ((s: String) =&gt; Authority.parse(s))
+                    }))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    265
+                </td>
+                <td>
+                    459
+                </td>
+                <td>
+                    9872
+                    -
+                    9894
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Option.map
+                </td>
+                <td style="background: #AEF1AE">
+                    a.map[Either[com.agilogy.uri.AuthorityParseError,com.agilogy.uri.Authority]]({
+                    ((s: String) =&gt; Authority.parse(s))
+                    })
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    265
+                </td>
+                <td>
+                    458
+                </td>
+                <td>
+                    9878
+                    -
+                    9893
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Authority.parse
+                </td>
+                <td style="background: #AEF1AE">
+                    Authority.parse(s)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    268
+                </td>
+                <td>
+                    462
+                </td>
+                <td>
+                    9994
+                    -
+                    10021
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Path.parse
+                </td>
+                <td style="background: #AEF1AE">
+                    Path.parse(p.getOrElse[String](&quot;&quot;))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    268
+                </td>
+                <td>
+                    461
+                </td>
+                <td>
+                    10005
+                    -
+                    10020
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Option.getOrElse
+                </td>
+                <td style="background: #AEF1AE">
+                    p.getOrElse[String](&quot;&quot;)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    269
+                </td>
+                <td>
+                    463
+                </td>
+                <td>
+                    10063
+                    -
+                    10080
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Encoder.decode
+                </td>
+                <td style="background: #AEF1AE">
+                    Encoder.decode(q)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    269
+                </td>
+                <td>
+                    465
+                </td>
+                <td>
+                    10046
+                    -
+                    10082
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Option.map
+                </td>
+                <td style="background: #AEF1AE">
+                    q.map[com.agilogy.uri.Query](((q: String) =&gt; Query.apply(Encoder.decode(q))))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    269
+                </td>
+                <td>
+                    464
+                </td>
+                <td>
+                    10057
+                    -
+                    10081
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Query.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    Query.apply(Encoder.decode(q))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    270
+                </td>
+                <td>
+                    468
+                </td>
+                <td>
+                    10110
+                    -
+                    10149
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.Option.map
+                </td>
+                <td style="background: #AEF1AE">
+                    f.map[com.agilogy.uri.Fragment](((f: String) =&gt; Fragment.apply(Encoder.decode(f))))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    270
+                </td>
+                <td>
+                    467
+                </td>
+                <td>
+                    10121
+                    -
+                    10148
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Fragment.apply
+                </td>
+                <td style="background: #F0ADAD">
+                    Fragment.apply(Encoder.decode(f))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    270
+                </td>
+                <td>
+                    466
+                </td>
+                <td>
+                    10130
+                    -
+                    10147
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Encoder.decode
+                </td>
+                <td style="background: #F0ADAD">
+                    Encoder.decode(f)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    272
+                </td>
+                <td>
+                    469
+                </td>
+                <td>
+                    10251
+                    -
+                    10296
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    scala.util.Either.RightProjection.get
+                </td>
+                <td style="background: #AEF1AE">
+                    Uri.of(s, a, path, query, fragment).right.get
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    272
+                </td>
+                <td>
+                    470
+                </td>
+                <td>
+                    10245
+                    -
+                    10297
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Right.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.`package`.Right.apply[Nothing, com.agilogy.uri.Uri](Uri.of(s, a, path, query,
+                    fragment).right.get)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    274
+                </td>
+                <td>
+                    472
+                </td>
+                <td>
+                    10371
+                    -
+                    10394
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    scala.util.Either.LeftProjection.toOption
+                </td>
+                <td style="background: #AEF1AE">
+                    authority.left.toOption
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    274
+                </td>
+                <td>
+                    474
+                </td>
+                <td>
+                    10330
+                    -
+                    10396
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Left.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.`package`.Left.apply[com.agilogy.uri.UriParseError,
+                    Nothing](UriParseError.apply(scheme.left.toOption, authority.left.toOption))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    274
+                </td>
+                <td>
+                    471
+                </td>
+                <td>
+                    10349
+                    -
+                    10369
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    scala.util.Either.LeftProjection.toOption
+                </td>
+                <td style="background: #AEF1AE">
+                    scheme.left.toOption
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    274
+                </td>
+                <td>
+                    473
+                </td>
+                <td>
+                    10335
+                    -
+                    10395
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.UriParseError.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    UriParseError.apply(scheme.left.toOption, authority.left.toOption)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    278
+                </td>
+                <td>
+                    475
+                </td>
+                <td>
+                    10520
+                    -
+                    10571
+                </td>
+                <td>
+                    Throw
+                </td>
+                <td>
+                    &lt;nosymbol&gt;
+                </td>
+                <td style="background: #F0ADAD">
+                    throw new java.lang.IllegalStateException(&quot;Unreachable code&quot;)
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,262 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title id="title">
+        com/agilogy/uri/Scheme.scala.html
+    </title>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/css/theme.default.min.css"
+          type="text/css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.tablesorter/2.20.1/js/jquery.tablesorter.min.js"></script>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/css/bootstrap.min.css"
+          type="text/css"/>
+    <script src="https://netdna.bootstrapcdn.com/bootstrap/3.0.3/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function() {$(".tablesorter").tablesorter();});
+
+    </script>
+    <style>
+          table.codegrid { font-family: monospace; font-size: 12px; width: auto!important; }table.statementlist { width: auto!important; font-size: 13px; } table.codegrid td { padding: 0!important; border: 0!important } table td.linenumber { width: 40px!important; } 
+
+    </style>
+</head>
+<body style="font-family: monospace;">
+<ul class="nav nav-tabs">
+    <li>
+        <a href="#codegrid" data-toggle="tab">Codegrid</a>
+    </li>
+    <li>
+        <a href="#statementlist" data-toggle="tab">Statement List</a>
+    </li>
+</ul>
+<div class="tab-content">
+    <div class="tab-pane active" id="codegrid">
+            <pre style='font-size: 12pt; font-family: courier;'>1 <span style=''>package com.agilogy.uri
+</span>2 <span style=''>
+</span>3 <span style=''>abstract case class Scheme private (stringValue: String) extends UriPart {
+</span>4 <span style=''>  override def asciiStringValue: String = </span><span
+                    style='background: #F0ADAD'>stringValue</span><span style=''>
+</span>5 <span style=''>}
+</span>6 <span style=''>
+</span>7 <span style=''>object Scheme {
+</span>8 <span style=''>
+</span>9 <span style=''>  def apply(v: String): Either[IllegalSchemeName, Scheme] = {
+</span>10 <span style=''>    if (</span><span style='background: #AEF1AE'>!Encoder.isValidScheme(v)</span><span
+                    style=''>) </span><span style='background: #AEF1AE'>Left(IllegalSchemeName(v))</span><span style=''>
+</span>11 <span style=''>    else </span><span
+                    style='background: #AEF1AE'>Right(new Scheme(v.toLowerCase) {})</span><span style=''>
+</span>12 <span style=''>  }
+</span>13 <span style=''>
+</span>14 <span style=''>}
+</span></pre>
+    </div>
+    <div class="tab-pane" id="statementlist">
+        <table cellspacing="0" cellpadding="0" class="table statementlist">
+            <tr>
+                <th>Line</th>
+                <th>Stmt Id</th>
+                <th>Pos</th>
+                <th>Tree</th>
+                <th>Symbol</th>
+                <th>Code</th>
+            </tr>
+            <tr>
+                <td>
+                    4
+                </td>
+                <td>
+                    248
+                </td>
+                <td>
+                    142
+                    -
+                    153
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    com.agilogy.uri.Scheme.stringValue
+                </td>
+                <td style="background: #F0ADAD">
+                    Scheme.this.stringValue
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    10
+                </td>
+                <td>
+                    250
+                </td>
+                <td>
+                    276
+                    -
+                    296
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.IllegalSchemeName.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    IllegalSchemeName.apply(v)
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    10
+                </td>
+                <td>
+                    249
+                </td>
+                <td>
+                    244
+                    -
+                    269
+                </td>
+                <td>
+                    Select
+                </td>
+                <td>
+                    scala.Boolean.unary_!
+                </td>
+                <td style="background: #AEF1AE">
+                    Encoder.isValidScheme(v).unary_!
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    10
+                </td>
+                <td>
+                    252
+                </td>
+                <td>
+                    271
+                    -
+                    297
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    scala.util.Left.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.`package`.Left.apply[com.agilogy.uri.IllegalSchemeName, Nothing](IllegalSchemeName.apply(v))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    10
+                </td>
+                <td>
+                    251
+                </td>
+                <td>
+                    271
+                    -
+                    297
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Left.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.`package`.Left.apply[com.agilogy.uri.IllegalSchemeName, Nothing](IllegalSchemeName.apply(v))
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    11
+                </td>
+                <td>
+                    254
+                </td>
+                <td>
+                    307
+                    -
+                    342
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    scala.util.Right.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.`package`.Right.apply[Nothing, com.agilogy.uri.Scheme]({
+                    final class $anon extends Scheme {
+                    def &lt;init&gt;(): &lt;$anon: com.agilogy.uri.Scheme&gt; = {
+                    $anon.super.&lt;init&gt;(v.toLowerCase());
+                    ()
+                    };
+                    &lt;empty&gt;
+                    };
+                    new $anon()
+                    })
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    11
+                </td>
+                <td>
+                    253
+                </td>
+                <td>
+                    313
+                    -
+                    316
+                </td>
+                <td>
+                    Apply
+                </td>
+                <td>
+                    com.agilogy.uri.Scheme.$anon.&lt;init&gt;
+                </td>
+                <td style="background: #AEF1AE">
+                    new $anon()
+                </td>
+            </tr>
+            <tr>
+                <td>
+                    11
+                </td>
+                <td>
+                    255
+                </td>
+                <td>
+                    307
+                    -
+                    342
+                </td>
+                <td>
+                    Block
+                </td>
+                <td>
+                    scala.util.Right.apply
+                </td>
+                <td style="background: #AEF1AE">
+                    scala.`package`.Right.apply[Nothing, com.agilogy.uri.Scheme]({
+                    final class $anon extends Scheme {
+                    def &lt;init&gt;(): &lt;$anon: com.agilogy.uri.Scheme&gt; = {
+                    $anon.super.&lt;init&gt;(v.toLowerCase());
+                    ()
+                    };
+                    &lt;empty&gt;
+                    };
+                    new $anon()
+                    })
+                </td>
+            </tr>
+        </table>
+    </div>
+</div>
+</body>
+</html>
