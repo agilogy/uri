@@ -25,7 +25,7 @@ trait Uri extends Any with UriReference with UriPart {
 
   override def equals(obj: Any): Boolean = obj match {
     case u: Uri => this.stringValue == u.stringValue
-    case _ => false
+    case _      => false
   }
 }
 
@@ -49,8 +49,8 @@ object Uri {
   def of(scheme: Scheme, authority: Option[Authority], path: Path, query: Option[Query] = None, fragment: Option[Fragment] = None): Either[PathError, RichUri] = {
     (authority, path) match {
       case (Some(a), p: RootlessPath) => Left(RootlessPathInAuthorityUri(scheme, a, p))
-      case (Some(a), p: PathAbEmpty) => Right(RichUri(scheme, a, p, query, fragment))
-      case (None, _) => RichUri.noAuthority(scheme, path, query, fragment)
+      case (Some(a), p: PathAbEmpty)  => Right(RichUri(scheme, a, p, query, fragment))
+      case (None, _)                  => RichUri.noAuthority(scheme, path, query, fragment)
     }
   }
 

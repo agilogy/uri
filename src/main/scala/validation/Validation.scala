@@ -1,6 +1,6 @@
 package validation
 
-import com.agilogy.uri.{NoAuthorityPathQUri, PathStartsWithDoubleSlashInNoAuhtorityUri, _}
+import com.agilogy.uri.{ NoAuthorityPathQUri, PathStartsWithDoubleSlashInNoAuhtorityUri, _ }
 
 trait Validation {
 

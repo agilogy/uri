@@ -2,10 +2,9 @@ package com.agilogy.uri
 
 import com.agilogy.uri.UriGenerators._
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
-import org.scalatest.{FreeSpec, TryValues, _}
+import org.scalatest.{ FreeSpec, TryValues, _ }
 
 class UriJavaUriSpec extends FreeSpec with GeneratorDrivenPropertyChecks with Matchers with TryValues with EitherValues {
-
 
   """Single case""" in {
     val u = Uri.of(Scheme("r+").right.value, Some(Authority(Some(UserInfo("1gs")), Host("-$"), None)), Path.absolute(Segment("F;c"), Segment("𥳐L2*-2]¤S"), Segment("T=l"), Segment("_,齈wb/"), Segment("L,[")), None, None).right.value

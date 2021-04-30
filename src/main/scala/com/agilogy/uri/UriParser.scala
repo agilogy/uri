@@ -1,6 +1,6 @@
 package com.agilogy.uri
 
-import validation.Validation.{notNull, sequence}
+import validation.Validation.{ notNull, sequence }
 
 object UriParser {
 
@@ -100,6 +100,5 @@ object UriParser {
       // The parts matcher makes it impossible for a PathError to occur
       Uri.of(s, a, path, query, fragment).right.get
   }
-
 
 }

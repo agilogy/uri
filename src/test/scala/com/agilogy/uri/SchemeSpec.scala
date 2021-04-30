@@ -1,6 +1,6 @@
 package com.agilogy.uri
 
-import org.scalatest.{EitherValues, FreeSpec}
+import org.scalatest.{ EitherValues, FreeSpec }
 
 class SchemeSpec extends FreeSpec with EitherValues {
 
@@ -12,7 +12,6 @@ class SchemeSpec extends FreeSpec with EitherValues {
     "Schemes have a string representation" in {
       assert(Scheme("http").right.value.stringValue === "http")
     }
-
 
     """Although schemes are case-insensitive, the canonical form is lowercase and documents that specify schemes must do
       |so with lowercase letters.  An implementation should accept uppercase letters as equivalent to lowercase in scheme

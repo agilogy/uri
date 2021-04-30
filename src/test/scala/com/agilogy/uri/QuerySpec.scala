@@ -9,15 +9,15 @@ class QuerySpec extends FreeSpec {
     |serves to identify a resource within the scope of the URI's scheme and naming authoritym (if any). """
     .stripMargin - {
 
-    "Query components have a string representation" in {
-      assert(Query("name=John").stringValue === "name=John")
-    }
+      "Query components have a string representation" in {
+        assert(Query("name=John").stringValue === "name=John")
+      }
 
-    """Under normal circumstances, the only time when octets within a URI are percent-encoded is during the process of
+      """Under normal circumstances, the only time when octets within a URI are percent-encoded is during the process of
       |producing the URI from its component parts.""".stripMargin in {
-      assert(Query(":/?#%").stringValue === ":/?#%")
-    }
+        assert(Query(":/?#%").stringValue === ":/?#%")
+      }
 
-  }
+    }
 
 }

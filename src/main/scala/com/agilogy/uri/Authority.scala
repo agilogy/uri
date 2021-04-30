@@ -1,14 +1,14 @@
 package com.agilogy.uri
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
-sealed abstract case class UserInfo private(stringValue: String) extends UriPart
+sealed abstract case class UserInfo private (stringValue: String) extends UriPart
 
 object UserInfo {
   def apply(s: String): UserInfo = new UserInfo(Encoder.normalize(s)) {}
 }
 
-abstract case class Port private(intValue: Int) {
+abstract case class Port private (intValue: Int) {
   val stringValue: String = intValue.toString
   val asciiStringValue: String = stringValue
 }
@@ -66,7 +66,7 @@ object Authority {
   }
 
   def parseTry(s: String): Try[Authority] = parse(s) match {
-    case Left(e) => Failure(AuthorityParseException(e))
+    case Left(e)  => Failure(AuthorityParseException(e))
     case Right(r) => Success(r)
   }
 }

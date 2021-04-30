@@ -1,6 +1,6 @@
 package com.agilogy.uri
 
-import org.scalatest.{EitherValues, FreeSpec, Matchers, OptionValues}
+import org.scalatest.{ EitherValues, FreeSpec, Matchers, OptionValues }
 import validation.Validation._
 
 class UriSpec extends FreeSpec with OptionValues with Matchers with EitherValues {

@@ -1,6 +1,6 @@
 package com.agilogy.uri
 
-sealed abstract case class Scheme private(stringValue: String) extends UriPart {
+sealed abstract case class Scheme private (stringValue: String) extends UriPart {
   override def asciiStringValue: String = stringValue
 }
 

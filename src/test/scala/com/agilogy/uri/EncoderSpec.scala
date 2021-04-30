@@ -1,6 +1,6 @@
 package com.agilogy.uri
 
-import org.scalatest.{FlatSpec, PrivateMethodTester}
+import org.scalatest.{ FlatSpec, PrivateMethodTester }
 
 class EncoderSpec extends FlatSpec with PrivateMethodTester {
 
