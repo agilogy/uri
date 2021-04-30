@@ -19,25 +19,25 @@ object RichUri {
 
   def apply(scheme: Scheme, authority: Authority, path: PathAbEmpty = Path.empty, query: Option[Query] = None, fragment: Option[Fragment] = None): AuthorityUri = {
     (path, query, fragment) match {
-      case (p: PathAbEmpty, None, None) => AuthorityPathUri(scheme, authority, p)
-      case (p: PathAbEmpty, Some(q), None) => AuthorityPathQUri(scheme, authority, p, q)
-      case (p: PathAbEmpty, None, Some(f)) => AuthorityPathFUri(scheme, authority, p, f)
+      case (p: PathAbEmpty, None, None)       => AuthorityPathUri(scheme, authority, p)
+      case (p: PathAbEmpty, Some(q), None)    => AuthorityPathQUri(scheme, authority, p, q)
+      case (p: PathAbEmpty, None, Some(f))    => AuthorityPathFUri(scheme, authority, p, f)
       case (p: PathAbEmpty, Some(q), Some(f)) => AuthorityPathQFUri(scheme, authority, p, q, f)
     }
   }
 
   def noAuthority(scheme: Scheme, segment: String): NoAuthorityPathUri = {
     Path(segment) match {
-      case Path.empty => NoAuthorityPathUri(scheme)
+      case Path.empty      => NoAuthorityPathUri(scheme)
       case p: RootlessPath => NoAuthorityPathUri(scheme, p)
     }
   }
 
   def noAuthority(scheme: Scheme, path: Path, query: Option[Query] = None, fragment: Option[Fragment] = None): Either[PathStartsWithDoubleSlashInNoAuhtorityUri, NoAuthorityUri] = {
     (path, query, fragment) match {
-      case (_, None, None) => NoAuthorityPathUri(scheme, path)
-      case (_, Some(q), None) => Right(NoAuthorityPathQUri(scheme, path, q))
-      case (_, None, Some(f)) => Right(NoAuthorityPathFUri(scheme, path, f))
+      case (_, None, None)       => NoAuthorityPathUri(scheme, path)
+      case (_, Some(q), None)    => Right(NoAuthorityPathQUri(scheme, path, q))
+      case (_, None, Some(f))    => Right(NoAuthorityPathFUri(scheme, path, f))
       case (_, Some(q), Some(f)) => Right(NoAuthorityPathQFUri(scheme, path, q, f))
     }
   }
@@ -97,7 +97,7 @@ trait FragmentUri extends RichUri {
   override def fragment: Some[Fragment] = Some(theFragment)
 }
 
-abstract case class NoAuthorityPathUri private(scheme: Scheme, path: Path) extends NoAuthorityUri with NoQueryFragmentUri[NoAuthorityUri] {
+abstract case class NoAuthorityPathUri private (scheme: Scheme, path: Path) extends NoAuthorityUri with NoQueryFragmentUri[NoAuthorityUri] {
 
   override type UQ = NoAuthorityPathQUri
   override type UF = NoAuthorityPathFUri
@@ -122,8 +122,7 @@ object NoAuthorityPathUri {
     // If a URI does not contain an authority component, then the path cannot begin with two slash characters ("//").
     if (path.stringValue.startsWith("//")) {
       Left(PathStartsWithDoubleSlashInNoAuhtorityUri(scheme, path))
-    }
-    else {
+    } else {
       Right(new NoAuthorityPathUri(scheme, path) {})
     }
 

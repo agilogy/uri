@@ -2,7 +2,7 @@ package com.agilogy.uri
 
 import java.text.Normalizer
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Failure, Success, Try }
 
 object Encoder {
   private val subDelims = "!$&'()*+,;=".toSet

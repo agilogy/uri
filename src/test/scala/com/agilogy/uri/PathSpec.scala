@@ -1,6 +1,6 @@
 package com.agilogy.uri
 
-import org.scalatest.{EitherValues, FreeSpec}
+import org.scalatest.{ EitherValues, FreeSpec }
 
 //TODO: Test Path.parse
 //TODO: Test Path.parse("")

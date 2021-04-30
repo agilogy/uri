@@ -5,7 +5,7 @@ sealed trait Segment extends UriPart {
 }
 
 // TODO: Enforce segment constraints
-sealed abstract case class NonEmptySegment private(stringValue: String) extends Segment
+sealed abstract case class NonEmptySegment private (stringValue: String) extends Segment
 
 object NonEmptySegment {
   private[uri] def apply(stringValue: String): NonEmptySegment = new NonEmptySegment(Encoder.normalize(stringValue)) {}

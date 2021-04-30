@@ -2,7 +2,7 @@ package com.agilogy.uri
 
 import com.agilogy.uri.UriGenerators._
 import org.scalatest.prop.GeneratorDrivenPropertyChecks
-import org.scalatest.{EitherValues, FreeSpec, Matchers, TryValues}
+import org.scalatest.{ EitherValues, FreeSpec, Matchers, TryValues }
 
 class UriParseSpec extends FreeSpec with GeneratorDrivenPropertyChecks with Matchers with TryValues with EitherValues {
 
@@ -74,7 +74,6 @@ class UriParseSpec extends FreeSpec with GeneratorDrivenPropertyChecks with Matc
       val res = Uri.parse(uri)
       assert(res.left.value === UriParseError(scheme = Some(IllegalSchemeName("&&")), authority = Some(AuthorityParseError("lo:a:b"))))
     }
-
 
   }
 

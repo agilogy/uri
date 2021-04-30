@@ -1,6 +1,6 @@
 package com.agilogy.uri
 
-import org.scalacheck.{Arbitrary, Gen}
+import org.scalacheck.{ Arbitrary, Gen }
 
 object UriGenerators {
 
